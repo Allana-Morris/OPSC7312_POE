@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">OPSC7312_POE</string>
+
+    <string-array name="gender_options">
+        <item>Woman</item>
+        <item>Man</item>
+        <item>Non-binary</item>
+    </string-array>
+
+    <string-array name="music_genre_options">
+        <item>Pop</item>
+        <item>R&amp;B</item>
+        <item>Rock</item>
+        <!-- Add more genres as needed -->
+    </string-array>
+
 </resources>
