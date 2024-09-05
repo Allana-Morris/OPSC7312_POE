@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">OPSC7312_POE</string>
+    <!-- Allan's strings
+    **Please Check String Exists Before Creating new One -->
+    <string name="app_name">Music Match</string>
+    <string name="signup_redirect_message">New Here?</string>
+    <string name="signup_caption"><u>Sign Up</u></string>
+    <string name="cell_number_caption">Enter Your Cellphone Number:</string>
+    <string name="cell_num">Cellphone Number</string>
+    <string name="otp">Enter OTP Below</string>
+    <string name="sign_in_caption">Sign In</string>
+    <string name="verify_caption">Verify</string>
 </resources>
