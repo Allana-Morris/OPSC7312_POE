@@ -7,4 +7,78 @@
     android:layout_height="match_parent"
     tools:context=".Register_About_You">
 
+    <TextView
+        android:id="@+id/txtHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        tools:layout_editor_absoluteX="163dp"
+        tools:layout_editor_absoluteY="40dp" />
+
+    <Button
+        android:id="@+id/btnContinue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        tools:layout_editor_absoluteX="145dp"
+        tools:layout_editor_absoluteY="633dp" />
+
+    <EditText
+        android:id="@+id/edName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:text="Name"
+        tools:layout_editor_absoluteX="83dp"
+        tools:layout_editor_absoluteY="134dp" />
+
+    <EditText
+        android:id="@+id/edDOB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="date"
+        tools:layout_editor_absoluteX="83dp"
+        tools:layout_editor_absoluteY="224dp" />
+
+    <RadioGroup
+        android:id="@+id/rdgGender"
+        android:layout_width="212dp"
+        android:layout_height="184dp"
+        tools:layout_editor_absoluteX="83dp"
+        tools:layout_editor_absoluteY="287dp">
+
+        <RadioButton
+            android:id="@+id/rdbWoman"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <RadioButton
+            android:id="@+id/rdbMan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RadioButton" />
+
+        <RadioButton
+            android:id="@+id/rdbInvalid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="RadioButton" />
+
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="invisible" />
+    </RadioGroup>
+
+    <Spinner
+        android:id="@+id/spnPronouns"
+        android:layout_width="216dp"
+        android:layout_height="38dp"
+        android:layout_marginEnd="112dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:layout_editor_absoluteY="540dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
