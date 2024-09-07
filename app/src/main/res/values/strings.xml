@@ -19,4 +19,14 @@
     <string name="phone_permission">Your Phone Number</string>
     <string name="permission_agree">Agree &amp; Continue </string>
     <string name="loser_behaviour">Do Not Allow</string>
+    <string name="about_you">About You</string>
+    <string name="name">Name</string>
+    <string name="dob">Date Of Birth</string>
+    <string name="gender_header">Select Your Gender:</string>
+    <string name="youalrightladies">Woman</string>
+    <string name="manorbear">Man</string>
+    <string name="nobeanie">Non-Binary</string>
+    <string name="moregendersplease">Select the correct label for you</string>
+    <string name="nor_mal">Select Your Pronouns:</string>
+
 </resources>

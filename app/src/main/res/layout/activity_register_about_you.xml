@@ -5,71 +5,110 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/grey"
     tools:context=".Register_About_You">
 
     <TextView
         android:id="@+id/txtHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
-        tools:layout_editor_absoluteX="163dp"
-        tools:layout_editor_absoluteY="40dp" />
+        android:fontFamily="@font/circular_black"
+        android:text="@string/about_you"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/btnContinue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        tools:layout_editor_absoluteX="145dp"
-        tools:layout_editor_absoluteY="633dp" />
+        android:layout_width="255dp"
+        android:layout_height="52dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/spotify_green"
+        android:fontFamily="@font/circular_bold"
+        android:text="@string/continue_caption"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spnPronouns"
+        app:layout_constraintVertical_bias="1.0" />
 
     <EditText
         android:id="@+id/edName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="235dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/lowkey_grey"
         android:ems="10"
+        android:fontFamily="@font/circular_medium"
+        android:hint="@string/name"
         android:inputType="text"
-        android:text="Name"
-        tools:layout_editor_absoluteX="83dp"
-        tools:layout_editor_absoluteY="134dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtName" />
 
     <EditText
         android:id="@+id/edDOB"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="235dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/lowkey_grey"
         android:ems="10"
+        android:fontFamily="@font/circular_medium"
+        android:hint="@string/dob"
         android:inputType="date"
-        tools:layout_editor_absoluteX="83dp"
-        tools:layout_editor_absoluteY="224dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtDOB" />
 
     <RadioGroup
         android:id="@+id/rdgGender"
-        android:layout_width="212dp"
-        android:layout_height="184dp"
-        tools:layout_editor_absoluteX="83dp"
-        tools:layout_editor_absoluteY="287dp">
+        android:layout_width="235dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/lowkey_grey"
+        android:outlineProvider="background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtGender">
 
         <RadioButton
             android:id="@+id/rdbWoman"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/circular_medium"
+            android:text="@string/youalrightladies" />
 
         <RadioButton
             android:id="@+id/rdbMan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="RadioButton" />
+            android:fontFamily="@font/circular_medium"
+            android:text="@string/manorbear" />
 
         <RadioButton
             android:id="@+id/rdbInvalid"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="RadioButton" />
+            android:fontFamily="@font/circular_medium"
+            android:text="@string/no_binary" />
 
-        <Spinner
-            android:id="@+id/spinner"
+        <TextView
+            android:id="@+id/txtMoreGender"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/circular_medium"
+            android:text="@string/moregendersplease"
+            android:visibility="invisible" />
+
+        <Spinner
+            android:id="@+id/spGender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
             android:visibility="invisible" />
     </RadioGroup>
 
@@ -77,8 +116,60 @@
         android:id="@+id/spnPronouns"
         android:layout_width="216dp"
         android:layout_height="38dp"
-        android:layout_marginEnd="112dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/lowkey_grey"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteY="540dp" />
+        app:layout_constraintHorizontal_bias="0.451"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtPronoun" />
+
+    <TextView
+        android:id="@+id/txtName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:fontFamily="@font/circular_medium"
+        android:text="@string/name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.235"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtHeader" />
+
+    <TextView
+        android:id="@+id/txtDOB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/circular_medium"
+        android:text="@string/dob"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.265"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edName" />
+
+    <TextView
+        android:id="@+id/txtGender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/circular_medium"
+        android:text="@string/gender_header"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.312"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edDOB" />
+
+    <TextView
+        android:id="@+id/txtPronoun"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/circular_medium"
+        android:text="@string/nor_mal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.325"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rdgGender" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
