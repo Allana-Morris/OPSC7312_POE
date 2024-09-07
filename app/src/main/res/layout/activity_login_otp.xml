@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey"
-    tools:context=".login_otp">
+    tools:context=".Login_OTP">
 
     <TextView
         android:id="@+id/txtHead"
@@ -15,6 +15,8 @@
         android:layout_marginTop="80dp"
         android:fontFamily="@font/circular_black"
         android:text="@string/app_name"
+        android:textColor="@color/white"
+        android:textColorLink="@color/white"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -26,12 +28,14 @@
         android:layout_width="240dp"
         android:layout_height="40dp"
         android:layout_marginTop="40dp"
-        android:background="@color/white"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/light_grey"
         android:ems="10"
         android:fontFamily="@font/circular_book"
         android:hint="@string/otpnovers"
         android:inputType="text|textNoSuggestions"
         android:textAlignment="center"
+        android:textColor="@color/black"
         android:textSize="16sp"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,6 +50,8 @@
         android:layout_marginTop="144dp"
         android:fontFamily="@font/circular_bold"
         android:text="@string/otp"
+        android:textColor="@color/white"
+        android:textColorLink="@color/white"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

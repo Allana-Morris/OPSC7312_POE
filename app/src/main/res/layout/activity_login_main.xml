@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey"
+    android:backgroundTint="@color/grey"
     tools:context=".Login_Main">
 
     <TextView
@@ -26,11 +27,14 @@
         android:layout_width="240dp"
         android:layout_height="40dp"
         android:layout_marginTop="8dp"
-        android:background="@color/white"
+        android:autoSizeTextType="none"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/light_grey"
         android:ems="10"
         android:fontFamily="@font/circular_book"
         android:hint="@string/cell_num"
         android:inputType="phone"
+        android:paddingStart="10dp"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"

@@ -2,6 +2,8 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.OPSC7312_POE" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Customize your light theme here. -->
+        <item name="backgroundColor">@color/grey</item>
+        <item name="android:textColor">@color/white</item>
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <style name="Theme.OPSC7312_POE" parent="Base.Theme.OPSC7312_POE" />
     </style>

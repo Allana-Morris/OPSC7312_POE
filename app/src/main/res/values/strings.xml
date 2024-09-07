@@ -4,10 +4,19 @@
     <string name="app_name">Music Match</string>
     <string name="signup_redirect_message">New Here?</string>
     <string name="signup_caption"><u>Sign Up</u></string>
-    <string name="cell_number_caption">Enter Your Cellphone Number:</string>
-    <string name="cell_num">Cellphone Number</string>
+    <string name="cell_number_caption">Enter Your Phone Number:</string>
+    <string name="cell_num">Phone Number</string>
     <string name="otp">Enter OTP Below</string>
     <string name="otpnovers">OTP</string>
     <string name="sign_in_caption">Sign In</string>
     <string name="verify_caption">Verify</string>
+    <string name="continue_caption">Continue</string>
+    <string name="permission">Permission</string>
+    <string name="permission_subheading">To help find you that future someone,</string>
+    <string name="permission_description">we will need to have access to the following services:</string>
+    <string name="location_permission">Your Location Services</string>
+    <string name="spotify_permission">Your Spotify Account</string>
+    <string name="phone_permission">Your Phone Number</string>
+    <string name="permission_agree">Agree &amp; Continue </string>
+    <string name="loser_behaviour">Do Not Allow</string>
 </resources>
