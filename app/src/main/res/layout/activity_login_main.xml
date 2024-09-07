@@ -55,7 +55,7 @@
         app:layout_constraintTop_toBottomOf="@+id/txtHead" />
 
     <Button
-        android:id="@+id/btnSignIn"
+        android:id="@+id/btnAgree"
         android:layout_width="231dp"
         android:layout_height="54dp"
         android:layout_marginTop="60dp"
@@ -81,7 +81,7 @@
         app:layout_constraintEnd_toStartOf="@+id/txtSignUpRedirect"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSignIn"
+        app:layout_constraintTop_toBottomOf="@+id/btnAgree"
         app:layout_constraintVertical_bias="0.233" />
 
     <TextView
@@ -102,6 +102,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/txtSignUpCaption"
-        app:layout_constraintTop_toBottomOf="@+id/btnSignIn"
+        app:layout_constraintTop_toBottomOf="@+id/btnAgree"
         app:layout_constraintVertical_bias="0.236" />
 </androidx.constraintlayout.widget.ConstraintLayout>
