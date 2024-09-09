@@ -5,6 +5,129 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/lowkey_grey"
+    android:backgroundTint="@color/grey"
     tools:context=".Register_Image_Upload">
 
+    <Button
+        android:id="@+id/btnAgree"
+        android:layout_width="230dp"
+        android:layout_height="55dp"
+        android:layout_marginBottom="28dp"
+        android:backgroundTint="@color/spotify_green"
+        android:fontFamily="@font/circular_black"
+        android:text="@string/continue_caption"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/txtHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/circular_bold"
+        android:text="@string/images_head"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtSubheading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/circular_medium"
+        android:text="@string/images_subheading"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtHeading" />
+
+    <ImageView
+        android:id="@+id/imgUpload1"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginTop="60dp"
+        android:outlineProvider="none"
+        android:tint="@color/white"
+        app:layout_constraintEnd_toStartOf="@+id/imgUpload2"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtSubheading"
+        app:srcCompat="@drawable/add"
+        tools:ignore="UseAppTint" />
+
+    <ImageView
+        android:id="@+id/imgUpload2"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="56dp"
+        android:tint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtSubheading"
+        app:srcCompat="@drawable/add"
+        tools:ignore="UseAppTint" />
+
+    <ImageView
+        android:id="@+id/imgUpload5"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginTop="40dp"
+        android:tint="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/btnAgree"
+        app:layout_constraintEnd_toStartOf="@+id/imgUpload6"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgUpload3"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/add"
+        tools:ignore="UseAppTint" />
+
+    <ImageView
+        android:id="@+id/imgUpload6"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="56dp"
+        android:tint="@color/white"
+        app:layout_constraintBottom_toTopOf="@+id/btnAgree"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgUpload4"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/add"
+        tools:ignore="UseAppTint" />
+
+    <ImageView
+        android:id="@+id/imgUpload3"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginTop="40dp"
+        android:tint="@color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgUpload1"
+        app:srcCompat="@drawable/add"
+        tools:ignore="UseAppTint" />
+
+    <ImageView
+        android:id="@+id/imgUpload4"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="56dp"
+        android:src="@drawable/add"
+        android:tint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/imgUpload3"
+        app:layout_constraintTop_toBottomOf="@+id/imgUpload2"
+        tools:ignore="UseAppTint" />
 </androidx.constraintlayout.widget.ConstraintLayout>
