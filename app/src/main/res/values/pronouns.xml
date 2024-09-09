@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Lets get this going -->
+    <string name="hehim">He/Him</string>
+    <string name="hethey">He/They</string>
+    <string name="sheher">She/Her</string>
+    <string name="shethey">She/They</string>
+    <string name="theythem">They/Them</string>
+    <string name="theyshe">They/She</string>
+    <string name="theyhe">They/He</string>
+    <string name="michaeljackson">He/He</string>
+
+</resources>

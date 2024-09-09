@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:backgroundTint="@color/grey"
+    tools:context=".Register_Permissions">
+
+    <Button
+        android:id="@+id/btnAgree"
+        android:layout_width="277dp"
+        android:layout_height="51dp"
+        android:layout_marginBottom="44dp"
+        android:backgroundTint="@color/spotify_green"
+        android:fontFamily="@font/circular_black"
+        android:text="@string/permission_agree"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/btndisallow"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btndisallow"
+        android:layout_width="201dp"
+        android:layout_height="46dp"
+        android:layout_marginBottom="64dp"
+        android:backgroundTint="@color/black"
+        android:fontFamily="@font/circular_black"
+        android:text="@string/loser_behaviour"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/imglocation"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginBottom="100dp"
+        android:tint="@color/light_green"
+        app:layout_constraintBottom_toTopOf="@+id/imgspotify"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtdesc"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/map_icon"
+        tools:ignore="UseAppTint" />
+
+    <TextView
+        android:id="@+id/txtHead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="56dp"
+        android:fontFamily="@font/circular_bold"
+        android:text="@string/permission"
+        android:textSize="48sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtsub"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:fontFamily="@font/circular_black"
+        android:text="@string/permission_subheading"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtHead" />
+
+    <TextView
+        android:id="@+id/txtdesc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/circular_bold"
+        android:text="@string/permission_description"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtsub" />
+
+    <ImageView
+        android:id="@+id/imgspotify"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginBottom="100dp"
+        android:tint="@color/light_green"
+        app:layout_constraintBottom_toTopOf="@+id/imgphone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/spotify_icon"
+        tools:ignore="UseAppTint" />
+
+    <ImageView
+        android:id="@+id/imgphone"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginStart="56dp"
+        android:layout_marginBottom="84dp"
+        android:tint="@color/light_green"
+        app:layout_constraintBottom_toTopOf="@+id/btnAgree"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/phone_icon"
+        tools:ignore="UseAppTint" />
+
+    <TextView
+        android:id="@+id/txtspotify"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="164dp"
+        android:fontFamily="@font/circular_medium"
+        android:text="@string/spotify_permission"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.056"
+        app:layout_constraintStart_toEndOf="@+id/imgspotify"
+        app:layout_constraintTop_toBottomOf="@+id/txtlocation" />
+
+    <TextView
+        android:id="@+id/txtphone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="164dp"
+        android:fontFamily="@font/circular_medium"
+        android:text="@string/phone_permission"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.048"
+        app:layout_constraintStart_toEndOf="@+id/imgphone"
+        app:layout_constraintTop_toBottomOf="@+id/txtspotify" />
+
+    <TextView
+        android:id="@+id/txtlocation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="88dp"
+        android:fontFamily="@font/circular_medium"
+        android:text="@string/location_permission"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.07"
+        app:layout_constraintStart_toEndOf="@+id/imglocation"
+        app:layout_constraintTop_toBottomOf="@+id/txtdesc" />
+</androidx.constraintlayout.widget.ConstraintLayout>

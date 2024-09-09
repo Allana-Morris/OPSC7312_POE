@@ -10,8 +10,29 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.OPSC7312_POE"
+        android:theme="@style/Base.Theme.OPSC7312_POE"
         tools:targetApi="31">
+        <activity
+            android:name=".Register_Spotify_Link"
+            android:exported="false" />
+        <activity
+            android:name=".Register_Image_Upload"
+            android:exported="false" />
+        <activity
+            android:name=".Register_About_You"
+            android:exported="false" />
+        <activity
+            android:name=".Register_Permissions"
+            android:exported="false" />
+        <activity
+            android:name=".Register_Cell"
+            android:exported="false" />
+        <activity
+            android:name=".Login_OTP"
+            android:exported="false" />
+        <activity
+            android:name=".Login_Main"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
