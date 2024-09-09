@@ -14,4 +14,11 @@
         <!-- Add more genres as needed -->
     </string-array>
 
+    <!--Reilly Mare strings -->
+    <string name="suiterName">Reilly Mare, 32</string>
+    <string name="pronouns">he/him/his</string>
+    <string name="songName">Sweet child o Mine</string>
+    <string name="Artist">Guns N Roses</string>
+    <!--Reilly Mare strings -->
+
 </resources>
