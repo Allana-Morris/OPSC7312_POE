@@ -5,7 +5,7 @@
     <string name="signup_redirect_message">New Here?</string>
     <string name="signup_caption"><u>Sign Up</u></string>
     <string name="cell_number_caption">Enter Your Phone Number:</string>
-    <string name="cell_num">Phone Number</string>
+    <string name="cell_num">  Phone Number</string>
     <string name="otp">Enter OTP Below</string>
     <string name="otpnovers">OTP</string>
     <string name="sign_in_caption">Sign In</string>
@@ -20,14 +20,20 @@
     <string name="permission_agree">Agree &amp; Continue </string>
     <string name="loser_behaviour">Do Not Allow</string>
     <string name="about_you">About You</string>
-    <string name="name">Name</string>
-    <string name="dob">Date Of Birth</string>
+    <string name="name">  Name</string>
+    <string name="dob">  Date Of Birth</string>
     <string name="gender_header">Select Your Gender:</string>
-    <string name="youalrightladies">Woman</string>
-    <string name="manorbear">Man</string>
-    <string name="nobeanie">Non-Binary</string>
+    <string name="youalrightladies"> Woman</string>
+    <string name="manorbear"> Man</string>
+    <string name="nobeanie"> Non-Binary</string>
     <string name="moregendersplease">Select the correct label for you</string>
     <string name="nor_mal">Select Your Pronouns:</string>
     <string name="images_head">Let Us See You</string>
     <string name="images_subheading">Upload 6 Images of Yourself</string>
+    <string name="findspotify">Find Your Spotify Account</string>
+    <string name="thisu">Is this You?</string>
+    <string name="search">Search</string>
+    <string name="spotifyinputhint">Spotify Username</string>
+
+
 </resources>

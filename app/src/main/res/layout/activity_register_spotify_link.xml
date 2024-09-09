@@ -5,6 +5,127 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/grey"
     tools:context=".Register_Spotify_Link">
 
+    <EditText
+        android:id="@+id/etxtOTP2"
+        android:layout_width="255dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="108dp"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/light_grey"
+        android:ems="10"
+        android:fontFamily="@font/circular_regular"
+        android:hint="@string/spotifyinputhint"
+        android:inputType="text|textNoSuggestions"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtAccountSearch" />
+
+    <Button
+        android:id="@+id/btndisallow"
+        android:layout_width="193dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/black"
+        android:fontFamily="@font/circular_black"
+        android:text="@string/search"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etxtOTP2" />
+
+    <Button
+        android:id="@+id/btnAgree"
+        android:layout_width="230dp"
+        android:layout_height="55dp"
+        android:layout_marginBottom="76dp"
+        android:backgroundTint="@color/spotify_green"
+        android:fontFamily="@font/circular_black"
+        android:text="@string/continue_caption"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/imgSpotifyIcon"
+        android:layout_width="329dp"
+        android:layout_height="99dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/spotify_full"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtAccountSearch"
+        android:layout_width="301dp"
+        android:layout_height="31dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/circular_black"
+        android:text="@string/findspotify"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgSpotifyIcon" />
+
+    <View
+        android:id="@+id/vSpotify"
+        android:layout_width="311dp"
+        android:layout_height="282dp"
+        android:layout_marginBottom="40dp"
+        android:background="@color/dark_green"
+        app:layout_constraintBottom_toTopOf="@+id/btnAgree"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btndisallow"
+        app:layout_constraintVertical_bias="0.88" />
+
+    <ImageView
+        android:id="@+id/imgAccountPP"
+        android:layout_width="172dp"
+        android:layout_height="180dp"
+        app:layout_constraintBottom_toBottomOf="@+id/vSpotify"
+        app:layout_constraintEnd_toEndOf="@+id/vSpotify"
+        app:layout_constraintHorizontal_bias="0.142"
+        app:layout_constraintStart_toStartOf="@+id/vSpotify"
+        app:layout_constraintTop_toTopOf="@+id/vSpotify"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/txtThisU"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/circular_bold"
+        android:text="@string/thisu"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/imgAccountPP"
+        app:layout_constraintEnd_toEndOf="@+id/vSpotify"
+        app:layout_constraintHorizontal_bias="0.079"
+        app:layout_constraintStart_toStartOf="@+id/vSpotify"
+        app:layout_constraintTop_toTopOf="@+id/vSpotify"
+        app:layout_constraintVertical_bias="0.531" />
+
+    <TextView
+        android:id="@+id/txtSpotifyAccount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/circular_black"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/imgAccountPP"
+        app:layout_constraintStart_toStartOf="@+id/imgAccountPP"
+        app:layout_constraintTop_toBottomOf="@+id/imgAccountPP" />
 </androidx.constraintlayout.widget.ConstraintLayout>
