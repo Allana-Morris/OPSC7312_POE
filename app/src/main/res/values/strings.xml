@@ -50,5 +50,11 @@
     <string name="search">Search</string>
     <string name="spotifyinputhint">Spotify Username</string>
 
+    <!-- sven's strings :) -->
+    <string name="likesYouHeader">Singles in your area</string>
+    <string name="contactHeader">Chat</string>
+
+
+
 
 </resources>
