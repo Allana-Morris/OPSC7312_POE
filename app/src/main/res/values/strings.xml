@@ -14,11 +14,18 @@
         <!-- Add more genres as needed -->
     </string-array>
 
-    <!--Reilly Mare strings -->
+    <!--St10080623 Reilly Mare strings -->
     <string name="suiterName">Reilly Mare, 32</string>
     <string name="pronouns">he/him/his</string>
     <string name="songName">Sweet child o Mine</string>
     <string name="Artist">Guns N Roses</string>
+    <string name="settingsHeader">Settings</string>
+    <string name="biometricLogin">Use Biometric Login</string>
+    <string name="language">Language</string>
+    <string name="pushNote">Push Notifications</string>
+    <string name="offlineMode">Allow Offline Mode</string>
+    <string name="blockedUsers">Blocked Users</string>
+    <string name="saveChanges">Save Changes</string>
     <!--Reilly Mare strings -->
 
 </resources>
