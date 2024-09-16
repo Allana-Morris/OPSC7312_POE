@@ -7,4 +7,5 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <style name="Theme.OPSC7312_POE" parent="Base.Theme.OPSC7312_POE" />
     </style>
+    <attr name="myCustomColor" format="color" />
 </resources>
