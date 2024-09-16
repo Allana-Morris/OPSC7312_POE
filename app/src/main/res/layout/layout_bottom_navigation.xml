@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:layout_gravity="bottom"
+    android:background="@android:color/holo_green_dark"
+    android:gravity="bottom"
+    android:orientation="horizontal">
+
+    <!-- Icons for Navigation Bar -->
+    <ImageView
+        android:id="@+id/navMusic"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_weight="1"
+        android:contentDescription="Music"
+        android:src="@drawable/ic_music" />
+
+    <ImageView
+        android:id="@+id/navLike"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_weight="1"
+        android:contentDescription="Like"
+        android:src="@drawable/ic_like" />
+
+    <ImageView
+        android:id="@+id/navChat"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_weight="1"
+        android:contentDescription="Chat"
+        android:src="@drawable/ic_chat" />
+
+    <ImageView
+        android:id="@+id/navProfile"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_weight="1"
+        android:contentDescription="Profile"
+        android:src="@drawable/ic_profile" />
+
+</LinearLayout>
