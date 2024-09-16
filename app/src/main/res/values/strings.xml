@@ -1,7 +1,7 @@
 <resources>
     <!-- Allan's strings
     **Please Check String Exists Before Creating new One -->
-    <string name="app_name">Music Match</string>
+    <string name="app_name">OPSC7312_POE</string>
     <string name="signup_redirect_message">New Here?</string>
     <string name="signup_caption"><u>Sign Up</u></string>
     <string name="cell_number_caption">Enter Your Phone Number:</string>
