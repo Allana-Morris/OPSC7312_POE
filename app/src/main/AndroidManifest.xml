@@ -13,6 +13,15 @@
         android:theme="@style/Base.Theme.OPSC7312_POE"
         tools:targetApi="31">
         <activity
+            android:name=".Chat"
+            android:exported="false" />
+        <activity
+            android:name=".Contact"
+            android:exported="false" />
+        <activity
+            android:name=".Liked_you"
+            android:exported="false" />
+        <activity
             android:name=".Register_Spotify_Link"
             android:exported="false" />
         <activity
