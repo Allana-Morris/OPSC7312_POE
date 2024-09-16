@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/grey"
-    android:backgroundTint="@color/grey"
     tools:context=".Login_Main">
 
     <TextView
@@ -16,7 +15,7 @@
         android:layout_marginTop="80dp"
         android:fontFamily="@font/circular_bold"
         android:text="@string/app_name"
-        android:textSize="48sp"
+        android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,19 +23,17 @@
 
     <EditText
         android:id="@+id/etxtOTP"
-        android:layout_width="282dp"
-        android:layout_height="52dp"
-        android:layout_marginTop="20dp"
-        android:autoSizeTextType="none"
-        android:background="@drawable/rounded_corners"
-        android:backgroundTint="@color/light_grey"
+        android:layout_width="240dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/white"
         android:ems="10"
         android:fontFamily="@font/circular_book"
         android:hint="@string/cell_num"
         android:inputType="phone"
-        android:paddingStart="10dp"
-        android:textSize="20sp"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtCaption" />
 
@@ -44,27 +41,26 @@
         android:id="@+id/txtCaption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="416dp"
+        android:layout_marginTop="244dp"
         android:fontFamily="@font/circular_black"
         android:text="@string/cell_number_caption"
-        android:textSize="20sp"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.485"
+        app:layout_constraintHorizontal_bias="0.475"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtHead" />
 
     <Button
-        android:id="@+id/btnAgree"
-        android:layout_width="249dp"
-        android:layout_height="57dp"
-        android:layout_marginTop="92dp"
+        android:id="@+id/btnSignIn"
+        android:layout_width="231dp"
+        android:layout_height="54dp"
+        android:layout_marginTop="60dp"
         android:backgroundTint="@color/spotify_green"
         android:fontFamily="@font/circular_black"
         android:text="@string/sign_in_caption"
         android:textColor="@color/white"
-        android:textSize="24sp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/etxtOTP" />
 
@@ -81,8 +77,8 @@
         app:layout_constraintEnd_toStartOf="@+id/txtSignUpRedirect"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnAgree"
-        app:layout_constraintVertical_bias="0.744" />
+        app:layout_constraintTop_toBottomOf="@+id/btnSignIn"
+        app:layout_constraintVertical_bias="0.233" />
 
     <TextView
         android:id="@+id/txtSignUpRedirect"
@@ -102,6 +98,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/txtSignUpCaption"
-        app:layout_constraintTop_toBottomOf="@+id/btnAgree"
-        app:layout_constraintVertical_bias="0.744" />
+        app:layout_constraintTop_toBottomOf="@+id/btnSignIn"
+        app:layout_constraintVertical_bias="0.236" />
 </androidx.constraintlayout.widget.ConstraintLayout>
