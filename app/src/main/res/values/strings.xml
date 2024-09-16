@@ -1,12 +1,17 @@
 <resources>
-    <!-- Allan's strings
-    **Please Check String Exists Before Creating new One -->
-    <string name="app_name">Music Match</string>
-    <string name="signup_redirect_message">New Here?</string>
-    <string name="signup_caption"><u>Sign Up</u></string>
-    <string name="cell_number_caption">Enter Your Cellphone Number:</string>
-    <string name="cell_num">Cellphone Number</string>
-    <string name="otp">Enter OTP Below</string>
-    <string name="sign_in_caption">Sign In</string>
-    <string name="verify_caption">Verify</string>
+    <string name="app_name">OPSC7312_POE</string>
+
+    <string-array name="gender_options">
+        <item>Woman</item>
+        <item>Man</item>
+        <item>Non-binary</item>
+    </string-array>
+
+    <string-array name="music_genre_options">
+        <item>Pop</item>
+        <item>R&amp;B</item>
+        <item>Rock</item>
+        <!-- Add more genres as needed -->
+    </string-array>
+
 </resources>
