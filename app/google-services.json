@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "905988466931",
+    "project_id": "opsc7312poe-a2490",
+    "storage_bucket": "opsc7312poe-a2490.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:905988466931:android:55837ca7d829685b306f86",
+        "android_client_info": {
+          "package_name": "za.co.varsitycollege.st10204772.opsc7312_poe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTh3j3omvos09LMWTe3RWBcuRBmyR2Bq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
