@@ -1,7 +1,21 @@
 <resources>
+    <string name="app_name">Music Match</string>
+    <!-- Max's string-->
+    <string-array name="gender_options">
+        <item>Woman</item>
+        <item>Man</item>
+        <item>Non-binary</item>
+    </string-array>
+
+    <string-array name="music_genre_options">
+        <item>Pop</item>
+        <item>R&amp;B</item>
+        <item>Rock</item>
+        <!-- Add more genres as needed -->
+    </string-array>
+
     <!-- Allan's strings
     **Please Check String Exists Before Creating new One -->
-    <string name="app_name">OPSC7312_POE</string>
     <string name="signup_redirect_message">New Here?</string>
     <string name="signup_caption"><u>Sign Up</u></string>
     <string name="cell_number_caption">Enter Your Phone Number:</string>
@@ -35,5 +49,25 @@
     <string name="search">Search</string>
     <string name="spotifyinputhint">Spotify Username</string>
 
+    <!-- sven's strings :) -->
+    <string name="likesYouHeader">Singles in your area</string>
+    <string name="contactHeader">Chat</string>
+
+
+
+
+    <!--St10080623 Reilly Mare strings -->
+    <string name="suiterName">Reilly Mare, 32</string>
+    <string name="pronouns">he/him/his</string>
+    <string name="songName">Sweet child o Mine</string>
+    <string name="Artist">Guns N Roses</string>
+    <string name="settingsHeader">Settings</string>
+    <string name="biometricLogin">Use Biometric Login</string>
+    <string name="language">Language</string>
+    <string name="pushNote">Push Notifications</string>
+    <string name="offlineMode">Allow Offline Mode</string>
+    <string name="blockedUsers">Blocked Users</string>
+    <string name="saveChanges">Save Changes</string>
+    <!--Reilly Mare strings -->
 
 </resources>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey">
+
+    <!-- Profile Section -->
+
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profileImage"
+        android:layout_width="140dp"
+        android:layout_height="145dp"
+        android:layout_marginTop="48dp"
+        android:src="@drawable/profile_placeholder"
+        app:civ_border_color="@android:color/white"
+        app:civ_border_width="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/profileName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ed, 33"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/profileImage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/profilePronouns"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="He/Him"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/profileName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Settings Icon -->
+
+    <!-- Spotify Data Section -->
+
+    <!-- Bottom Navigation Bar -->
+
+    <ImageView
+        android:id="@+id/settingsIcon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_settings"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Include the Navigation Bar -->
+
+    <LinearLayout
+        android:id="@+id/spotifySection"
+        android:layout_width="411dp"
+        android:layout_height="363dp"
+        android:layout_marginTop="20dp"
+        android:background="@android:color/black"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profilePronouns">
+
+        <!-- Spotify Logo -->
+        <ImageView
+            android:id="@+id/spotifyLogo"
+            android:layout_width="230dp"
+            android:layout_height="66dp"
+            android:layout_gravity="center"
+            android:contentDescription="Spotify Logo"
+            android:src="@drawable/spotify_logo" />
+
+        <!-- Spotify Data -->
+        <TextView
+            android:id="@+id/topGenre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Top Genres"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/topGenreList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1. Pop\n2. R&amp;B\n3. Electric Dance Music"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/topArtist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Top Artists"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/topArtistList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1. Elton John\n2. Prince\n3. Billy Joel"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/topSong"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Top Songs"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/topSongList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1. Rocket Man by Elton John\n2. When Doves Cry by Prince\n3. Uptown Girl by Billie Joel"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
+
+    <include
+        layout="@layout/layout_bottom_navigation"
+        android:layout_width="411dp"
+        android:layout_height="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
