@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?> <!--ST10080623/Reilly Mare -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FFFFFF"/> <!-- Background color of the view in MATCHUI -->
+    <stroke
+        android:width="2dp"
+        android:color="#000000"/> <!-- color and thickness -->
+    <corners android:radius="4dp"/> <!-- curve of border -->
+</shape>
