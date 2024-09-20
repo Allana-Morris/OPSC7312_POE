@@ -9,7 +9,7 @@
     tools:context=".Register_Permissions">
 
     <Button
-        android:id="@+id/btnAgree"
+        android:id="@+id/btncontinue"
         android:layout_width="277dp"
         android:layout_height="51dp"
         android:layout_marginBottom="44dp"
@@ -18,13 +18,13 @@
         android:text="@string/permission_agree"
         android:textColor="@color/white"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/btndisallow"
+        app:layout_constraintBottom_toTopOf="@+id/btnspotifysearch"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/btndisallow"
+        android:id="@+id/btnspotifysearch"
         android:layout_width="201dp"
         android:layout_height="46dp"
         android:layout_marginBottom="64dp"
@@ -109,7 +109,7 @@
         android:layout_marginStart="56dp"
         android:layout_marginBottom="84dp"
         android:tint="@color/light_green"
-        app:layout_constraintBottom_toTopOf="@+id/btnAgree"
+        app:layout_constraintBottom_toTopOf="@+id/btncontinue"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/phone_icon"
         tools:ignore="UseAppTint" />

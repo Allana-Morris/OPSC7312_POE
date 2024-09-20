@@ -1,5 +1,8 @@
 [versions]
 agp = "8.5.2"
+auth = "1.2.5"
+browser = "1.8.0"
+circleimageview = "3.1.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -17,7 +20,10 @@ googleGmsGoogleServices = "4.4.2"
 firebaseFirestore = "25.1.0"
 
 [libraries]
+androidx-browser = { module = "androidx.browser:browser", version.ref = "browser" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+auth = { module = "com.spotify.android:auth", version.ref = "auth" }
+circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

@@ -1,19 +1,28 @@
+import org.bouncycastle.util.Properties
+
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
 }
 
+
+
 android {
     namespace = "za.co.varsitycollege.st10204772.opsc7312_poe"
     compileSdk = 34
-
+    buildFeatures.buildConfig = true
     defaultConfig {
         applicationId = "za.co.varsitycollege.st10204772.opsc7312_poe"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        //Spotify Client ID?
+       // val spotifyClientID = project.hasProperty("spotify.client_id")
+       // buildConfigField ("String", "CLIENT_ID", "\"${spotifyClientID}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -42,7 +51,9 @@ android {
 dependencies {
 
     //CircleImageView Library
-    implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation(libs.circleimageview)
+    implementation (libs.auth)
+    implementation (libs.androidx.browser)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

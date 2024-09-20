@@ -9,7 +9,7 @@
     tools:context=".Register_Cell">
 
     <Button
-        android:id="@+id/btnAgree"
+        android:id="@+id/btncontinue"
         android:layout_width="274dp"
         android:layout_height="59dp"
         android:layout_marginBottom="92dp"
@@ -61,7 +61,7 @@
         android:hint="@string/cell_num"
         android:inputType="phone"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/btnAgree"
+        app:layout_constraintBottom_toTopOf="@+id/btncontinue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.488"
         app:layout_constraintStart_toStartOf="parent" />
