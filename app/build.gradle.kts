@@ -1,18 +1,13 @@
-import org.bouncycastle.util.Properties
-
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
 }
 
-
-
 android {
     namespace = "za.co.varsitycollege.st10204772.opsc7312_poe"
     compileSdk = 34
-    buildFeatures.buildConfig = true
+
     defaultConfig {
         applicationId = "za.co.varsitycollege.st10204772.opsc7312_poe"
         minSdk = 26
@@ -52,8 +47,21 @@ dependencies {
 
     //CircleImageView Library
     implementation(libs.circleimageview)
+
+    //Spotify Authentication
     implementation (libs.auth)
     implementation (libs.androidx.browser)
+
+    //Google SSO with OAuth2.0
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth.v122)
+    implementation(libs.googleid)
+    implementation(libs.google.api.client)
+    implementation(libs.google.oauth.client)
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.api.client.gson)
+    implementation()
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -64,6 +72,7 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.firebase.firestore)
+    implementation(libs.googleid)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
