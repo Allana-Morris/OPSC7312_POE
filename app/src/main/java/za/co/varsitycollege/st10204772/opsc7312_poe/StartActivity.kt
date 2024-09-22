@@ -2,129 +2,136 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.content.Intent
+import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
-import androidx.credentials.PasswordCredential
-import androidx.credentials.PublicKeyCredential
-import androidx.credentials.exceptions.GetCredentialException
-import androidx.lifecycle.lifecycleScope
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier
-import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.api.client.json.gson.GsonFactory
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import za.co.varsitycollege.st10204772.opsc7312_poe.ClientID.server_client_id
-import za.co.varsitycollege.st10204772.opsc7312_poe.User.GoogleUser
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.auth
 
 
 class StartActivity : AppCompatActivity() {
 
+    val credManager = CredentialManager.create(this)
+    private lateinit var auth: FirebaseAuth
+    private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
+    private var oneTapClient: SignInClient = Identity.getSignInClient(this)
+
     lateinit var context: Context
-    val credentialManager = CredentialManager.create(this)
-    val transport = NetHttpTransport()
-    val jsonFactory = GsonFactory.getDefaultInstance()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_start)
-
+        auth = Firebase.auth
         var btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
 
         // Google SSO
-        btnGoogle.setOnClickListener{
-        val googleIdOption: GetGoogleIdOption = GetGoogleIdOption.Builder()
-            .setServerClientId(server_client_id)
-            .setAutoSelectEnabled(true)
-            .setNonce("")
-            .build()
+        btnGoogle.setOnClickListener {
+            val signInRequest = BeginSignInRequest.builder()
+                .setGoogleIdTokenRequestOptions(
+                    BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                        .setSupported(true)
+                        .setServerClientId(ClientID.server_client_id)
+                        .setFilterByAuthorizedAccounts(false)
+                        .build()
+                ).build()
 
-            val request: GetCredentialRequest = GetCredentialRequest.Builder()
-                .addCredentialOption(googleIdOption)
-                .build()
+            oneTapClient.beginSignIn(signInRequest)
+                .addOnSuccessListener(this) { result ->
+                    try {
+                        startIntentSenderForResult(
+                            result.pendingIntent.intentSender, REQ_ONE_TAP,
+                            null, 0, 0, 0
+                        )
 
-            lifecycleScope.launch {
-                fetchCredential(request)
-            }
-        }
-    }
-
-    suspend fun fetchCredential(request: GetCredentialRequest){
-        coroutineScope {
-            launch {
-                try{
-                    val result = credentialManager.getCredential(
-                        request = request,
-                        context = this@StartActivity
-
-                    )
-                } catch (e: GetCredentialException)
-                {
-                Log.e("CredentialError", "Failed to get credential: ${e.message}")
-
-            } catch (e: Exception) {
-            Log.e("UnexpectedError", "An unexpected error occurred: ${e.message}")
-        }
-            }
-        }
-    }
-
-
-    fun handleSignIn(result: GetCredentialResponse){
-        val credential = result.credential
-
-        when(credential){
-
-            is PublicKeyCredential -> {
-                val responseJson = credential.authenticationResponseJson
-            }
-
-            is PasswordCredential -> {
-                val username = credential.id
-                val password = credential.password
-            }
-
-            is CustomCredential -> {
-                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL){
-                    try{
-                        val googleIdTokenCredential = GoogleIdTokenCredential
-                            .createFrom(credential.data)
-                        val idTokenString = googleIdTokenCredential.idToken
-
-                        val verifier = GoogleIdTokenVerifier.Builder(transport, jsonFactory)
-                            .setAudience(listOf(ClientID.google_client_id))
-                            .build()
-                        val idToken: GoogleIdToken? = verifier.verify(idTokenString)
-
-                        if (idToken != null){
-                            val payload: GoogleIdToken.Payload = idToken.payload
-                            val gUser = GoogleUser()
-                            gUser.setGoogleUser(payload.subject, payload.email, payload.emailVerified, payload["name"] as String?, payload["picture"] as String?, payload["locale"] as String?, payload["family_name"] as String?, payload["given_name"] as String? )
-                        }
-                        else{
-                            Log.e(TAG, "IdToken = Null")
-                        }
-                    } catch(e: GoogleIdTokenParsingException){
-                        Log.e(TAG, "Received invalid google id token response")
+                    } catch (e: IntentSender.SendIntentException) {
+                        Log.e(TAG, "Couldn't start One Tap UI: ${e.localizedMessage}")
                     }
-                } else {
-                    Log.e(TAG, "Unexpected credential type")
                 }
-            }
+                .addOnFailureListener(this) { e ->
+                    e.localizedMessage?.let { it1 -> Log.d(TAG, it1) }
+                }
 
         }
     }
 
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
+        when (requestCode) {
+            REQ_ONE_TAP -> {
+                try {
+                    val googleCredential = oneTapClient.getSignInCredentialFromIntent(data)
+                    val idToken = googleCredential.googleIdToken
+                    when {
+                        idToken != null -> {
+                            // Got an ID token from Google. Use it to authenticate
+                            // with Firebase.
+                            val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
+                            auth.signInWithCredential(firebaseCredential)
+                                .addOnCompleteListener(this) { task ->
+                                    if (task.isSuccessful) {
+                                        // Sign in success, update UI with the signed-in user's information
+                                        Log.d(TAG, "signInWithCredential:success")
+                                        val user = auth.currentUser
+
+                                    } else {
+                                        // If sign in fails, display a message to the user.
+                                        Log.w(TAG, "signInWithCredential:failure", task.exception)
+
+                                    }
+                                }
+                        }
+
+                        else -> {
+                            // Shouldn't happen.
+                            Log.d(TAG, "No ID token!")
+                        }
+                    }
+
+                } catch (e: ApiException) {
+                    Log.d(
+                        TAG,
+                        "Gad, what have you done? You're a Pink Pony girl and you dance at the club"
+                    )
+                    when (e.statusCode) {
+                        CommonStatusCodes.CANCELED -> {
+                            Log.d(TAG, "One-tap dialog was closed.")
+                            // Don't re-prompt the user.
+                            var showOneTapUI = false
+                        }
+
+                        CommonStatusCodes.NETWORK_ERROR -> {
+                            Log.d(TAG, "One-tap encountered a network error.")
+                            // Try again or just ignore.
+                        }
+
+                        else -> {
+                            Log.d(
+                                TAG, "Couldn't get credential from result." +
+                                        " (${e.localizedMessage})"
+                            )
+
+                        }
+                    }
+                }
+
+
+            }
+        }
+    }
 }

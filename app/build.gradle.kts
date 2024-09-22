@@ -22,6 +22,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    packagingOptions{
+        exclude("META-INF/DEPENDENCIES")
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -53,14 +57,25 @@ dependencies {
     implementation (libs.androidx.browser)
 
     //Google SSO with OAuth2.0
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth.v122)
-    implementation(libs.googleid)
-    implementation(libs.google.api.client)
-    implementation(libs.google.oauth.client)
-    implementation(libs.google.api.client.android)
-    implementation(libs.google.api.client.gson)
-    implementation()
+    implementation (libs.androidx.credentials.v150alpha05)
+    implementation (libs.androidx.credentials.play.services.auth)
+    implementation (libs.googleid)
+
+    // Import the BoM for the Firebase platform
+    implementation(platform(libs.firebase.bom))
+
+    // Add the dependency for the Firebase Authentication library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation(libs.firebase.auth)
+
+    // Also add the dependency for the Google Play services library and specify its version
+    implementation(libs.google.play.services.auth)
+
+
+
+
+
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -73,7 +88,9 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.firebase.firestore)
     implementation(libs.googleid)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+
