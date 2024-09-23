@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
 
         val intent: Intent = Intent(
             this@MainActivity,
-            Liked_you::class.java
+            Contact::class.java
         )
         startActivity(intent)
 
