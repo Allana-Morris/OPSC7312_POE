@@ -7,6 +7,7 @@ import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.CredentialManager
@@ -23,6 +24,7 @@ import com.google.firebase.auth.auth
 
 class StartActivity : AppCompatActivity() {
 
+    //Google SSO Variables
     val credManager = CredentialManager.create(this)
     private lateinit var auth: FirebaseAuth
     private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
@@ -35,10 +37,31 @@ class StartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_start)
-        auth = Firebase.auth
-        var btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
+
+        //Sign In Button
+        var btnSignIn = findViewById<TextView>(R.id.tvSignIn)
+        btnSignIn.setOnClickListener {
+            val intent: Intent = Intent(
+                this,
+                Login_Main::class.java
+            )
+            startActivity(intent)
+        }
+
+        //Sign Up Button
+        var btnSignUp = findViewById<Button>(R.id.btnSignUp)
+        btnSignUp.setOnClickListener {
+            val intent: Intent = Intent(
+                this,
+                Register_Permissions::class.java
+            )
+            startActivity(intent)
+        }
+
 
         // Google SSO
+        auth = Firebase.auth
+        var btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
         btnGoogle.setOnClickListener {
             val signInRequest = BeginSignInRequest.builder()
                 .setGoogleIdTokenRequestOptions(

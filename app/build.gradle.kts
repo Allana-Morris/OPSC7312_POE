@@ -19,7 +19,7 @@ android {
 
     }
 
-    packagingOptions{
+    packaging{
         exclude("META-INF/DEPENDENCIES")
     }
 
@@ -33,11 +33,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         viewBinding = true
@@ -66,11 +66,6 @@ dependencies {
 
     // Also add the dependency for the Google Play services library and specify its version
     implementation(libs.google.play.services.auth)
-
-
-
-
-
 
 
     implementation(libs.androidx.core.ktx)
