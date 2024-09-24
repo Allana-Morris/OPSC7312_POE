@@ -69,6 +69,7 @@ dependencies {
 
     // Also add the dependency for the Google Play services library and specify its version
     implementation(libs.google.play.services.auth)
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
 
 
     implementation(libs.androidx.core.ktx)

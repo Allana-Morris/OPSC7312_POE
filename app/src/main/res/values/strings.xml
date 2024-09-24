@@ -49,6 +49,7 @@
     <string name="search">Search</string>
     <string name="spotifyinputhinte">Email</string>
     <string name="spotifyinputhints">Spotify Username</string>
+    <string name="warning_need_token">You need to request an access token first</string>
 
     <!-- sven's strings :) -->
     <string name="likesYouHeader">Singles in your area</string>
