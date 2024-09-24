@@ -6,20 +6,17 @@ plugins {
 
 android {
     namespace = "za.co.varsitycollege.st10204772.opsc7312_poe"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "za.co.varsitycollege.st10204772.opsc7312_poe"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
-        //Spotify Client ID?
-       // val spotifyClientID = project.hasProperty("spotify.client_id")
-       // buildConfigField ("String", "CLIENT_ID", "\"${spotifyClientID}\"")
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
     }
 
     packagingOptions{
@@ -53,8 +50,7 @@ dependencies {
     implementation(libs.circleimageview)
 
     //Spotify Authentication
-    implementation (libs.auth)
-    implementation (libs.androidx.browser)
+    implementation(files("libs/spotify-auth-release-2.1.0.aar"))
 
     //Google SSO with OAuth2.0
     implementation (libs.androidx.credentials.v150alpha05)

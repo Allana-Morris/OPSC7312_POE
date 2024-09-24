@@ -11,7 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Base.Theme.OPSC7312_POE"
-        tools:targetApi="31">
+        tools:targetApi="34">
            <activity
             android:name=".Chat"
             android:exported="false" />
@@ -49,15 +49,25 @@
             android:name=".MatchUI"
             android:exported="false" />
         <activity
-            android:name=".StartActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+
             </intent-filter>
         </activity>
+        <activity
+            android:name=".StartActivity"
+            android:exported="false">
+            <intent-filter>
+                <data
+                    android:scheme="spotify-apk"
+                    android:host="auth" />
 
+            </intent-filter>
+    </activity>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

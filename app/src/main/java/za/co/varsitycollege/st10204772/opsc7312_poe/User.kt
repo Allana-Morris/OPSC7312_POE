@@ -5,29 +5,29 @@ import java.util.Date
 
 class User(
 
-    var userId: String,
     var cellnum: String,
     var name: String,
     var DOB: Date,
+    var Age: Short,
+    var email: String,
     var gender: String,
-    var genderLabel: String?,
+    var genderLabel: String,
     var pronoun: String,
     var profilePhotos: MutableList<Bitmap> = mutableListOf(),
     var spotifyUsername: String,
     var spotifyUserId: String
     ) {
      data class GoogleUser(
-         var userId: String? = null,
-         var googleID: String? = null,
-         var email: String? = null,
+         var googleID: String,
+         var email: String,
          var emailVerified: Boolean = false,
-         var name: String? = null,
-         var pictureUrl: String? = null,
-         var locale: String? = null,
-         var familyName: String? = null,
-         var givenName: String? = null)
+         var name: String,
+         var pictureUrl: String,
+         var locale: String,
+         var familyName: String,
+         var givenName: String)
      {
-         fun setGoogleUser(GoogleID: String? = this.googleID, Email: String? = this.email, EmailVerified: Boolean = this.emailVerified, Name: String? = this.name, PictureUrl: String? = this.pictureUrl, Locale: String? = this.locale, FamilyName: String? = this.familyName, GivenName: String? = this.givenName){
+         fun setGoogleUser(GoogleID: String = this.googleID, Email: String = this.email, EmailVerified: Boolean = this.emailVerified, Name: String = this.name, PictureUrl: String = this.pictureUrl, Locale: String = this.locale, FamilyName: String = this.familyName, GivenName: String = this.givenName){
              this.googleID = GoogleID
              this.email = Email
              this.emailVerified = EmailVerified
