@@ -47,7 +47,8 @@
     <string name="findspotify">Find Your Spotify Account</string>
     <string name="thisu">Is this You?</string>
     <string name="search">Search</string>
-    <string name="spotifyinputhint">Spotify Username</string>
+    <string name="spotifyinputhinte">Email</string>
+    <string name="spotifyinputhints">Spotify Username</string>
 
     <!-- sven's strings :) -->
     <string name="likesYouHeader">Singles in your area</string>

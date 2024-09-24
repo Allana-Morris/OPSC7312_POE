@@ -1,6 +1,7 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Button
@@ -87,7 +88,7 @@ class Register_Permissions : AppCompatActivity() {
     }
     override fun onRequestPermissionsResult(
         requestCode: Int,
-        permissions: Array<out String>,
+        permissions: Array<String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -96,6 +97,8 @@ class Register_Permissions : AppCompatActivity() {
             if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                 // Both permissions granted
                 Toast.makeText(this, "Location permissions granted", Toast.LENGTH_SHORT).show()
+                //Next Page
+                startActivity( Intent(this, Register_Cell::class.java))
             } else {
                 // Permissions denied
                 Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show()

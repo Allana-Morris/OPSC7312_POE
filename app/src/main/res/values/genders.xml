@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- These are the available Genders so far, pay EA for the Gender Expansion Pack -->
-    <string name="agender">Agender</string>
-    <string name="bigender">Bigender</string>
-    <string name="demigender">Demigender</string>
-    <string name="transftm">FTM</string>
-    <string name="gendersolid">Genderfluid</string>
-    <string name="gender_nonconform">Gender Non-Conforming</string>
-    <string name="genderqueen">Genderqueer</string>
-    <string name="intersex">Intersex</string>
-    <string name="transmtf">MTF</string>
-    <string name="no_binary">Non-Binary</string>
-    <string name="potgender">Pangender</string>
-    <string name="polynomial">Polygender</string>
-    <string name="trans">Trans</string>
-    <string name="fullblowntrans">Transgender</string>
-    <string name="subtrans">Transsexual</string>
-    <string name="twospirit">Two Spirit</string>
+    <string-array name="XtraGenders">
+        <item name="agender">Agender</item>
+        <item name="bigender">Bigender</item>
+        <item name="demigender">Demigender</item>
+        <item name="transftm">FTM</item>
+        <item name="gendersolid">Genderfluid</item>
+        <item name="gender_nonconform">Gender Non-Conforming</item>
+        <item name="genderqueen">Genderqueer</item>
+        <item name="intersex">Intersex</item>
+        <item name="transmtf">MTF</item>
+        <item name="no_binary">Non-Binary</item>
+        <item name="potgender">Pangender</item>
+        <item name="polynomial">Polygender</item>
+        <item name="trans">Trans</item>
+        <item name="fullblowntrans">Transgender</item>
+        <item name="subtrans">Transsexual</item>
+        <item name="twospirit">Two Spirit</item>
+    </string-array>
+    
+    
 </resources>

@@ -14,10 +14,13 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
+        manifestPlaceholders["redirectHostName"] = "auth"
+        manifestPlaceholders["redirectSchemeName"] = "spotify-sdk"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
     }
+
+
 
     packaging{
         exclude("META-INF/DEPENDENCIES")

@@ -9,7 +9,7 @@
     tools:context=".Register_Spotify_Link">
 
     <EditText
-        android:id="@+id/etxtOTP2"
+        android:id="@+id/edUsername"
         android:layout_width="255dp"
         android:layout_height="50dp"
         android:layout_marginTop="108dp"
@@ -17,8 +17,7 @@
         android:backgroundTint="@color/light_grey"
         android:ems="10"
         android:fontFamily="@font/circular_regular"
-        android:hint="@string/spotifyinputhint"
-        android:inputType="text|textNoSuggestions"
+        android:hint="@string/spotifyinputhints"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="20sp"
@@ -31,7 +30,7 @@
         android:id="@+id/btnspotifysearch"
         android:layout_width="193dp"
         android:layout_height="55dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:backgroundTint="@color/black"
         android:fontFamily="@font/circular_black"
         android:text="@string/search"
@@ -39,7 +38,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etxtOTP2" />
+        app:layout_constraintTop_toBottomOf="@+id/edUsername" />
 
     <Button
         android:id="@+id/btncontinue"

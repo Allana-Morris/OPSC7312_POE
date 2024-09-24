@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.ContentValues.TAG

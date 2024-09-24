@@ -3,40 +3,48 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 import android.graphics.Bitmap
 import java.util.Date
 
-class User(
+class User() {
+    var Cellnum: String = ""
+    var Name: String = ""
+    var DOB: Date = Date()
+    var Age: Int = 0
+    var uEmail: String = ""
+    var Gender: String = ""
+    var GenderLabel: String? = ""
+    var Pronoun: String = ""
+    var ProfilePhotos: MutableList<Bitmap> = mutableListOf()
+    var SpotifyUsername: String = ""
+    var SpotifyUserId: String = ""
+    var hasGoogle: Boolean = false
 
-    var cellnum: String,
-    var name: String,
-    var DOB: Date,
-    var Age: Short,
-    var email: String,
-    var gender: String,
-    var genderLabel: String,
-    var pronoun: String,
-    var profilePhotos: MutableList<Bitmap> = mutableListOf(),
-    var spotifyUsername: String,
-    var spotifyUserId: String
+    data class GoogleUser(
+        var googleID: String = "",
+        var email: String = "",
+        var emailVerified: Boolean = false,
+        var name: String = "",
+        var pictureUrl: String = "",
+        var locale: String = "",
+        var familyName: String = "",
+        var givenName: String = "",
     ) {
-     data class GoogleUser(
-         var googleID: String,
-         var email: String,
-         var emailVerified: Boolean = false,
-         var name: String,
-         var pictureUrl: String,
-         var locale: String,
-         var familyName: String,
-         var givenName: String)
-     {
-         fun setGoogleUser(GoogleID: String = this.googleID, Email: String = this.email, EmailVerified: Boolean = this.emailVerified, Name: String = this.name, PictureUrl: String = this.pictureUrl, Locale: String = this.locale, FamilyName: String = this.familyName, GivenName: String = this.givenName){
-             this.googleID = GoogleID
-             this.email = Email
-             this.emailVerified = EmailVerified
-             this.name= Name
-             this.pictureUrl = PictureUrl
-             this.locale = Locale
-             this.familyName = FamilyName
-             this.givenName = GivenName
-         }
+       fun connectUser(user: User)
+       {
+           user.uEmail = email
+           user.Name = givenName
+           user.hasGoogle = true
+       }
     }
 
+    fun setUsercell(cellNum: String) {
+        Cellnum = cellNum
+    }
+
+    fun setUserDetails(name: String, dob: Date, age: Int, gender: String, subgender: String?, pronouns: String){
+        Name = name
+        DOB = dob
+        Age = age
+        Gender = gender
+        GenderLabel = subgender
+        Pronoun = pronouns
+    }
 }

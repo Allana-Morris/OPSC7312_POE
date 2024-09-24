@@ -11,14 +11,14 @@ class SpotifyData(
     var profpicwidth: Short,
     var apihref: Uri
     ) {
-    data class Artist(
+    data class Artists(
         var artistID: MutableList<String>,
        var genres: MutableList<String>,
         var artistName: MutableList<String>
         ){
 
     }
-    data class Song(
+    data class Songs(
         var songID: MutableList<String>,
         var songName: MutableList<String>,
         var albumName: MutableList<String>,
