@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.ContentValues.TAG
@@ -30,7 +28,7 @@ class StartActivity : AppCompatActivity() {
     val credManager = CredentialManager.create(this)
     private lateinit var auth: FirebaseAuth
     private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
-    private var oneTapClient: SignInClient = Identity.getSignInClient(this)
+    private lateinit var oneTapClient: SignInClient
 
     lateinit var context: Context
 
@@ -60,11 +58,12 @@ class StartActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
         // Google SSO
-        auth = Firebase.auth
         var btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
         btnGoogle.setOnClickListener {
+            auth = Firebase.auth
+            oneTapClient = Identity.getSignInClient(this)
+
             val signInRequest = BeginSignInRequest.builder()
                 .setGoogleIdTokenRequestOptions(
                     BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
@@ -89,6 +88,7 @@ class StartActivity : AppCompatActivity() {
                 .addOnFailureListener(this) { e ->
                     e.localizedMessage?.let { it1 -> Log.d(TAG, it1) }
                 }
+
 
         }
     }

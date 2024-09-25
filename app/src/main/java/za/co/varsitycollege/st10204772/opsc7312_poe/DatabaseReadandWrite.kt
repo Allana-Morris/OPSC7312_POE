@@ -30,12 +30,6 @@ class DatabaseReadandWrite {
     }
 
     fun sendOTP(cell: String){
-        val options = PhoneAuthOptions.newBuilder(auth)
-            .setPhoneNumber(cell) // Phone number to verify
-            .setTimeout(60L, TimeUnit.SECONDS) // Timeout and unit
-            .setActivity(this) // Activity (for callback binding)
-            .setCallbacks(callbacks) // OnVerificationStateChangedCallbacks
-            .build()
-        PhoneAuthProvider.verifyPhoneNumber(options)
+
     }
 }

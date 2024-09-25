@@ -35,6 +35,8 @@ class User() {
        }
     }
 
+
+
     fun setUsercell(cellNum: String) {
         Cellnum = cellNum
     }
@@ -46,5 +48,9 @@ class User() {
         Gender = gender
         GenderLabel = subgender
         Pronoun = pronouns
+    }
+
+    fun getUsercell(): String{
+        return Cellnum
     }
 }

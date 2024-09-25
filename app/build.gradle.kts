@@ -23,6 +23,7 @@ android {
 
 
     packaging{
+        @Suppress("DEPRECATION")
         exclude("META-INF/DEPENDENCIES")
     }
 
@@ -69,12 +70,12 @@ dependencies {
 
     // Also add the dependency for the Google Play services library and specify its version
     implementation(libs.google.play.services.auth)
-    implementation (libs.okhttp)
 
     //OTP
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
-    implementation(libs.firebase.ui.auth)
+   // implementation(libs.firebase.ui.auth)
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
 
 
     implementation(libs.androidx.core.ktx)
