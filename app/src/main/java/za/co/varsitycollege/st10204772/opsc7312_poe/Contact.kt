@@ -23,7 +23,7 @@ class Contact : AppCompatActivity() {
        // var loggedUser = User("ed sheeran", "0987654321");
 
         loggedUser.name = "ed sheeran"
-        loggedUser.cellNo = "123456789"
+        loggedUser.cellNo = "0987654321"
 
         val db = Firebase.firestore
         FirebaseApp.initializeApp(this)
