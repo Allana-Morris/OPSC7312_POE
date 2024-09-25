@@ -20,12 +20,15 @@ class Contact : AppCompatActivity() {
         setContentView(R.layout.activity_contact)
         val layout: LinearLayout = findViewById(R.id.vert_layout_contact)
 
-        var loggedUser = User("ed sheeran", "0987654321");
+       // var loggedUser = User("ed sheeran", "0987654321");
+
+        loggedUser.name = "ed sheeran"
+        loggedUser.cellNo = "123456789"
 
         val db = Firebase.firestore
         FirebaseApp.initializeApp(this)
 
-        val contactSet = mutableSetOf<String>()
+        var messageDocs = mutableListOf<Pair<String, String>>()  // To store message docID and contactID
 
 // Query where loggedUser's cellNo matches "fromUid"
         db.collection("message")
@@ -34,7 +37,7 @@ class Contact : AppCompatActivity() {
             .addOnSuccessListener { fromDocuments ->
                 for (document in fromDocuments) {
                     val receiverID = document.getString("toUid") // Add the receiver
-                    receiverID?.let { contactSet.add(it) }
+                    receiverID?.let { messageDocs.add(Pair(document.id, it)) }
                 }
 
                 // Now query where loggedUser's cellNo matches "toUid"
@@ -44,14 +47,14 @@ class Contact : AppCompatActivity() {
                     .addOnSuccessListener { toDocuments ->
                         for (document in toDocuments) {
                             val senderID = document.getString("fromUid") // Add the sender
-                            senderID?.let { contactSet.add(it) }
+                            senderID?.let  { messageDocs.add(Pair(document.id, it)) }
                         }
 
                         // Show contacts in the set after both queries complete
-                        if (contactSet.isNotEmpty()) {
-                            Toast.makeText(this, contactSet.toString(), Toast.LENGTH_SHORT).show()
+                        if (messageDocs.isNotEmpty()) {
+                            Toast.makeText(this, messageDocs.toString(), Toast.LENGTH_SHORT).show()
 
-                            showContacts(contactSet, db, layout)
+                            showContacts(messageDocs, db, layout)
 
                         } else {
                             Toast.makeText(this, "No contacts found", Toast.LENGTH_SHORT).show()
@@ -66,41 +69,32 @@ class Contact : AppCompatActivity() {
             }
     }
 
-    fun showContacts(contactSet: MutableSet<String>, db: FirebaseFirestore, layout: LinearLayout) {
-
-        for (contactID in contactSet) {
-            // Query where the "cellNo" field equals contactID
+    fun showContacts(messageDocs: List<Pair<String, String>>, db: FirebaseFirestore, layout: LinearLayout) {
+        for ((messageDocID, contactID) in messageDocs) {
             db.collection("Users")
-                .whereEqualTo("cellNo", contactID)  // Query by cellNo field
+                .whereEqualTo("cellNo", contactID)
                 .get()
                 .addOnSuccessListener { userDocs ->
                     if (!userDocs.isEmpty) {
-                        val document = userDocs.documents[0]  // Get the first matching document
-                        val userName = document.getString("Name")  // Get the "Name" field
+                        val document = userDocs.documents[0]
 
-                        // Inflate a new contact item into the layout
+                        val userName = document.getString("Name")
+
                         val inflatedView = LayoutInflater.from(this@Contact)
                             .inflate(R.layout.layout_contact_listing, layout, false)
 
-                        // Assuming you have a TextView in your layout to set the contact's name
-                        val contactNameTextView =
-                            inflatedView.findViewById<TextView>(R.id.txtContactName)
-                        contactNameTextView.text = userName ?: "Unknown"  // Set the name or "Unknown"
+                        val contactNameTextView = inflatedView.findViewById<TextView>(R.id.txtContactName)
+                        contactNameTextView.text = userName ?: "Unknown"
 
-                        // Set an OnClickListener for each inflated view
                         inflatedView.setOnClickListener {
-                            // Handle click event for this particular contact
-                            Toast.makeText(this@Contact, "Clicked on: $userName", Toast.LENGTH_SHORT).show()
-
-                            // You can start a new activity or perform another action here
-                            // Example: Start a chat activity
                             val intent = Intent(this@Contact, Chat::class.java)
                             intent.putExtra("contactName", userName)
                             intent.putExtra("contactID", contactID)
+                            intent.putExtra("messageDocID", messageDocID)  // Pass the message document ID
+
                             startActivity(intent)
                         }
 
-                        // Add the inflated view to the layout
                         layout.addView(inflatedView)
                     }
                 }
@@ -109,14 +103,4 @@ class Contact : AppCompatActivity() {
                 }
         }
     }
-
-
-
 }
-/*  for ( int in 1..30)
-       {
-           val inflatedView = LayoutInflater.from(this@Contact)
-               .inflate(R.layout.layout_contact_listing, layout, false)
-
-           layout.addView(inflatedView)
-       }*/
