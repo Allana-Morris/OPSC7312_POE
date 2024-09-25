@@ -51,6 +51,7 @@ class Register_Spotify_Link : AppCompatActivity() {
 
         //Spotify Authentication
         val btnSpotify = findViewById<Button>(R.id.btnspotifysearch)
+        val btnsubmit = findViewById<Button>(R.id.btncontinue)
 
         btnSpotify.setOnClickListener{
             val builder = AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI)
@@ -58,6 +59,10 @@ class Register_Spotify_Link : AppCompatActivity() {
             builder.setShowDialog(true)
             val request = builder.build()
             AuthorizationClient.openLoginInBrowser(this, request)
+        }
+
+        btnsubmit.setOnClickListener {
+
         }
     }
     override fun onDestroy() {
