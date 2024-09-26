@@ -75,7 +75,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
    // implementation(libs.firebase.ui.auth)
-    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation (libs.okhttp)
 
 
     implementation(libs.androidx.core.ktx)
