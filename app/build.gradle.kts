@@ -88,6 +88,7 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.common.ktx)
     implementation(libs.googleid)
     implementation(libs.firebase.auth)
     testImplementation(libs.junit)
