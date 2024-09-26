@@ -53,7 +53,7 @@ class Login_OTP : AppCompatActivity() {
         var edtOTP = findViewById<EditText>(R.id.etxtOTP)
         var btnsubmit = findViewById<Button>(R.id.btncontinue)
         var btnresend = findViewById<TextView>(R.id.txtResend)
-        val phone = intent.getStringExtra("cellNum") ?: "Your Mom"
+        val phone = intent.getStringExtra("cellNum") ?: "0834570603"
 
         auth = FirebaseAuth.getInstance()
 
