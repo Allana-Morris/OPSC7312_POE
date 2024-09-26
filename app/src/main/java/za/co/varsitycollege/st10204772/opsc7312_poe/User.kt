@@ -35,8 +35,6 @@ class User() {
        }
     }
 
-
-
     fun setUsercell(cellNum: String) {
         Cellnum = cellNum
     }

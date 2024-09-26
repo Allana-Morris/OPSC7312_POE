@@ -32,8 +32,7 @@ class Login_Main : AppCompatActivity() {
         btnLogin.setOnClickListener {
             if (inpval.isStringInput(uNum)) {
                 val intent = Intent(this, Login_OTP::class.java)
-                Toast.makeText(this, uNum, Toast.LENGTH_LONG).show()
-                intent.putExtra("cellNum", uNum.toString())
+
                 startActivity(intent)
             } else {
                 Log.e(TAG, "Invalid Input")
