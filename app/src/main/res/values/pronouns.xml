@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Lets get this going -->
-    <string name="hehim">He/Him</string>
-    <string name="hethey">He/They</string>
-    <string name="sheher">She/Her</string>
-    <string name="shethey">She/They</string>
-    <string name="theythem">They/Them</string>
-    <string name="theyshe">They/She</string>
-    <string name="theyhe">They/He</string>
-    <string name="michaeljackson">He/He</string>
-
+    <string-array name="pronoun_array">
+        <item name="hehim">He/Him</item>
+        <item name="hethey">He/They</item>
+        <item name="sheher">She/Her</item>
+        <item name="shethey">She/They</item>
+        <item name="theythem">They/Them</item>
+        <item name="theyshe">They/She</item>
+        <item name="theyhe">They/He</item>
+        <item name="michaeljackson">He/He</item>
+    </string-array>
 </resources>

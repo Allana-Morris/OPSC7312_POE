@@ -1,5 +1,19 @@
 [versions]
-agp = "8.5.2"
+agp = "8.6.1"
+auth = "1.2.5"
+authVersion = "1.1.1"
+browser = "1.8.0"
+cidaasAndroidSdk = "3.0.8"
+circleimageview = "3.1.0"
+credentials = "1.2.2"
+credentialsPlayServicesAuth = "1.2.2"
+credentialsVersion = "1.5.0-alpha05"
+firebaseBom = "33.3.0"
+googleApiClient = "1.33.0"
+googleHttpClient = "1.39.2"
+googleid = "1.1.1"
+googleOauthClient = "1.33.0"
+googlePlayServicesAuth = "21.2.0"
 kotlin = "1.9.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -15,9 +29,29 @@ navigationFragmentKtx = "2.7.7"
 navigationUiKtx = "2.7.7"
 googleGmsGoogleServices = "4.4.2"
 firebaseFirestore = "25.1.0"
+playServicesIdentity = "18.1.0"
+firebaseAuth = "23.0.0"
 
 [libraries]
+androidx-browser = { module = "androidx.browser:browser", version.ref = "browser" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
+androidx-credentials-play-services = { module = "androidx.credentials:credentials-play-services", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentialsVersion" }
+androidx-credentials-play-services-auth-v122 = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
+androidx-credentials-v150alpha05 = { module = "androidx.credentials:credentials", version.ref = "credentialsVersion" }
+auth = { module = "com.spotify.android:auth", version.ref = "auth" }
+auth-v111 = { module = "com.spotify.android:auth", version.ref = "authVersion" }
+cidaas-android-sdk = { module = "com.github.Cidaas:cidaas-android-sdk", version.ref = "cidaasAndroidSdk" }
+circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "googleApiClient" }
+google-api-client-android = { module = "com.google.api-client:google-api-client-android", version.ref = "googleApiClient" }
+google-api-client-gson = { module = "com.google.api-client:google-api-client-gson", version.ref = "googleApiClient" }
+google-http-client = { module = "com.google.http-client:google-http-client", version.ref = "googleHttpClient" }
+google-oauth-client = { module = "com.google.oauth-client:google-oauth-client", version.ref = "googleOauthClient" }
+google-play-services-auth = { module = "com.google.android.gms:play-services-auth", version.ref = "googlePlayServicesAuth" }
+googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -30,6 +64,8 @@ androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifec
 androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+play-services-identity = { module = "com.google.android.gms:play-services-identity", version.ref = "playServicesIdentity" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
