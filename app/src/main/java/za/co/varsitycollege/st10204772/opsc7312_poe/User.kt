@@ -4,11 +4,11 @@ import android.graphics.Bitmap
 import java.util.Date
 
 class User() {
-    var Cellnum: String = ""
     var Name: String = ""
     var DOB: Date = Date()
     var Age: Int = 0
-    var uEmail: String = ""
+    var Email: String = ""
+    var Password: String = ""
     var Gender: String = ""
     var GenderLabel: String? = ""
     var Pronoun: String = ""
@@ -29,14 +29,10 @@ class User() {
     ) {
        fun connectUser(user: User)
        {
-           user.uEmail = email
+           user.Email = email
            user.Name = givenName
            user.hasGoogle = true
        }
-    }
-
-    fun setUsercell(cellNum: String) {
-        Cellnum = cellNum
     }
 
     fun setUserDetails(name: String, dob: Date, age: Int, gender: String, subgender: String?, pronouns: String){
@@ -48,7 +44,4 @@ class User() {
         Pronoun = pronouns
     }
 
-    fun getUsercell(): String{
-        return Cellnum
-    }
 }
