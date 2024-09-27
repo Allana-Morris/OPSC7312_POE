@@ -18,8 +18,10 @@
     **Please Check String Exists Before Creating new One -->
     <string name="signup_redirect_message">New Here?</string>
     <string name="signup_caption"><u>Sign Up</u></string>
-    <string name="cell_number_caption">Enter Your Phone Number:</string>
-    <string name="cell_num">  Phone Number</string>
+    <string name="email_caption">Enter Your Email:</string>
+    <string name="password_caption">Enter Your Password:</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
     <string name="otp">Enter OTP Below</string>
     <string name="otpnovers">OTP</string>
     <string name="sign_in_caption">Sign In</string>

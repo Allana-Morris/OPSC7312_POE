@@ -22,8 +22,6 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
-import com.google.firebase.auth.auth
-import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.TimeUnit
 
@@ -50,7 +48,7 @@ class Login_OTP : AppCompatActivity() {
             insets
         }
         //firebase auth with phone num (OTP)
-        var edtOTP = findViewById<EditText>(R.id.etxtOTP)
+        var edtOTP = findViewById<EditText>(R.id.etxtEmail)
         var btnsubmit = findViewById<Button>(R.id.btncontinue)
         var btnresend = findViewById<TextView>(R.id.txtResend)
         val phone = intent.getStringExtra("cellNum") ?: "0834570603"
