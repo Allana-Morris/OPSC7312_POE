@@ -32,7 +32,7 @@ class Register_Permissions : AppCompatActivity() {
         //Code Begins
 
         //Continue Button
-        var btnpermissions = findViewById<Button>(R.id.btncontinue)
+        var btnpermissions = findViewById<Button>(R.id.btnContinuePermission)
         btnpermissions.setOnClickListener {
             showCustomPermissionDialog()
         }
@@ -98,7 +98,7 @@ class Register_Permissions : AppCompatActivity() {
                 // Both permissions granted
                 Toast.makeText(this, "Location permissions granted", Toast.LENGTH_SHORT).show()
                 //Next Page
-                startActivity( Intent(this, Register_Cell::class.java))
+                startActivity( Intent(this, Register_Email::class.java))
             } else {
                 // Permissions denied
                 Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show()

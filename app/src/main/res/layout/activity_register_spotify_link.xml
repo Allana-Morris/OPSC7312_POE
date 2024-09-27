@@ -8,6 +8,23 @@
     android:background="@color/grey"
     tools:context=".Register_Spotify_Link">
 
+    <Button
+        android:id="@+id/btnContinueSpotify"
+        android:layout_width="230dp"
+        android:layout_height="55dp"
+        android:layout_marginBottom="44dp"
+        android:backgroundTint="@color/spotify_green"
+        android:fontFamily="@font/circular_black"
+        android:text="@string/continue_caption"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/vSpotify"
+        app:layout_constraintVertical_bias="1.0" />
+
     <EditText
         android:id="@+id/edUsername"
         android:layout_width="255dp"
@@ -40,21 +57,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edUsername" />
 
-    <Button
-        android:id="@+id/btncontinue"
-        android:layout_width="230dp"
-        android:layout_height="55dp"
-        android:layout_marginBottom="76dp"
-        android:backgroundTint="@color/spotify_green"
-        android:fontFamily="@font/circular_black"
-        android:text="@string/continue_caption"
-        android:textColor="@color/white"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <ImageView
         android:id="@+id/imgSpotifyIcon"
         android:layout_width="329dp"
@@ -82,13 +84,11 @@
         android:id="@+id/vSpotify"
         android:layout_width="311dp"
         android:layout_height="282dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginTop="28dp"
         android:background="@color/dark_green"
-        app:layout_constraintBottom_toTopOf="@+id/btncontinue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnspotifysearch"
-        app:layout_constraintVertical_bias="0.88" />
+        app:layout_constraintTop_toBottomOf="@+id/btnspotifysearch" />
 
     <ImageView
         android:id="@+id/imgAccountPP"

@@ -55,30 +55,20 @@ dependencies {
 
     //Spotify Authentication
     implementation(files("libs/spotify-auth-release-2.1.0.aar"))
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation ("com.squareup.picasso:picasso:2.71828")
 
     //Google SSO with OAuth2.0
     implementation (libs.androidx.credentials.v150alpha05)
     implementation (libs.androidx.credentials.play.services.auth)
     implementation (libs.googleid)
 
-    // Import the BoM for the Firebase platform
+    // Firebase Authentication
     implementation(platform(libs.firebase.bom))
-
-    // Add the dependency for the Firebase Authentication library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation(libs.firebase.auth)
-
-    // Also add the dependency for the Google Play services library and specify its version
     implementation(libs.google.play.services.auth)
-
-    //OTP
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-   // implementation(libs.firebase.ui.auth)
-    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
-
-
     implementation(libs.androidx.core.ktx)
+
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)

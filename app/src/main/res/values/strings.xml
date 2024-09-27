@@ -18,10 +18,13 @@
     **Please Check String Exists Before Creating new One -->
     <string name="signup_redirect_message">New Here?</string>
     <string name="signup_caption"><u>Sign Up</u></string>
-    <string name="cell_number_caption">Enter Your Phone Number:</string>
-    <string name="cell_num">  Phone Number</string>
-    <string name="otp">Enter OTP Below</string>
-    <string name="otpnovers">OTP</string>
+    <string name="email_caption">Enter Your Email:</string>
+    <string name="emailcaption">Enter An Email:</string>
+    <string name="password_caption">Enter Your Password:</string>
+    <string name="passwordcaption">Enter A Password:</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="emailpasswordhead">Email &amp; Password</string>
     <string name="sign_in_caption">Sign In</string>
     <string name="verify_caption">Verify</string>
     <string name="continue_caption">Continue</string>
@@ -50,7 +53,9 @@
     <string name="spotifyinputhinte">Email</string>
     <string name="spotifyinputhints">Spotify Username</string>
     <string name="warning_need_token">You need to request an access token first</string>
-    <string name="otpresend">Resend OTP</string>
+    <string name="spotify_user_parse_fail">Failed to parse user details</string>
+    <string name="spotify_user_fetch_fail">Failed to fetch user details</string>
+    <string name="spotify_userid_empty">Please enter your Spotify Username</string>
 
     <!-- sven's strings :) -->
     <string name="likesYouHeader">Singles in your area</string>
@@ -71,6 +76,7 @@
     <string name="offlineMode">Allow Offline Mode</string>
     <string name="blockedUsers">Blocked Users</string>
     <string name="saveChanges">Save Changes</string>
+
     <!--Reilly Mare strings -->
 
 </resources>

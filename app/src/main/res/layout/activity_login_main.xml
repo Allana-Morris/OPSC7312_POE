@@ -10,6 +10,37 @@
     tools:context=".Login_Main">
 
     <TextView
+        android:id="@+id/txtPasswordCaption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:fontFamily="@font/circular_black"
+        android:text="@string/password_caption"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etxtEmailLogin" />
+
+    <EditText
+        android:id="@+id/etxtPassword"
+        android:layout_width="282dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="20dp"
+        android:autoSizeTextType="none"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/light_grey"
+        android:ems="10"
+        android:fontFamily="@font/circular_book"
+        android:hint="@string/password"
+        android:inputType="text|textPassword|textNoSuggestions"
+        android:paddingStart="10dp"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtPasswordCaption" />
+
+    <TextView
         android:id="@+id/txtHead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,42 +54,41 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/etxtOTP"
+        android:id="@+id/etxtEmailLogin"
         android:layout_width="282dp"
         android:layout_height="52dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="20dp"
         android:autoSizeTextType="none"
         android:background="@drawable/rounded_corners"
         android:backgroundTint="@color/light_grey"
         android:ems="10"
         android:fontFamily="@font/circular_book"
-        android:hint="@string/cell_num"
-        android:inputType="text|textNoSuggestions"
+        android:hint="@string/email"
+        android:inputType="text|textEmailAddress|textNoSuggestions"
         android:paddingStart="10dp"
+        android:textAlignment="center"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtCaption" />
+        app:layout_constraintTop_toBottomOf="@+id/txtEmailCaption" />
 
     <TextView
-        android:id="@+id/txtCaption"
+        android:id="@+id/txtEmailCaption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="332dp"
+        android:layout_marginTop="144dp"
         android:fontFamily="@font/circular_black"
-        android:text="@string/cell_number_caption"
+        android:text="@string/email_caption"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtHead" />
 
     <Button
-        android:id="@+id/btncontinue"
+        android:id="@+id/btnContinueLogin"
         android:layout_width="249dp"
         android:layout_height="57dp"
-        android:layout_marginTop="92dp"
+        android:layout_marginTop="192dp"
         android:backgroundTint="@color/spotify_green"
         android:fontFamily="@font/circular_black"
         android:text="@string/sign_in_caption"
@@ -67,10 +97,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etxtOTP" />
+        app:layout_constraintTop_toBottomOf="@+id/etxtPassword" />
 
     <TextView
-        android:id="@+id/txtSignUpCaption"
+        android:id="@+id/txtSignUpCaptionLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="148dp"
@@ -79,14 +109,14 @@
         android:text="@string/signup_redirect_message"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/txtSignUpRedirect"
+        app:layout_constraintEnd_toStartOf="@+id/txtSignUpRedirectLogin"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btncontinue"
+        app:layout_constraintTop_toBottomOf="@+id/btnContinueLogin"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/txtSignUpRedirect"
+        android:id="@+id/txtSignUpRedirectLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -102,8 +132,8 @@
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/txtSignUpCaption"
-        app:layout_constraintTop_toBottomOf="@+id/btncontinue"
-        app:layout_constraintVertical_bias="0.111"
+        app:layout_constraintStart_toEndOf="@+id/txtSignUpCaptionLogin"
+        app:layout_constraintTop_toBottomOf="@+id/btnContinueLogin"
+        app:layout_constraintVertical_bias="0.0"
         tools:ignore="TouchTargetSizeCheck" />
 </androidx.constraintlayout.widget.ConstraintLayout>

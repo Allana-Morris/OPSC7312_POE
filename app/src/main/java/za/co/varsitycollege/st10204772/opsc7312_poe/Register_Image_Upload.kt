@@ -33,7 +33,7 @@ class Register_Image_Upload : AppCompatActivity() {
             insets
         }
 
-        val btncontinue = findViewById<Button>(R.id.btncontinue)
+        val btncontinue = findViewById<Button>(R.id.btnContinueImage)
         val imageViews = listOf<ImageView>(
             findViewById(R.id.imgUpload1),
             findViewById(R.id.imgUpload2),
@@ -60,7 +60,7 @@ class Register_Image_Upload : AppCompatActivity() {
                         }
                     }
                 } else {
-                    Toast.makeText(this, "Image selection canceled", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Image selection cancelled", Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -79,8 +79,8 @@ class Register_Image_Upload : AppCompatActivity() {
                     .show()
             } else {
                 // All images are selected, go to the next page
-                val intent = Intent(this, Register_Spotify_Link::class.java)
-                startActivity(intent)
+                User().ProfilePhotos = imageList
+                startActivity(Intent(this, Register_Spotify_Link::class.java))
             }
         }
     }

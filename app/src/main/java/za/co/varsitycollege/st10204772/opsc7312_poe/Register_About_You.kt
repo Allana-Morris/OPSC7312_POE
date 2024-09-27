@@ -1,6 +1,7 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.ContentValues.TAG
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View.INVISIBLE
@@ -26,7 +27,7 @@ class Register_About_You : AppCompatActivity() {
     var edDOB = findViewById<EditText>(R.id.edDOB)
     var rdgGender = findViewById<RadioGroup>(R.id.rdgGender)
     var spPronouns = findViewById<Spinner>(R.id.spnPronouns)
-    var btncontinue = findViewById<Button>(R.id.btnContinue)
+    var btncontinue = findViewById<Button>(R.id.btnContinueAbout)
     var txtMore = findViewById<TextView>(R.id.txtMoreGender)
     var spnmoregenders = findViewById<Spinner>(R.id.spGender)
 
@@ -64,7 +65,7 @@ class Register_About_You : AppCompatActivity() {
             val userName = edName.text.toString()
             val userdob = edDOB.text.toString()
             var userGender = ""
-            var subGender = ""
+            var subGender: String? = null
             val userselect = rdgGender.checkedRadioButtonId
             val userPronouns = spPronouns.selectedItem.toString()
 
@@ -78,6 +79,8 @@ class Register_About_You : AppCompatActivity() {
             }
 
 
+
+
             val userAge: Int = calcAge(userdob)
             when (userAge){
                 -1 -> Log.e(TAG, "Age Calculation Error")
@@ -89,7 +92,7 @@ class Register_About_You : AppCompatActivity() {
             var userDOB = Date()
 
              try {
-                userDOB = dateFormat.parse(userdob)
+                userDOB = dateFormat.parse(userdob)!!
              } catch(e: ParseException){
                  Log.e(TAG, "Parse Exception")
              }
@@ -97,7 +100,14 @@ class Register_About_You : AppCompatActivity() {
             if (userAge < 18) {
                 //error
             } else {
-                user.setUserDetails(userName, userDOB, userAge, userGender, subGender, userPronouns)
+                user.Name = userName
+                user.DOB = userDOB
+                user.Age = userAge
+                user.Gender = userGender
+                user.GenderLabel = subGender
+                user.Pronoun = userPronouns
+                Log.e(TAG, "Success")
+                startActivity(Intent(this, Register_Image_Upload::class.java))
             }
         }
     }
