@@ -63,6 +63,18 @@
     <!-- End of Nav bar -->
 
     <!-- View Box with outline -->
+
+    <Button
+        android:id="@+id/btnFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="320dp"
+        android:layout_marginBottom="624dp"
+        android:backgroundTint="@android:color/holo_green_dark"
+        android:text="Filter"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <View
         android:id="@+id/view"
         android:layout_width="368dp"
@@ -142,6 +154,30 @@
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="@+id/view"
         app:layout_constraintTop_toTopOf="@+id/view" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_nope"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="72dp"
+        android:layout_marginTop="540dp"
+        android:clickable="true"
+        app:layout_constraintStart_toStartOf="@+id/view"
+        app:layout_constraintTop_toTopOf="@+id/view"
+        app:srcCompat="@android:drawable/ic_delete"
+        android:contentDescription="Skip user"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_like"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="232dp"
+        android:layout_marginTop="540dp"
+        android:clickable="true"
+        app:layout_constraintStart_toStartOf="@+id/view"
+        app:layout_constraintTop_toTopOf="@+id/view"
+        app:srcCompat="@android:drawable/star_big_on"
+        android:contentDescription="Like user"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
