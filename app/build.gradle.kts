@@ -71,14 +71,15 @@ dependencies {
     // Also add the dependency for the Google Play services library and specify its version
     implementation(libs.google.play.services.auth)
 
-    //OTP
+
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
-   // implementation(libs.firebase.ui.auth)
+
+
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
-
-
     implementation(libs.androidx.core.ktx)
+    implementation ("com.squareup.picasso:picasso:2.71828")
+
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)

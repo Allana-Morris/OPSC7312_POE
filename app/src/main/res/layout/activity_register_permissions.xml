@@ -9,6 +9,20 @@
     tools:context=".Register_Permissions">
 
     <Button
+        android:id="@+id/btnContinuePermission"
+        android:layout_width="277dp"
+        android:layout_height="51dp"
+        android:layout_marginBottom="32dp"
+        android:backgroundTint="@color/spotify_green"
+        android:fontFamily="@font/circular_black"
+        android:text="@string/permission_agree"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/btndisallow"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
         android:id="@+id/btndisallow"
         android:layout_width="201dp"
         android:layout_height="48dp"
@@ -19,20 +33,6 @@
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/btncontinue"
-        android:layout_width="277dp"
-        android:layout_height="51dp"
-        android:layout_marginBottom="32dp"
-        android:backgroundTint="@color/spotify_green"
-        android:fontFamily="@font/circular_black"
-        android:text="@string/permission_agree"
-        android:textColor="@color/white"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/btndisallow"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -94,7 +94,7 @@
         android:layout_width="90dp"
         android:layout_height="90dp"
         android:layout_marginStart="56dp"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="104dp"
         android:tint="@color/light_green"
         app:layout_constraintBottom_toTopOf="@+id/imgphone"
         app:layout_constraintStart_toStartOf="parent"
@@ -106,9 +106,9 @@
         android:layout_width="90dp"
         android:layout_height="90dp"
         android:layout_marginStart="56dp"
-        android:layout_marginBottom="84dp"
+        android:layout_marginBottom="92dp"
         android:tint="@color/light_green"
-        app:layout_constraintBottom_toTopOf="@+id/btncontinue"
+        app:layout_constraintBottom_toTopOf="@+id/btnContinuePermission"
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/phone_icon"
         tools:ignore="UseAppTint" />
@@ -123,7 +123,7 @@
         android:text="@string/spotify_permission"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.056"
+        app:layout_constraintHorizontal_bias="0.06"
         app:layout_constraintStart_toEndOf="@+id/imgspotify"
         app:layout_constraintTop_toBottomOf="@+id/txtlocation" />
 
@@ -136,22 +136,24 @@
         android:fontFamily="@font/circular_medium"
         android:text="@string/phone_permission"
         android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnContinuePermission"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.048"
+        app:layout_constraintHorizontal_bias="0.044"
         app:layout_constraintStart_toEndOf="@+id/imgphone"
-        app:layout_constraintTop_toBottomOf="@+id/txtspotify" />
+        app:layout_constraintTop_toBottomOf="@+id/txtspotify"
+        app:layout_constraintVertical_bias="0.015" />
 
     <TextView
         android:id="@+id/txtlocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="36dp"
-        android:layout_marginTop="68dp"
+        android:layout_marginTop="56dp"
         android:fontFamily="@font/circular_medium"
         android:text="@string/location_permission"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/imglocation"
         app:layout_constraintTop_toBottomOf="@+id/txtdesc" />
 </androidx.constraintlayout.widget.ConstraintLayout>

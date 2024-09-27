@@ -73,6 +73,39 @@ class DatabaseReadandWrite {
             }
     }
 
+    fun CreateUser(email: String, password: String, user: User, onComplete: (Boolean, String?) -> Unit){
+        val auth = FirebaseAuth.getInstance()
+        val db = FirebaseFirestore.getInstance()
+
+        // Step 1: Create a new user with email and password
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // Step 2: After successful registration, get the user's UID
+                    val userId = auth.currentUser?.uid
+                    user.Email = email // Set the email in the user object
+
+                    // Step 3: Save the user data to Firestore
+                    userId?.let {
+                        db.collection("Users").document(it).set(user)
+                            .addOnSuccessListener {
+                                onComplete(true, "User registered successfully!")
+                            }
+                            .addOnFailureListener { e ->
+                                e.printStackTrace()
+                                onComplete(false, "Failed to save user data: ${e.message}")
+                            }
+                    }
+                } else {
+                    // Registration failed
+                    onComplete(false, "Registration failed: ${task.exception?.message}")
+                }
+            }
+            .addOnFailureListener { e ->
+                e.printStackTrace()
+                onComplete(false, "Registration failed: ${e.message}")
+            }
+    }
 
 
         fun readSpotifyData() {
@@ -83,12 +116,4 @@ class DatabaseReadandWrite {
 
         }
 
-        fun checkUser(cell: String): Boolean {
-
-            return true
-        }
-
-        fun sendOTP(cell: String) {
-
-        }
     }

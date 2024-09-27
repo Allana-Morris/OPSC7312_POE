@@ -41,10 +41,7 @@
             android:name=".Register_Permissions"
             android:exported="false" />
         <activity
-            android:name=".Register_Cell"
-            android:exported="false" />
-        <activity
-            android:name=".Login_OTP"
+            android:name=".Register_Email"
             android:exported="false" />
         <activity
             android:name=".Login_Main"

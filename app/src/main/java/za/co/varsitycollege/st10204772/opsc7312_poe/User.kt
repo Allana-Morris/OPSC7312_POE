@@ -27,21 +27,7 @@ class User() {
         var familyName: String = "",
         var givenName: String = "",
     ) {
-       fun connectUser(user: User)
-       {
-           user.Email = email
-           user.Name = givenName
-           user.hasGoogle = true
-       }
-    }
 
-    fun setUserDetails(name: String, dob: Date, age: Int, gender: String, subgender: String?, pronouns: String){
-        Name = name
-        DOB = dob
-        Age = age
-        Gender = gender
-        GenderLabel = subgender
-        Pronoun = pronouns
     }
 
 }

@@ -10,7 +10,7 @@
     tools:context=".Login_Main">
 
     <TextView
-        android:id="@+id/txtCaption2"
+        android:id="@+id/txtPasswordCaption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
@@ -19,7 +19,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etxtEmail" />
+        app:layout_constraintTop_toBottomOf="@+id/etxtEmailLogin" />
 
     <EditText
         android:id="@+id/etxtPassword"
@@ -38,7 +38,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtCaption2" />
+        app:layout_constraintTop_toBottomOf="@+id/txtPasswordCaption" />
 
     <TextView
         android:id="@+id/txtHead"
@@ -54,7 +54,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/etxtEmail"
+        android:id="@+id/etxtEmailLogin"
         android:layout_width="282dp"
         android:layout_height="52dp"
         android:layout_marginTop="20dp"
@@ -70,10 +70,10 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtCaption" />
+        app:layout_constraintTop_toBottomOf="@+id/txtEmailCaption" />
 
     <TextView
-        android:id="@+id/txtCaption"
+        android:id="@+id/txtEmailCaption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="144dp"
@@ -85,7 +85,7 @@
         app:layout_constraintTop_toBottomOf="@+id/txtHead" />
 
     <Button
-        android:id="@+id/btncontinue"
+        android:id="@+id/btnContinueLogin"
         android:layout_width="249dp"
         android:layout_height="57dp"
         android:layout_marginTop="192dp"
@@ -100,7 +100,7 @@
         app:layout_constraintTop_toBottomOf="@+id/etxtPassword" />
 
     <TextView
-        android:id="@+id/txtSignUpCaption"
+        android:id="@+id/txtSignUpCaptionLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="148dp"
@@ -109,14 +109,14 @@
         android:text="@string/signup_redirect_message"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/txtSignUpRedirect"
+        app:layout_constraintEnd_toStartOf="@+id/txtSignUpRedirectLogin"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btncontinue"
+        app:layout_constraintTop_toBottomOf="@+id/btnContinueLogin"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/txtSignUpRedirect"
+        android:id="@+id/txtSignUpRedirectLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -132,8 +132,8 @@
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/txtSignUpCaption"
-        app:layout_constraintTop_toBottomOf="@+id/btncontinue"
+        app:layout_constraintStart_toEndOf="@+id/txtSignUpCaptionLogin"
+        app:layout_constraintTop_toBottomOf="@+id/btnContinueLogin"
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="TouchTargetSizeCheck" />
 </androidx.constraintlayout.widget.ConstraintLayout>
