@@ -71,7 +71,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.976"
         app:layout_constraintStart_toEndOf="@id/tvLocation"
-        app:layout_constraintTop_toTopOf="@id/tvLocation" />
+        app:layout_constraintTop_toTopOf="@id/tvLocation"
+        android:entries="@array/location_options"/>
 
     <TextView
         android:id="@+id/tvMusicGenre"

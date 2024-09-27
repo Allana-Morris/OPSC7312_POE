@@ -2,7 +2,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.Intent
 import android.os.Bundle
-import android.telecom.Call
+import com.bumptech.glide.Glide
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -23,10 +23,14 @@ class MatchUI : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private var spotifyAccessToken: String? = null
     private val TAG = "MatchUI"
+    // Store user's top songs, artists, and genres
     private lateinit var currentUserTopSongs: List<String>
+    private lateinit var currentUserTopArtists: List<String>
+    private lateinit var currentUserTopGenres: List<String>
     // Variables to hold filter data
     private var selectedGender: String? = null
     private var selectedGenre: String? = null
+    private var selectedLocation: String? = null
 
     // Register a result launcher for the filter activity
     private val filterResultLauncher = registerForActivityResult(
@@ -36,6 +40,7 @@ class MatchUI : AppCompatActivity() {
             val data = result.data
             selectedGender = data?.getStringExtra("selectedGender")
             selectedGenre = data?.getStringExtra("selectedGenre")
+            val selectedLocation = data?.getStringExtra("selectedLocation")  // Get the selected location
 
             // Apply filtering based on the selected gender and genre
             fetchFilteredProfiles()
@@ -90,6 +95,8 @@ class MatchUI : AppCompatActivity() {
             db.collection("users")
                 .whereEqualTo("gender", selectedGender)
                 .whereArrayContains("favoriteGenres", it)
+                .whereEqualTo("location", selectedLocation)  // Apply location filter
+
                 .get()
                 .addOnSuccessListener { documents ->
                     // Handle profile loading and display
@@ -123,40 +130,41 @@ class MatchUI : AppCompatActivity() {
 
     private fun fetchTopSongsFromSpotify(accessToken: String) {
         val request = okhttp3.Request.Builder()
-            .url("https://api.spotify.com/v1/me/top/tracks?limit=3")
+            .url("https://api.spotify.com/v1/me/top/tracks?limit=1") // Fetch only the top song
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
 
         OkHttpClient().newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: IOException) {
-                Log.e(TAG, "Error fetching top songs: $e")
+                Log.e(TAG, "Error fetching top song: $e")
             }
 
             override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 response.body?.let {
                     val jsonResponse = JSONObject(it.string())
-                    val topTracks = jsonResponse.getJSONArray("items")
+                    val topTrack = jsonResponse.getJSONArray("items").getJSONObject(0)
 
-                    // Extract the first song's name and artist name
-                    val song = topTracks.getJSONObject(0) // Getting the first song
-                    val songName = song.getString("name")
-                    val artistName = song.getJSONArray("artists")
-                        .getJSONObject(0).getString("name") // First artist in the list
+                    // Extract song name, artist name, and album cover
+                    val songName = topTrack.getString("name")
+                    val artistName = topTrack.getJSONArray("artists").getJSONObject(0).getString("name")
+                    val albumCoverUrl = topTrack.getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url")
 
-                    // Update the UI with song and artist names
+                    // Update UI with the fetched details
                     runOnUiThread {
                         findViewById<TextView>(R.id.tvSongName).text = songName
                         findViewById<TextView>(R.id.tvArtistName).text = artistName
-                    }
 
-                    // Store current user's top songs for matching later
-                    currentUserTopSongs = List(topTracks.length()) { i ->
-                        topTracks.getJSONObject(i).getString("name")
+                        // Load the album cover into ImageView
+                        val albumCoverImageView = findViewById<ImageView>(R.id.tvAlbumCover)
+                        Glide.with(this@MatchUI)
+                            .load(albumCoverUrl)
+                            .into(albumCoverImageView)
                     }
                 }
             }
         })
     }
+
 
     private fun fetchNextUser() {
         // Fetch and display the next user from Firestore
@@ -166,10 +174,35 @@ class MatchUI : AppCompatActivity() {
                     val userName = document.getString("name")
                     val userAge = document.getLong("age")?.toString() ?: ""
                     val userPronouns = document.getString("pronouns")
+                    val profileImageUrls = document.get("profileImageUrls") as? List<String>  // Fetch image URLs list
+                    val topSongName = document.getString("topSongName") // Assuming Firestore has the top song name
+                    val topSongAlbumCoverUrl = document.getString("topSongAlbumCoverUrl") // Assuming Firestore has the album cover URL
 
                     // Update the UI with new user's details
                     findViewById<TextView>(R.id.tvName).text = "$userName, $userAge"
                     findViewById<TextView>(R.id.tvPronouns).text = userPronouns
+                    findViewById<TextView>(R.id.tvSongName).text = topSongName ?: "No song available"
+
+                    // Load the first profile image using Glide, if available
+                    val profilePicImageView = findViewById<ImageView>(R.id.tvProfilePic)
+                    if (!profileImageUrls.isNullOrEmpty()) {
+                        Glide.with(this)
+                            .load(profileImageUrls[0])  // Load the first image in the list
+                            .into(profilePicImageView)
+                    } else {
+                        // Set a placeholder image if no image is available
+                        profilePicImageView.setImageResource(R.drawable.ic_profile)
+                    }
+
+                    // Load the album cover using Glide, if available
+                    val albumCoverImageView = findViewById<ImageView>(R.id.tvAlbumCover)
+                    if (!topSongAlbumCoverUrl.isNullOrEmpty()) {
+                        Glide.with(this)
+                            .load(topSongAlbumCoverUrl)  // Load the album cover image
+                            .into(albumCoverImageView)
+                    } else {
+                        albumCoverImageView.setImageResource(R.drawable.albumimage) // Placeholder for album cover
+                    }
                 } else {
                     Log.d(TAG, "No such document")
                 }
@@ -180,7 +213,6 @@ class MatchUI : AppCompatActivity() {
     }
 
     private fun checkForMatch() {
-        // Fetch the top 3 songs of the displayed user and compare them with current user's songs
         spotifyAccessToken?.let { token ->
             val request = okhttp3.Request.Builder()
                 .url("https://api.spotify.com/v1/me/top/tracks?limit=3")
@@ -197,18 +229,38 @@ class MatchUI : AppCompatActivity() {
                         val jsonResponse = JSONObject(it.string())
                         val topTracks = jsonResponse.getJSONArray("items")
 
-                        // Extract top 3 songs of the viewed user
+                        // Extract top songs and artists of the viewed user
                         val viewedUserTopSongs = List(topTracks.length()) { i ->
                             topTracks.getJSONObject(i).getString("name")
                         }
+                        val viewedUserTopArtists = List(topTracks.length()) { i ->
+                            topTracks.getJSONObject(i)
+                                .getJSONArray("artists").getJSONObject(0).getString("name")
+                        }
 
-                        // Check if the current user and the viewed user have any common songs
-                        val commonSongs = currentUserTopSongs.intersect(viewedUserTopSongs)
+                        // Fetch genres for the viewed user's artists and store them
+                        val viewedUserTopGenres = mutableSetOf<String>()
+
+                        val genreFetchers = viewedUserTopArtists.map { artistName ->
+                            fetchArtistGenres(token, artistName, viewedUserTopGenres)
+                        }
+
+                        // Wait for all genre fetching requests to complete
+                        genreFetchers.forEach { it.join() }
 
                         runOnUiThread {
-                            if (commonSongs.isNotEmpty()) {
+                            // Check for matches in songs, artists, and genres
+                            val commonSongs = currentUserTopSongs.intersect(viewedUserTopSongs)
+                            val commonArtists = currentUserTopArtists.intersect(viewedUserTopArtists)
+                            val commonGenres = currentUserTopGenres.intersect(viewedUserTopGenres)
+
+                            if (commonSongs.isNotEmpty() || commonArtists.isNotEmpty() || commonGenres.isNotEmpty()) {
                                 // If there's a match, show a message
-                                Toast.makeText(this@MatchUI, "It's a match! Common songs: $commonSongs", Toast.LENGTH_LONG).show()
+                                Toast.makeText(
+                                    this@MatchUI,
+                                    "It's a match! Common songs: $commonSongs, artists: $commonArtists, genres: $commonGenres",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             } else {
                                 Toast.makeText(this@MatchUI, "No match found", Toast.LENGTH_SHORT).show()
                             }
@@ -217,5 +269,38 @@ class MatchUI : AppCompatActivity() {
                 }
             })
         }
+    }
+
+    // Helper function to fetch artist genres from Spotify API
+    private fun fetchArtistGenres(accessToken: String, artistName: String, viewedUserTopGenres: MutableSet<String>): Thread {
+        val thread = Thread {
+            val request = okhttp3.Request.Builder()
+                .url("https://api.spotify.com/v1/search?q=$artistName&type=artist&limit=1")
+                .addHeader("Authorization", "Bearer $accessToken")
+                .build()
+
+            OkHttpClient().newCall(request).enqueue(object : okhttp3.Callback {
+                override fun onFailure(call: okhttp3.Call, e: IOException) {
+                    Log.e(TAG, "Error fetching artist genres: $e")
+                }
+
+                override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                    response.body?.let {
+                        val jsonResponse = JSONObject(it.string())
+                        val artists = jsonResponse.getJSONObject("artists").getJSONArray("items")
+
+                        if (artists.length() > 0) {
+                            val artist = artists.getJSONObject(0)
+                            val genres = artist.getJSONArray("genres")
+                            for (i in 0 until genres.length()) {
+                                viewedUserTopGenres.add(genres.getString(i))  // Add each genre to the set
+                            }
+                        }
+                    }
+                }
+            })
+        }
+        thread.start()
+        return thread
     }
 }

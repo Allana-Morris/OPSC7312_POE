@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
@@ -15,12 +16,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import java.io.ByteArrayOutputStream
 
 
 class Register_Image_Upload : AppCompatActivity() {
 
     private var imageList: MutableList<Bitmap> = mutableListOf()
     private var currentImageViewIndex: Int = -1
+    private val storage = FirebaseStorage.getInstance().reference
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,13 +80,23 @@ class Register_Image_Upload : AppCompatActivity() {
         }
 
         btncontinue.setOnClickListener {
-            if (imageList.any { false }) {
-                Toast.makeText(this, "Please select six images", Toast.LENGTH_SHORT)
-                    .show()
+            if (imageList.any { it == null }) {
+                Toast.makeText(this, "Please select six images", Toast.LENGTH_SHORT).show()
             } else {
-                // All images are selected, go to the next page
-                User().ProfilePhotos = imageList
-                startActivity(Intent(this, Register_Spotify_Link::class.java))
+                val imageUrls = mutableListOf<String>()
+                imageList.forEachIndexed { index, bitmap ->
+                    uploadImageToFirebaseStorage(bitmap, "image_$index") { downloadUrl ->
+                        if (downloadUrl != null) {
+                            imageUrls.add(downloadUrl)
+                            if (imageUrls.size == imageList.size) {
+                                saveProfileImageUrls("user_id", imageUrls)
+                                startActivity(Intent(this, Register_Spotify_Link::class.java))
+                            }
+                        } else {
+                            Toast.makeText(this, "Failed to upload image $index", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             }
         }
     }
@@ -100,6 +116,47 @@ class Register_Image_Upload : AppCompatActivity() {
             null
         }
     }
+
+    private fun uploadImageToFirebaseStorage(bitmap: Bitmap, fileName: String, callback: (String?) -> Unit) {
+        // Create a reference to the image location in Firebase Storage
+        val storageRef = storage.child("profile_images/$fileName.jpg")
+
+        // Convert Bitmap to ByteArray
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        val imageData = byteArrayOutputStream.toByteArray()
+
+        // Upload the ByteArray to Firebase Storage
+        val uploadTask = storageRef.putBytes(imageData)
+        uploadTask.addOnSuccessListener {
+            // Get the download URL after successful upload
+            storageRef.downloadUrl.addOnSuccessListener { uri ->
+                val downloadUrl = uri.toString()
+                callback(downloadUrl) // Return the download URL to the caller
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("FirebaseUpload", "Failed to upload image: ${exception.message}")
+            callback(null)
+        }
+    }
+
+    private fun saveProfileImageUrls(userId: String, imageUrls: List<String>) {
+        val db = FirebaseFirestore.getInstance()
+        val userRef = db.collection("users").document(userId)
+
+        val userProfileData = mapOf(
+            "profileImageUrls" to imageUrls
+        )
+
+        userRef.update(userProfileData)
+            .addOnSuccessListener {
+                Log.d("Firestore", "Profile image URLs updated successfully")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firestore", "Error updating profile image URLs", e)
+            }
+    }
+
 }
 
 

@@ -14,6 +14,12 @@
         <!-- Add more genres as needed -->
     </string-array>
 
+    <string-array name="location_options">
+        <item>Cape Town</item>
+        <item>Johannesburg</item>
+        <item>Durban</item>
+    </string-array>
+
     <!-- Allan's strings
     **Please Check String Exists Before Creating new One -->
     <string name="signup_redirect_message">New Here?</string>

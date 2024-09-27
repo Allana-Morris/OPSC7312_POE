@@ -58,6 +58,10 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
     implementation ("com.squareup.picasso:picasso:2.71828")
 
+    //Glide for image loading
+    implementation (libs.glide)
+    annotationProcessor (libs.compiler)
+
     //Google SSO with OAuth2.0
     implementation (libs.androidx.credentials.v150alpha05)
     implementation (libs.androidx.credentials.play.services.auth)
@@ -69,6 +73,7 @@ dependencies {
     implementation(libs.google.play.services.auth)
     implementation(libs.androidx.core.ktx)
 
+    implementation (libs.firebase.storage)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)

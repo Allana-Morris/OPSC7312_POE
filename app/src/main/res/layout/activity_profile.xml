@@ -11,7 +11,7 @@
 
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/profileImage"
+        android:id="@+id/profileImageView"
         android:layout_width="140dp"
         android:layout_height="145dp"
         android:layout_marginTop="48dp"
@@ -24,26 +24,26 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/profileName"
+        android:id="@+id/tvProfileName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Ed, 33"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@id/profileImage"
+        app:layout_constraintTop_toBottomOf="@id/profileImageView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp"/>
 
     <TextView
-        android:id="@+id/profilePronouns"
+        android:id="@+id/tvProfilePronouns"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="He/Him"
         android:textSize="16sp"
         android:textColor="@android:color/white"
-        app:layout_constraintTop_toBottomOf="@id/profileName"
+        app:layout_constraintTop_toBottomOf="@id/tvProfileName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -76,7 +76,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/profilePronouns">
+        app:layout_constraintTop_toBottomOf="@id/tvProfilePronouns">
 
         <!-- Spotify Logo -->
         <ImageView
