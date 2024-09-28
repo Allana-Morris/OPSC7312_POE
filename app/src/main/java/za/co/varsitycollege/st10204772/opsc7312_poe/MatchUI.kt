@@ -73,9 +73,9 @@ class MatchUI : AppCompatActivity() {
         // Set an onClickListener on the profile picture to navigate to ProfileUI
         val profilePic = findViewById<FloatingActionButton>(R.id.fab_profile)
         profilePic.setOnClickListener {
-            val intent = Intent(this, ProfileUI::class.java)
+            //val intent = Intent(this, ProfileUI::class.java)
             // Pass any additional data if needed (e.g., user ID)
-            startActivity(intent)
+            //startActivity(intent)
         }
 
         // Set onClickListeners for Floating Action Buttons
@@ -95,8 +95,8 @@ class MatchUI : AppCompatActivity() {
     private fun fetchFilteredProfiles() {
         // Adjust Firestore query to include gender and genre filters
         selectedGenre?.let {
-            db.collection("users")
-                .whereEqualTo("gender", selectedGender)
+            db.collection("Users")
+                .whereEqualTo("Gender", selectedGender)
                 .whereArrayContains("favoriteGenres", it)
                 .get()
                 .addOnSuccessListener { documents ->
@@ -110,12 +110,12 @@ class MatchUI : AppCompatActivity() {
 
     private fun fetchUserDetails() {
         // Assuming Firestore stores user's name, age, and pronouns
-         db.collection("Users").document("user_id").get()
+         db.collection("Users").document("User_id").get()
             .addOnSuccessListener { document ->
                 if (document != null) {
-                    val userName = document.getString("name")
-                    val userAge = document.getLong("age")?.toString() ?: ""
-                    val userPronouns = document.getString("pronouns")
+                    val userName = document.getString("Name")
+                    val userAge = document.getLong("Age")?.toString() ?: ""
+                    val userPronouns = document.getString("Pronouns")
 
                     // Display user data in respective fields
                     findViewById<TextView>(R.id.tvName).text = "$userName, $userAge"
@@ -145,7 +145,7 @@ class MatchUI : AppCompatActivity() {
     }
 
     private fun fetchTopSongsFromSpotify(accessToken: String) {
-        val request = okhttp3.Request.Builder()
+        val request = Request.Builder()
             .url("https://api.spotify.com/v1/me/top/tracks?limit=3")
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
@@ -220,7 +220,7 @@ class MatchUI : AppCompatActivity() {
     private fun checkForMatch() {
         // Fetch the top 3 songs of the displayed user and compare them with current user's songs
         spotifyAccessToken?.let { token ->
-            val request = okhttp3.Request.Builder()
+            val request = Request.Builder()
                 .url("https://api.spotify.com/v1/me/top/tracks?limit=3")
                 .addHeader("Authorization", "Bearer $token")
                 .build()
