@@ -34,7 +34,16 @@
             android:exported="false" />
         <activity
             android:name=".Register_Spotify_Link"
-            android:exported="false" />
+            android:screenOrientation="fullSensor"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+        android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="musicmatch" android:host="spotify-callback" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".Register_Image_Upload"
             android:exported="false" />

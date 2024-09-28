@@ -40,26 +40,23 @@ class Register_Email : AppCompatActivity() {
             if (inpVal.isStringInput(newEmail) && inpVal.isStringInput(newPassword)) {
                 // Validate the format of email and password
                 if (inpVal.isEmail(newEmail) && inpVal.isPassword(newPassword)) {
-                    // Check if the user already exists in the database
-                    DatabaseReadandWrite().checkLogin(newEmail) { isFound -> // Only pass email
-                        if (isFound) {
-                            // User exists, notify the user
-                            Toast.makeText(this, "User Already Exists", Toast.LENGTH_LONG).show()
-                        } else {
-                            // Set user details for registration
-                            user.Email = newEmail
-                            user.Password = newPassword
-                            user.hasGoogle = false
+                    // Set user details for registration
+                    user.Email = newEmail
+                    user.Password = newPassword
+                    user.hasGoogle = false
 
-                            // Register and save the new user to Firestore
-                            DatabaseReadandWrite().registerUser(user) { success, errorMessage ->
-                                if (success) {
-                                    Toast.makeText(this, "Registration Successful", Toast.LENGTH_LONG).show()
-                                    startActivity(Intent(this, Register_About_You::class.java))
-                                } else {
-                                    Log.e(TAG, "Failed to register user: $errorMessage")
-                                    Toast.makeText(this, "Failed to save user: $errorMessage", Toast.LENGTH_LONG).show()
-                                }
+                    // Register and save the new user to Firestore
+                    DatabaseReadandWrite().registerUser(user) { success, errorMessage ->
+                        if (success) {
+                            Toast.makeText(this, "Registration Successful", Toast.LENGTH_LONG).show()
+                            startActivity(Intent(this, Register_About_You::class.java))
+                        } else {
+                            if (errorMessage?.contains("already in use") == true) {
+                                // Firebase will throw an error if the email is already registered
+                                Toast.makeText(this, "User Already Exists", Toast.LENGTH_LONG).show()
+                            } else {
+                                Log.e(TAG, "Failed to register user: $errorMessage")
+                                Toast.makeText(this, "Failed to save user: $errorMessage", Toast.LENGTH_LONG).show()
                             }
                         }
                     }

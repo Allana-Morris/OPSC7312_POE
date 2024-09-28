@@ -3,6 +3,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 import android.content.ContentValues.TAG
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -46,56 +47,19 @@ class DatabaseReadandWrite {
     }
 
     /**
-     * Check if a user exists based on email and password.
-     */
-    fun checkLogin(email: String, callback: (Boolean) -> Unit) {
-        val auth = FirebaseAuth.getInstance()
-
-        // Attempt to sign in with FirebaseAuth
-        auth.signInWithEmailAndPassword(email, "dummy_password")
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    // If authentication is successful, user exists
-                    callback(true)
-                } else {
-                    // User not found or authentication failed
-                    callback(false)
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.w(TAG, "Error checking login", e)
-                callback(false) // Return false in case of failure
-            }
-    }
-
-
-    /**
      * Login an existing user using FirebaseAuth.
+     * Now returns `FirebaseUser` to provide user ID and authentication details.
      */
-    fun loginUser(email: String, password: String, onUserLoaded: (User?) -> Unit) {
+    fun loginUser(email: String, password: String, onUserLoaded: (FirebaseUser?) -> Unit) {
         val auth = FirebaseAuth.getInstance()
 
         // Authenticate with FirebaseAuth
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    // If login is successful, fetch the user's profile from Firestore
-                    val userId = auth.currentUser?.uid
-                    userId?.let {
-                        db.collection("users").document(it).get()
-                            .addOnSuccessListener { documentSnapshot ->
-                                if (documentSnapshot.exists()) {
-                                    val user = documentSnapshot.toObject(User::class.java)
-                                    onUserLoaded(user) // User data found
-                                } else {
-                                    onUserLoaded(null) // No user data found in Firestore
-                                }
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e(TAG, "Error fetching user data", e)
-                                onUserLoaded(null)
-                            }
-                    } ?: onUserLoaded(null) // No UID found
+                    // Pass back the authenticated `FirebaseUser` object
+                    val user = auth.currentUser
+                    onUserLoaded(user)
                 } else {
                     // Authentication failed
                     Log.e(TAG, "Authentication failed", task.exception)
@@ -108,7 +72,38 @@ class DatabaseReadandWrite {
             }
     }
 
+    /**
+     * Check if user profile exists and is complete.
+     * This method checks if key fields such as profile image URLs and Spotify user ID are populated.
+     */
+    fun checkUserProfileExists(userId: String, callback: (Boolean) -> Unit) {
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    // Log the found document for debugging purposes
+                    Log.d(TAG, "User profile found for ID: $userId")
 
+                    // Check if key fields like profile images or Spotify ID exist
+                    val profileImageUrls = document.get("profileImageUrls") as? List<String>
+                    val spotifyUserId = document.getString("spotifyUserId")
+
+                    if (!profileImageUrls.isNullOrEmpty() && !spotifyUserId.isNullOrEmpty()) {
+                        Log.d(TAG, "Profile is complete for user: $userId")
+                        callback(true)  // Profile is complete
+                    } else {
+                        Log.d(TAG, "Profile is incomplete for user: $userId")
+                        callback(false)  // Profile is incomplete
+                    }
+                } else {
+                    Log.d(TAG, "No user profile found for ID: $userId")
+                    callback(false)  // Profile doesn't exist
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Error checking user profile: ${exception.message}")
+                callback(false)  // Error fetching profile, assume incomplete
+            }
+    }
 
     /**
      * Example method for reading Spotify data.

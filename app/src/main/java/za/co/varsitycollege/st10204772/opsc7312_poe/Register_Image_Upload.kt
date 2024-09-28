@@ -150,11 +150,12 @@ class Register_Image_Upload : AppCompatActivity() {
         userRef.update(mapOf("profileImageUrls" to imageUrls))
             .addOnSuccessListener {
                 Log.d("Firestore", "Profile image URLs updated successfully")
-                // Navigate to MatchUI after successful upload
-                startActivity(Intent(this, MatchUI::class.java))
+                // Navigate to Register_Spotify_Link after successful upload
+                startActivity(Intent(this, Register_Spotify_Link::class.java))
             }
             .addOnFailureListener { e ->
                 Log.e("Firestore", "Error updating profile image URLs", e)
+                Toast.makeText(this, "Failed to save profile images. Try again.", Toast.LENGTH_SHORT).show()
             }
     }
 }

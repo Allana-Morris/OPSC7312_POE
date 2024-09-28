@@ -31,19 +31,27 @@ class Login_Main : AppCompatActivity() {
         val inpval = InputValidation()
 
         btnLogin.setOnClickListener {
-            val uEmail = userEmail.text.toString() // Convert to String immediately
-            val uPass = userPassword.text.toString() // Convert to String immediately
+            val email = userEmail.text.toString().trim()  // Trim input
+            val password = userPassword.text.toString().trim()
 
-            if ((inpval.isStringInput(uEmail)) && (inpval.isStringInput(uPass))) {
-                val email = uEmail
-                val password = uPass
-
-                if ((inpval.isEmail(email)) && (inpval.isPassword(password))) {
-                    // No need for checkLogin - directly use Firebase Auth
+            if (inpval.isStringInput(email) && inpval.isStringInput(password)) {
+                if (inpval.isEmail(email) && inpval.isPassword(password)) {
+                    // Attempt login using Firebase Auth
                     DatabaseReadandWrite().loginUser(email, password) { user ->
                         if (user != null) {
-                            val intent = Intent(this, Register_About_You::class.java)
-                            startActivity(intent)
+                            val userId = user.uid  // Get the logged-in user's UID
+                            // Check if the user profile exists and is complete
+                            DatabaseReadandWrite().checkUserProfileExists(userId) { isProfileComplete ->
+                                if (isProfileComplete) {
+                                    // Redirect to main app if the profile is complete
+                                    val intent = Intent(this, MatchUI::class.java)
+                                    startActivity(intent)
+                                } else {
+                                    // Redirect to registration if the profile is incomplete
+                                    val intent = Intent(this, Register_About_You::class.java)
+                                    startActivity(intent)
+                                }
+                            }
                         } else {
                             Log.e(TAG, "User Not Found or Failed to load user")
                             Toast.makeText(this, "User Not Found", Toast.LENGTH_LONG).show()
@@ -66,3 +74,4 @@ class Login_Main : AppCompatActivity() {
         }
     }
 }
+

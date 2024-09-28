@@ -54,9 +54,10 @@ dependencies {
     implementation(libs.circleimageview)
 
     //Spotify Authentication
-    implementation(files("libs/spotify-auth-release-2.1.0.aar"))
+    //implementation(files("libs/spotify-auth-release-2.1.0.aar"))
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
     implementation ("com.squareup.picasso:picasso:2.71828")
+    implementation ("com.spotify.android:auth:1.2.5")
 
     //Glide for image loading
     implementation (libs.glide)
