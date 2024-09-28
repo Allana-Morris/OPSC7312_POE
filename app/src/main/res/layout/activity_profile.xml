@@ -138,12 +138,14 @@
 
     </LinearLayout>
 
-    <include
-        layout="@layout/layout_bottom_navigation"
-        android:layout_width="411dp"
-        android:layout_height="60dp"
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/BNV_Navbar_Profile"
+        android:layout_width="410dp"
+        android:layout_height="83dp"
+        app:menu="@menu/bottom_navbar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

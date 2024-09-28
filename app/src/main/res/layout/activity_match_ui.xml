@@ -10,56 +10,6 @@
     tools:context=".MatchUI">
 
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="56dp"
-        android:layout_gravity="bottom"
-        android:background="@android:color/holo_green_dark"
-        android:gravity="bottom"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-
-        <!-- Icons for Navigation Bar -->
-        <ImageView
-            android:id="@+id/navMusic"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:contentDescription="Music"
-            android:src="@drawable/ic_music" />
-
-        <ImageView
-            android:id="@+id/navLike"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:contentDescription="Like"
-            android:src="@drawable/ic_like" />
-
-        <ImageView
-            android:id="@+id/navChat"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:contentDescription="Chat"
-            android:src="@drawable/ic_chat" />
-
-        <ImageView
-            android:id="@+id/navProfile"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:contentDescription="Profile"
-            android:src="@drawable/ic_profile" />
-
-    </LinearLayout>
     <!-- End of Nav bar -->
 
     <!-- View Box with outline -->
@@ -75,15 +25,16 @@
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintStart_toStartOf="parent" />
 
+
     <View
         android:id="@+id/view"
         android:layout_width="368dp"
         android:layout_height="585dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginBottom="28dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="68dp"
         android:background="@drawable/outline_view"
         android:backgroundTint="@color/grey"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintBottom_toTopOf="@+id/BNV_Navbar_Match"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
@@ -95,6 +46,7 @@
         android:layout_marginStart="24dp"
 
         android:layout_marginTop="24dp"
+        android:scaleType="fitCenter"
         app:layout_constraintStart_toStartOf="@+id/view"
         app:layout_constraintTop_toTopOf="@+id/view"
         app:srcCompat="@drawable/profile_placeholder" />
@@ -154,6 +106,16 @@
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="@+id/view"
         app:layout_constraintTop_toTopOf="@+id/view" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/BNV_Navbar_Match"
+        android:layout_width="410dp"
+        android:layout_height="85dp"
+        android:layout_alignParentBottom="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_navbar" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_nope"

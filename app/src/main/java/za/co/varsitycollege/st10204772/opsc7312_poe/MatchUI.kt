@@ -1,5 +1,6 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.telecom.Call
@@ -18,6 +19,7 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 import javax.security.auth.callback.Callback
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MatchUI : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
@@ -42,6 +44,7 @@ class MatchUI : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_match_ui)
@@ -216,6 +219,30 @@ class MatchUI : AppCompatActivity() {
                     }
                 }
             })
+        }
+
+        var navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Match)
+
+        navbar.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_match -> {
+                    startActivity(Intent(this, MatchUI::class.java))
+                    true
+                }
+                R.id.nav_like -> {
+                    startActivity(Intent(this, Liked_you::class.java))
+                    true
+                }
+                R.id.nav_chat -> {
+                    startActivity(Intent(this, Contact::class.java))
+                    true
+                }
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, ProfileUI::class.java))
+                    true
+                }
+                else -> false
+            }
         }
     }
 }
