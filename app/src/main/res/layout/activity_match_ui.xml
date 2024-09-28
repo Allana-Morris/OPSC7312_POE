@@ -6,7 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/darker_gray"
+    android:background="@color/lowkey_grey"
     tools:context=".MatchUI">
 
 
@@ -14,98 +14,139 @@
 
     <!-- View Box with outline -->
 
-    <Button
-        android:id="@+id/btnFilter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="320dp"
-        android:layout_marginBottom="624dp"
-        android:backgroundTint="@android:color/holo_green_dark"
-        android:text="Filter"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintStart_toStartOf="parent" />
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/lL_Bar"
+        android:layout_width="414dp"
+        android:layout_height="66dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <View
-        android:id="@+id/view"
-        android:layout_width="368dp"
-        android:layout_height="585dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginBottom="68dp"
-        android:background="@drawable/outline_view"
-        android:backgroundTint="@color/grey"
+        <ImageView
+            android:id="@+id/iV_Filter"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/filter"
+            android:tint="@color/light_grey"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="UseAppTint" />
+
+        <TextView
+            android:id="@+id/tVAppName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/circular_bold"
+            android:text="@string/app_name"
+            android:textAlignment="viewStart"
+            android:textColor="@color/spotify_green"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iV_Logo"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.555" />
+
+        <ImageView
+            android:id="@+id/iV_Logo"
+            android:layout_width="75dp"
+            android:layout_height="88dp"
+            android:layout_marginStart="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/navbar_match" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/CLMatch"
+        android:layout_width="339dp"
+        android:layout_height="640dp"
+        android:background="@drawable/rounded_corners"
+        android:backgroundTint="@color/light_grey"
         app:layout_constraintBottom_toTopOf="@+id/BNV_Navbar_Match"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lL_Bar"
+        app:layout_constraintVertical_bias="0.28">
 
-    <ImageView
-        android:id="@+id/tvProfilePic"
-        android:layout_width="323dp"
-        android:layout_height="224dp"
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/imagePager"
+            android:layout_width="307dp"
+            android:layout_height="175dp"
+            android:layout_marginTop="64dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imagePager" />
 
-        android:layout_marginStart="24dp"
+        <TextView
+            android:id="@+id/tvPronouns"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvName" />
 
-        android:layout_marginTop="24dp"
-        android:scaleType="fitCenter"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view"
-        app:srcCompat="@drawable/profile_placeholder" />
+        <ImageView
+            android:id="@+id/tvAlbumCover"
+            android:layout_width="118dp"
+            android:layout_height="132dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="88dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvPronouns" />
 
-    <TextView
-        android:id="@+id/tvName"
+        <TextView
+            android:id="@+id/tvSongName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="80dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvAlbumCover"
+            app:layout_constraintTop_toBottomOf="@+id/tvPronouns" />
+
+        <TextView
+            android:id="@+id/tvArtistName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tvAlbumCover"
+            app:layout_constraintTop_toBottomOf="@+id/tvSongName" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_like"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="128dp"
-        android:layout_marginTop="260dp"
-        android:text="@string/suiterName"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view" />
-
-    <TextView
-        android:id="@+id/tvPronouns"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="152dp"
-        android:layout_marginTop="292dp"
-        android:text="@string/pronouns"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view" />
-
-    <ImageView
-        android:id="@+id/tvAlbumCover"
-        android:layout_width="118dp"
-        android:layout_height="132dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="356dp"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view"
-        app:srcCompat="@drawable/albumimage" />
-
-    <TextView
-        android:id="@+id/tvSongName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="168dp"
-        android:layout_marginTop="380dp"
-        android:text="@string/songName"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view" />
-
-    <TextView
-        android:id="@+id/tvArtistName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="168dp"
-        android:layout_marginTop="404dp"
-        android:text="@string/Artist"
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view" />
+        android:layout_marginEnd="60dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:contentDescription="Like user"
+        app:layout_constraintBottom_toTopOf="@+id/BNV_Navbar_Match"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/CLMatch"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@android:drawable/star_big_on" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/BNV_Navbar_Match"
@@ -115,31 +156,33 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_navbar" />
+        app:menu="@menu/bottom_navbar">
+
+    </com.google.android.material.bottomnavigation.BottomNavigationView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_profile"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:clickable="true"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_profile"
+        tools:layout_editor_absoluteX="411dp"
+        tools:layout_editor_absoluteY="750dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_nope"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="72dp"
-        android:layout_marginTop="540dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginBottom="16dp"
         android:clickable="true"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view"
-        app:srcCompat="@android:drawable/ic_delete"
-        android:contentDescription="Skip user"/>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_like"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="232dp"
-        android:layout_marginTop="540dp"
-        android:clickable="true"
-        app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view"
-        app:srcCompat="@android:drawable/star_big_on"
-        android:contentDescription="Like user"/>
+        android:contentDescription="Skip user"
+        app:layout_constraintBottom_toTopOf="@+id/BNV_Navbar_Match"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/CLMatch"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@android:drawable/ic_delete" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

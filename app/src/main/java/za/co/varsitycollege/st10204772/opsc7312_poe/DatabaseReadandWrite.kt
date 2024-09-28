@@ -1,9 +1,18 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.ContentValues.TAG
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.util.Log
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
+import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
@@ -36,7 +45,7 @@ class DatabaseReadandWrite {
             }
     }
 
-    fun loginUser(email: String, password: String, onUserLoaded: (User?) -> Unit){
+    fun loginUser(email: String, password: String, onUserLoaded: (User?) -> Unit) {
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
 
@@ -73,7 +82,12 @@ class DatabaseReadandWrite {
             }
     }
 
-    fun CreateUser(email: String, password: String, user: User, onComplete: (Boolean, String?) -> Unit){
+    fun CreateUser(
+        email: String,
+        password: String,
+        user: User,
+        onComplete: (Boolean, String?) -> Unit
+    ) {
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
 
@@ -108,12 +122,67 @@ class DatabaseReadandWrite {
     }
 
 
-        fun readSpotifyData() {
-
-        }
-
-        fun writeSpotifyData(data: SpotifyData) {
-
-        }
+    fun readSpotifyData() {
 
     }
+
+    fun writeSpotifyData(data: SpotifyData) {
+
+    }
+
+    fun loadProfileImages(userId: String, context: Context, callback: (List<Bitmap>) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val profileImages = mutableListOf<Bitmap>() // Mutable list to hold loaded Bitmaps
+
+        // Retrieve user document from Firestore
+        db.collection("Users").document(userId).get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val documentSnapshot = task.result
+                    if (documentSnapshot != null && documentSnapshot.exists()) {
+                        // Retrieve image URLs
+                        val imageUrls = (documentSnapshot.get("ProfilePhotos") as? List<String>)
+                            ?: emptyList()
+
+                        val imageLoadCount = imageUrls.size
+                        var imagesLoaded = 0
+
+                        for (imageUrl in imageUrls) {
+                            Glide.with(context)
+                                .asBitmap()
+                                .load(Uri.parse(imageUrl))
+                                .into(object : CustomTarget<Bitmap>() {
+                                    override fun onResourceReady(
+                                        resource: Bitmap,
+                                        transition: Transition<in Bitmap>?
+                                    ) {
+                                        profileImages.add(resource) // Add loaded Bitmap to the list
+                                        imagesLoaded++
+
+                                        // Notify callback once all images are loaded
+                                        if (imagesLoaded == imageLoadCount) {
+                                            callback(profileImages) // Return the list
+                                        }
+                                    }
+
+                                    override fun onLoadCleared(placeholder: Drawable?) {
+                                        // Handle any cleanup if necessary
+                                    }
+                                })
+                        }
+
+                        // If there are no images, call the callback immediately
+                        if (imageLoadCount == 0) {
+                            callback(profileImages)
+                        }
+                    } else {
+                        // Document does not exist
+                        callback(emptyList())
+                    }
+                } else {
+                    // Handle the error
+                    callback(emptyList())
+                }
+            }
+    }
+}

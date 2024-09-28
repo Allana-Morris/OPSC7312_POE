@@ -27,7 +27,7 @@
         android:layout_weight="1"
         android:contentDescription="@string/liked_you"
         android:scaleType="fitCenter"
-        android:src=""
+        android:src="@drawable/navbar_liked_you"
         app:tint="@color/black" />
 
     <ImageView
@@ -49,7 +49,7 @@
         android:layout_weight="1"
         android:contentDescription="@string/profile"
         android:scaleType="fitCenter"
-        android:src=""
+        android:src="@drawable/navbar_profile"
         app:tint="@color/black"/>
 
 </LinearLayout>

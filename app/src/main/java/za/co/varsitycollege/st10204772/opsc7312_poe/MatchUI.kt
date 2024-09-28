@@ -2,6 +2,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.telecom.Call
 import android.util.Log
@@ -12,6 +13,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.common.api.Response
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FirebaseFirestore
@@ -20,6 +22,7 @@ import org.json.JSONObject
 import java.io.IOException
 import javax.security.auth.callback.Callback
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.api.Context
 
 class MatchUI : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
@@ -29,6 +32,7 @@ class MatchUI : AppCompatActivity() {
     // Variables to hold filter data
     private var selectedGender: String? = null
     private var selectedGenre: String? = null
+    private lateinit var profileImages: MutableList<Bitmap>
 
     // Register a result launcher for the filter activity
     private val filterResultLauncher = registerForActivityResult(
@@ -50,7 +54,7 @@ class MatchUI : AppCompatActivity() {
         setContentView(R.layout.activity_match_ui)
 
         // Trigger FilterActivity
-        findViewById<Button>(R.id.btnFilter).setOnClickListener {
+        findViewById<ImageView>(R.id.iV_Filter).setOnClickListener {
             val intent = Intent(this, FilterActivity::class.java)
             filterResultLauncher.launch(intent)
         }
@@ -67,7 +71,7 @@ class MatchUI : AppCompatActivity() {
         }
 
         // Set an onClickListener on the profile picture to navigate to ProfileUI
-        val profilePic = findViewById<ImageView>(R.id.tvProfilePic)
+        val profilePic = findViewById<FloatingActionButton>(R.id.fab_profile)
         profilePic.setOnClickListener {
             val intent = Intent(this, ProfileUI::class.java)
             // Pass any additional data if needed (e.g., user ID)
@@ -84,6 +88,7 @@ class MatchUI : AppCompatActivity() {
             // Handle Like: Check for match based on top 3 songs
             checkForMatch()
         }
+
     }
 
     // Fetch profiles based on selected filters
@@ -105,7 +110,7 @@ class MatchUI : AppCompatActivity() {
 
     private fun fetchUserDetails() {
         // Assuming Firestore stores user's name, age, and pronouns
-        db.collection("users").document("user_id").get()
+         db.collection("Users").document("user_id").get()
             .addOnSuccessListener { document ->
                 if (document != null) {
                     val userName = document.getString("name")
@@ -115,6 +120,21 @@ class MatchUI : AppCompatActivity() {
                     // Display user data in respective fields
                     findViewById<TextView>(R.id.tvName).text = "$userName, $userAge"
                     findViewById<TextView>(R.id.tvPronouns).text = userPronouns
+                    DatabaseReadandWrite().loadProfileImages("$userName", this ) { images ->
+                        if (images.isNotEmpty()) {
+                            profileImages = images.toMutableList()
+                        } else {
+                            // Handle the case where no images were loaded
+                            Log.d(TAG, "No images found")
+                        }
+                    }
+                    // Load your bitmap images into the list (replace with your actual loading logic)
+                    for (i in 0 until minOf(6, profileImages.size)){
+                    profileImages.add(profileImages[i])}
+                    // Find the ViewPager2 and set the adapter
+                    val viewPager = findViewById<ViewPager2>(R.id.imagePager)
+                    val adapter = ProfileImageAdapter(profileImages)
+                    viewPager.adapter = adapter
                 } else {
                     Log.d(TAG, "No such document")
                 }
@@ -163,7 +183,7 @@ class MatchUI : AppCompatActivity() {
 
     private fun fetchNextUser() {
         // Fetch and display the next user from Firestore
-        db.collection("users").document("next_user_id").get()
+        db.collection("Users").document("next_user_id").get()
             .addOnSuccessListener { document ->
                 if (document != null) {
                     val userName = document.getString("name")
@@ -173,6 +193,21 @@ class MatchUI : AppCompatActivity() {
                     // Update the UI with new user's details
                     findViewById<TextView>(R.id.tvName).text = "$userName, $userAge"
                     findViewById<TextView>(R.id.tvPronouns).text = userPronouns
+                    DatabaseReadandWrite().loadProfileImages("$userName", this ) { images ->
+                        if (images.isNotEmpty()) {
+                            profileImages = images.toMutableList()
+                        } else {
+                            // Handle the case where no images were loaded
+                            Log.d(TAG, "No images found")
+                        }
+                    }
+                    // Load your bitmap images into the list (replace with your actual loading logic)
+                    for (i in 0 until minOf(6, profileImages.size)){
+                        profileImages.add(profileImages[i])}
+                    // Find the ViewPager2 and set the adapter
+                    val viewPager = findViewById<ViewPager2>(R.id.imagePager)
+                    val adapter = ProfileImageAdapter(profileImages)
+                    viewPager.adapter = adapter
                 } else {
                     Log.d(TAG, "No such document")
                 }
