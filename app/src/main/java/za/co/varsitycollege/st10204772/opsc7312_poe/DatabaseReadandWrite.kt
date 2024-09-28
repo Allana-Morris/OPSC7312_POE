@@ -2,118 +2,125 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.ContentValues.TAG
 import android.util.Log
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class DatabaseReadandWrite {
 
-    val db = Firebase.firestore
+    private val db = Firebase.firestore
 
-    fun writeUser(user: User) {
-
-    }
-
-    fun readUser(): User {
-
-        var readUser: User = User()
-        return readUser
-    }
-
-    fun checkLogin(Email: String, Password: String, callback: (Boolean) -> Unit) {
-        db.collection("users")
-            .whereEqualTo("Email", Email)
-            .whereEqualTo("Password", Password)// Assuming "cell" is the field in the database
-            .get()
-            .addOnSuccessListener { result ->
-                val found = !result.isEmpty
-                callback(found)  // Return `true` if details were found, otherwise `false`
-            }
-            .addOnFailureListener { exception ->
-                Log.w(TAG, "Error getting documents.", exception)
-                callback(false)  // Return `false` in case of an error
-            }
-    }
-
-    fun loginUser(email: String, password: String, onUserLoaded: (User?) -> Unit){
+    /**
+     * Write user data to Firestore after registration.
+     */
+    fun registerUser(user: User, onComplete: (Boolean, String?) -> Unit) {
         val auth = FirebaseAuth.getInstance()
-        val db = FirebaseFirestore.getInstance()
 
-        // Step 1: Authenticate the user using email and password
-        auth.signInWithEmailAndPassword(email, password)
+        // Create a user with email and password
+        auth.createUserWithEmailAndPassword(user.Email, user.Password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    // Step 2: After successful authentication, fetch the user data from Firestore
+                    // Get the user's UID and store it in Firestore
                     val userId = auth.currentUser?.uid
                     userId?.let {
-                        db.collection("Users").document(it).get()
-                            .addOnSuccessListener { documentSnapshot ->
-                                if (documentSnapshot.exists()) {
-                                    // Step 3: Map the Firestore document into the User class
-                                    val user = documentSnapshot.toObject(User::class.java)
-                                    onUserLoaded(user)
-                                } else {
-                                    onUserLoaded(null) // No user data found
-                                }
-                            }
-                            .addOnFailureListener { e ->
-                                e.printStackTrace()
-                                onUserLoaded(null)
-                            }
-                    }
-                } else {
-                    // Authentication failed
-                    onUserLoaded(null)
-                }
-            }
-            .addOnFailureListener { e ->
-                e.printStackTrace()
-                onUserLoaded(null)
-            }
-    }
-
-    fun CreateUser(email: String, password: String, user: User, onComplete: (Boolean, String?) -> Unit){
-        val auth = FirebaseAuth.getInstance()
-        val db = FirebaseFirestore.getInstance()
-
-        // Step 1: Create a new user with email and password
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    // Step 2: After successful registration, get the user's UID
-                    val userId = auth.currentUser?.uid
-                    user.Email = email // Set the email in the user object
-
-                    // Step 3: Save the user data to Firestore
-                    userId?.let {
-                        db.collection("Users").document(it).set(user)
+                        db.collection("users").document(it).set(user)
                             .addOnSuccessListener {
                                 onComplete(true, "User registered successfully!")
                             }
                             .addOnFailureListener { e ->
-                                e.printStackTrace()
+                                Log.e(TAG, "Error writing user to Firestore", e)
                                 onComplete(false, "Failed to save user data: ${e.message}")
                             }
-                    }
+                    } ?: onComplete(false, "User ID not found after registration.")
                 } else {
                     // Registration failed
-                    onComplete(false, "Registration failed: ${task.exception?.message}")
+                    val errorMessage = task.exception?.message ?: "Unknown error"
+                    onComplete(false, "Registration failed: $errorMessage")
                 }
             }
             .addOnFailureListener { e ->
-                e.printStackTrace()
+                Log.e(TAG, "Error during registration", e)
                 onComplete(false, "Registration failed: ${e.message}")
             }
     }
 
+    /**
+     * Check if a user exists based on email and password.
+     */
+    fun checkLogin(email: String, callback: (Boolean) -> Unit) {
+        val auth = FirebaseAuth.getInstance()
 
-        fun readSpotifyData() {
-
-        }
-
-        fun writeSpotifyData(data: SpotifyData) {
-
-        }
-
+        // Attempt to sign in with FirebaseAuth
+        auth.signInWithEmailAndPassword(email, "dummy_password")
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // If authentication is successful, user exists
+                    callback(true)
+                } else {
+                    // User not found or authentication failed
+                    callback(false)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error checking login", e)
+                callback(false) // Return false in case of failure
+            }
     }
+
+
+    /**
+     * Login an existing user using FirebaseAuth.
+     */
+    fun loginUser(email: String, password: String, onUserLoaded: (User?) -> Unit) {
+        val auth = FirebaseAuth.getInstance()
+
+        // Authenticate with FirebaseAuth
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // If login is successful, fetch the user's profile from Firestore
+                    val userId = auth.currentUser?.uid
+                    userId?.let {
+                        db.collection("users").document(it).get()
+                            .addOnSuccessListener { documentSnapshot ->
+                                if (documentSnapshot.exists()) {
+                                    val user = documentSnapshot.toObject(User::class.java)
+                                    onUserLoaded(user) // User data found
+                                } else {
+                                    onUserLoaded(null) // No user data found in Firestore
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e(TAG, "Error fetching user data", e)
+                                onUserLoaded(null)
+                            }
+                    } ?: onUserLoaded(null) // No UID found
+                } else {
+                    // Authentication failed
+                    Log.e(TAG, "Authentication failed", task.exception)
+                    onUserLoaded(null)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error during login", e)
+                onUserLoaded(null)
+            }
+    }
+
+
+
+    /**
+     * Example method for reading Spotify data.
+     */
+    fun readSpotifyData() {
+        // Add logic to read Spotify data from Firestore or any other source.
+    }
+
+    /**
+     * Example method for writing Spotify data.
+     */
+    fun writeSpotifyData(data: SpotifyData) {
+        // Add logic to write Spotify data to Firestore or any other source.
+    }
+}

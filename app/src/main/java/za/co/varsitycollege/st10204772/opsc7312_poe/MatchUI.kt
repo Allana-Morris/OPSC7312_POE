@@ -40,10 +40,15 @@ class MatchUI : AppCompatActivity() {
             val data = result.data
             selectedGender = data?.getStringExtra("selectedGender")
             selectedGenre = data?.getStringExtra("selectedGenre")
-            val selectedLocation = data?.getStringExtra("selectedLocation")  // Get the selected location
+            selectedLocation = data?.getStringExtra("selectedLocation")  // Get the selected location
 
-            // Apply filtering based on the selected gender and genre
-            fetchFilteredProfiles()
+            if (selectedGender == null || selectedGenre == null || selectedLocation == null) {
+                Log.e(TAG, "Invalid filter data received: gender=$selectedGender, genre=$selectedGenre, location=$selectedLocation")
+                Toast.makeText(this, "Invalid filters selected", Toast.LENGTH_SHORT).show()
+            } else {
+                // Apply filtering based on the selected gender, genre, and location
+                fetchFilteredProfiles()
+            }
         }
     }
 
@@ -90,21 +95,39 @@ class MatchUI : AppCompatActivity() {
 
     // Fetch profiles based on selected filters
     private fun fetchFilteredProfiles() {
-        // Adjust Firestore query to include gender and genre filters
-        selectedGenre?.let {
-            db.collection("users")
-                .whereEqualTo("gender", selectedGender)
-                .whereArrayContains("favoriteGenres", it)
-                .whereEqualTo("location", selectedLocation)  // Apply location filter
+        val query = db.collection("users")
 
-                .get()
-                .addOnSuccessListener { documents ->
-                    // Handle profile loading and display
-                }
-                .addOnFailureListener { exception ->
-                    Log.d(TAG, "Error getting documents: ", exception)
-                }
+        // Apply gender filter
+        selectedGender?.let { gender ->
+            query.whereEqualTo("gender", gender)
         }
+
+        // Apply genre filter
+        selectedGenre?.let { genre ->
+            query.whereArrayContains("favoriteGenres", genre)
+        }
+
+        // Apply location filter
+        selectedLocation?.let { location ->
+            query.whereEqualTo("location", location)
+        }
+
+        query.get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) {
+                    Toast.makeText(this, "No profiles found with selected filters", Toast.LENGTH_SHORT).show()
+                    Log.d(TAG, "No profiles found")
+                } else {
+                    for (document in documents) {
+                        Log.d(TAG, "Found profile: ${document.data}")
+                        // Handle displaying of profiles here
+                    }
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "Error fetching profiles with filters: ", exception)
+                Toast.makeText(this, "Error loading filtered profiles", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun fetchUserDetails() {

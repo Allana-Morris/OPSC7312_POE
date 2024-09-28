@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -73,7 +74,7 @@ class Register_Permissions : AppCompatActivity() {
 
             // Permissions are already granted
             Toast.makeText(this, "Location permissions already granted", Toast.LENGTH_SHORT).show()
-
+            navigateToNextActivity()
         } else {
             // Request both COARSE and FINE location permissions
             ActivityCompat.requestPermissions(
@@ -98,11 +99,19 @@ class Register_Permissions : AppCompatActivity() {
                 // Both permissions granted
                 Toast.makeText(this, "Location permissions granted", Toast.LENGTH_SHORT).show()
                 //Next Page
-                startActivity( Intent(this, Register_Email::class.java))
+                navigateToNextActivity()
             } else {
                 // Permissions denied
                 Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    // Navigate to the next activity (Register_Email)
+    private fun navigateToNextActivity() {
+        Log.d("Navigation", "Navigating to Register_Email activity")  // Debug log
+        val intent = Intent(this, Register_Email::class.java)
+        startActivity(intent)
+        finish() // End current activity so the user cannot come back
     }
 }

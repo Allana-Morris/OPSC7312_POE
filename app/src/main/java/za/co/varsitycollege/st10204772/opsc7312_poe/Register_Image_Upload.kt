@@ -16,18 +16,16 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
 
-
 class Register_Image_Upload : AppCompatActivity() {
 
-    private var imageList: MutableList<Bitmap> = mutableListOf()
+    private var imageList: MutableList<Bitmap?> = MutableList(6) { null } // Six placeholders for six images
     private var currentImageViewIndex: Int = -1
     private val storage = FirebaseStorage.getInstance().reference
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +37,7 @@ class Register_Image_Upload : AppCompatActivity() {
             insets
         }
 
-        val btncontinue = findViewById<Button>(R.id.btnContinueImage)
+        val btnContinue = findViewById<Button>(R.id.btnContinueImage)
         val imageViews = listOf<ImageView>(
             findViewById(R.id.imgUpload1),
             findViewById(R.id.imgUpload2),
@@ -53,16 +51,13 @@ class Register_Image_Upload : AppCompatActivity() {
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == RESULT_OK) {
                     val selectedImageUri: Uri? = result.data?.data
-                    // Convert the selected Uri to a Bitmap and store it in the list
                     selectedImageUri?.let { uri ->
                         val bitmap = uriToBitmap(uri)
-                        if (currentImageViewIndex != -1) {
-                            // Update the clicked ImageView with the selected image
+                        if (currentImageViewIndex != -1 && bitmap != null) {
                             imageViews[currentImageViewIndex].setImageBitmap(bitmap)
-                            // Store the image in the list
-                            if (bitmap != null) {
-                                imageList[currentImageViewIndex] = bitmap
-                            }
+                            imageList[currentImageViewIndex] = bitmap
+                        } else {
+                            Toast.makeText(this, "Failed to load selected image", Toast.LENGTH_SHORT).show()
                         }
                     }
                 } else {
@@ -79,22 +74,37 @@ class Register_Image_Upload : AppCompatActivity() {
             }
         }
 
-        btncontinue.setOnClickListener {
-            if (imageList.any { it == null }) {
-                Toast.makeText(this, "Please select six images", Toast.LENGTH_SHORT).show()
-            } else {
-                val imageUrls = mutableListOf<String>()
-                imageList.forEachIndexed { index, bitmap ->
-                    uploadImageToFirebaseStorage(bitmap, "image_$index") { downloadUrl ->
-                        if (downloadUrl != null) {
-                            imageUrls.add(downloadUrl)
-                            if (imageUrls.size == imageList.size) {
-                                saveProfileImageUrls("user_id", imageUrls)
-                                startActivity(Intent(this, Register_Spotify_Link::class.java))
-                            }
-                        } else {
-                            Toast.makeText(this, "Failed to upload image $index", Toast.LENGTH_SHORT).show()
+        btnContinue.setOnClickListener {
+            // Ensure the user is authenticated before uploading
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+            if (userId == null) {
+                Toast.makeText(this, "Error: User not authenticated", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val selectedImages = imageList.filterNotNull() // Get only selected images (non-null)
+
+            if (selectedImages.isEmpty()) {
+                Toast.makeText(this, "Please select at least one image", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val imageUrls = mutableListOf<String>()
+            var imagesUploaded = 0
+
+            selectedImages.forEachIndexed { index, bitmap ->
+                uploadImageToFirebaseStorage(bitmap, "image_$index") { downloadUrl ->
+                    if (downloadUrl != null) {
+                        imageUrls.add(downloadUrl)
+                        imagesUploaded++
+
+                        // Proceed to the next activity once all images are uploaded
+                        if (imagesUploaded == selectedImages.size) {
+                            saveProfileImageUrls(userId, imageUrls)
+                            startActivity(Intent(this, Register_Spotify_Link::class.java))
                         }
+                    } else {
+                        Toast.makeText(this, "Failed to upload image $index", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -104,11 +114,9 @@ class Register_Image_Upload : AppCompatActivity() {
     private fun uriToBitmap(uri: Uri): Bitmap? {
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                // For Android P (API 28) and above
                 val source = ImageDecoder.createSource(contentResolver, uri)
                 ImageDecoder.decodeBitmap(source)
             } else {
-                // For older Android versions
                 MediaStore.Images.Media.getBitmap(contentResolver, uri)
             }
         } catch (e: Exception) {
@@ -118,21 +126,16 @@ class Register_Image_Upload : AppCompatActivity() {
     }
 
     private fun uploadImageToFirebaseStorage(bitmap: Bitmap, fileName: String, callback: (String?) -> Unit) {
-        // Create a reference to the image location in Firebase Storage
         val storageRef = storage.child("profile_images/$fileName.jpg")
 
-        // Convert Bitmap to ByteArray
         val byteArrayOutputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         val imageData = byteArrayOutputStream.toByteArray()
 
-        // Upload the ByteArray to Firebase Storage
         val uploadTask = storageRef.putBytes(imageData)
         uploadTask.addOnSuccessListener {
-            // Get the download URL after successful upload
             storageRef.downloadUrl.addOnSuccessListener { uri ->
-                val downloadUrl = uri.toString()
-                callback(downloadUrl) // Return the download URL to the caller
+                callback(uri.toString())
             }
         }.addOnFailureListener { exception ->
             Log.e("FirebaseUpload", "Failed to upload image: ${exception.message}")
@@ -144,19 +147,14 @@ class Register_Image_Upload : AppCompatActivity() {
         val db = FirebaseFirestore.getInstance()
         val userRef = db.collection("users").document(userId)
 
-        val userProfileData = mapOf(
-            "profileImageUrls" to imageUrls
-        )
-
-        userRef.update(userProfileData)
+        userRef.update(mapOf("profileImageUrls" to imageUrls))
             .addOnSuccessListener {
                 Log.d("Firestore", "Profile image URLs updated successfully")
+                // Navigate to MatchUI after successful upload
+                startActivity(Intent(this, MatchUI::class.java))
             }
             .addOnFailureListener { e ->
                 Log.e("Firestore", "Error updating profile image URLs", e)
             }
     }
-
 }
-
-

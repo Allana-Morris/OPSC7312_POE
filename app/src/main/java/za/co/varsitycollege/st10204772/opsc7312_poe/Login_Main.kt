@@ -25,45 +25,39 @@ class Login_Main : AppCompatActivity() {
             insets
         }
 
-        var btnLogin = findViewById<Button>(R.id.btnContinueLogin)
-        var userEmail = findViewById<EditText>(R.id.etxtEmailLogin)
-        var userPassword = findViewById<EditText>(R.id.etxtPassword)
-        var uEmail = userEmail.text
-        var uPass = userPassword.text
-        var inpval = InputValidation()
+        val btnLogin = findViewById<Button>(R.id.btnContinueLogin)
+        val userEmail = findViewById<EditText>(R.id.etxtEmailLogin)
+        val userPassword = findViewById<EditText>(R.id.etxtPassword)
+        val inpval = InputValidation()
 
         btnLogin.setOnClickListener {
+            val uEmail = userEmail.text.toString() // Convert to String immediately
+            val uPass = userPassword.text.toString() // Convert to String immediately
+
             if ((inpval.isStringInput(uEmail)) && (inpval.isStringInput(uPass))) {
-                var email = uEmail.toString()
-                var password = uPass.toString()
+                val email = uEmail
+                val password = uPass
 
                 if ((inpval.isEmail(email)) && (inpval.isPassword(password))) {
-                    DatabaseReadandWrite().checkLogin(email, password) { isFound ->
-
-                        if (isFound) {
-                            DatabaseReadandWrite().loginUser(email, password) { user ->
-                                if (user != null) {
-                                    var intent = Intent(this, MatchUI::class.java)
-                                    startActivity(intent)
-                                } else {
-                                    Log.e(TAG, "Failed to load user")
-                                }
-                            }
+                    // No need for checkLogin - directly use Firebase Auth
+                    DatabaseReadandWrite().loginUser(email, password) { user ->
+                        if (user != null) {
+                            val intent = Intent(this, Register_About_You::class.java)
+                            startActivity(intent)
                         } else {
-                            Log.e(TAG, "User Not Found")
+                            Log.e(TAG, "User Not Found or Failed to load user")
                             Toast.makeText(this, "User Not Found", Toast.LENGTH_LONG).show()
                         }
                     }
-                } else if (!inpval.isEmail(email)) {
-                    Log.e(TAG, "Invalid Email")
-                    Toast.makeText(this, "Invalid Email Format", Toast.LENGTH_LONG).show()
-                } else if (!inpval.isPassword(password)) {
-                    Log.e(TAG, "Invalid Password")
-                    Toast.makeText(this, "Invalid Password Format", Toast.LENGTH_LONG).show()
                 } else {
-                    Log.e(TAG, "Error (wtf bro)")
-                    Toast.makeText(this, "Input is unable to be Validated", Toast.LENGTH_LONG)
-                        .show()
+                    if (!inpval.isEmail(email)) {
+                        Log.e(TAG, "Invalid Email")
+                        Toast.makeText(this, "Invalid Email Format", Toast.LENGTH_LONG).show()
+                    }
+                    if (!inpval.isPassword(password)) {
+                        Log.e(TAG, "Invalid Password")
+                        Toast.makeText(this, "Invalid Password Format", Toast.LENGTH_LONG).show()
+                    }
                 }
             } else {
                 Log.e(TAG, "Invalid Input")

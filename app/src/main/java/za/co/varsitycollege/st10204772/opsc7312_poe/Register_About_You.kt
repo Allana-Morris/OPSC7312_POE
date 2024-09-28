@@ -6,30 +6,18 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.EditText
-import android.widget.RadioGroup
-import android.widget.Spinner
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 class Register_About_You : AppCompatActivity() {
-    var edName = findViewById<EditText>(R.id.edName)
-    var edDOB = findViewById<EditText>(R.id.edDOB)
-    var rdgGender = findViewById<RadioGroup>(R.id.rdgGender)
-    var spPronouns = findViewById<Spinner>(R.id.spnPronouns)
-    var btncontinue = findViewById<Button>(R.id.btnContinueAbout)
-    var txtMore = findViewById<TextView>(R.id.txtMoreGender)
-    var spnmoregenders = findViewById<Spinner>(R.id.spGender)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,105 +29,124 @@ class Register_About_You : AppCompatActivity() {
             insets
         }
 
-        //Loads data from genders.xml & pronouns.xml into each spinner
-        val genderitems = resources.getStringArray(R.array.XtraGenders)
-        val pronounitems = resources.getStringArray(R.array.pronoun_array)
-        val adapter1 = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderitems)
-        val adapter2 = ArrayAdapter(this, android.R.layout.simple_spinner_item, pronounitems)
+        val edName = findViewById<EditText>(R.id.edName)
+        val edDOB = findViewById<EditText>(R.id.edDOB)
+        val rdgGender = findViewById<RadioGroup>(R.id.rdgGender)
+        val spPronouns = findViewById<Spinner>(R.id.spnPronouns)
+        val btnContinue = findViewById<Button>(R.id.btnContinueAbout)
+        val txtMore = findViewById<TextView>(R.id.txtMoreGender)
+        val spnMoreGenders = findViewById<Spinner>(R.id.spGender)
+
+        // Load gender and pronoun data
+        val genderItems = resources.getStringArray(R.array.XtraGenders)
+        val pronounItems = resources.getStringArray(R.array.pronoun_array)
+        val adapter1 = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderItems)
+        val adapter2 = ArrayAdapter(this, android.R.layout.simple_spinner_item, pronounItems)
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spnmoregenders.adapter = adapter1
+        spnMoreGenders.adapter = adapter1
         spPronouns.adapter = adapter2
 
-
-        //Shows hidden Components
-        rdgGender.setOnCheckedChangeListener { group, checkedId ->
+        rdgGender.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
-                R.id.rdbInvalid -> showExtras()
-                else -> hideExtras()
+                R.id.rdbInvalid -> showExtras(txtMore, spnMoreGenders)
+                else -> hideExtras(txtMore, spnMoreGenders)
             }
         }
 
-        btncontinue.setOnClickListener {
-            //data capture
+        btnContinue.setOnClickListener {
             val userName = edName.text.toString()
-            val userdob = edDOB.text.toString()
+            val userDob = edDOB.text.toString()
             var userGender = ""
             var subGender: String? = null
-            val userselect = rdgGender.checkedRadioButtonId
+            val userSelect = rdgGender.checkedRadioButtonId
             val userPronouns = spPronouns.selectedItem.toString()
 
-            when (userselect) {
+            when (userSelect) {
                 R.id.rdbWoman -> userGender = "Woman"
                 R.id.rdbMan -> userGender = "Man"
                 R.id.rdbInvalid -> {
                     userGender = "NonBinary"
-                    subGender = spnmoregenders.selectedItem.toString()
+                    subGender = spnMoreGenders.selectedItem.toString()
                 }
             }
 
-
-
-
-            val userAge: Int = calcAge(userdob)
-            when (userAge){
-                -1 -> Log.e(TAG, "Age Calculation Error")
+            val userAge: Int = calcAge(userDob)
+            if (userAge == -1) {
+                Log.e(TAG, "Age Calculation Error")
+                return@setOnClickListener
             }
-
-            val user = User()
 
             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
             var userDOB = Date()
 
-             try {
-                userDOB = dateFormat.parse(userdob)!!
-             } catch(e: ParseException){
-                 Log.e(TAG, "Parse Exception")
-             }
+            try {
+                userDOB = dateFormat.parse(userDob)!!
+            } catch (e: ParseException) {
+                Log.e(TAG, "Parse Exception")
+                return@setOnClickListener
+            }
 
             if (userAge < 18) {
-                //error
+                Toast.makeText(this, "You must be 18 or older to register.", Toast.LENGTH_LONG).show()
             } else {
-                user.Name = userName
-                user.DOB = userDOB
-                user.Age = userAge
-                user.Gender = userGender
-                user.GenderLabel = subGender
-                user.Pronoun = userPronouns
-                Log.e(TAG, "Success")
-                startActivity(Intent(this, Register_Image_Upload::class.java))
+                saveUserProfile(userName, userDOB, userAge, userGender, subGender, userPronouns)
             }
         }
     }
 
-    private fun showExtras() {
-        txtMore.visibility = VISIBLE
-        spnmoregenders.visibility = VISIBLE
+    private fun saveUserProfile(name: String, dob: Date, age: Int, gender: String, genderLabel: String?, pronouns: String) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            Log.e(TAG, "Error: User not authenticated")
+            return
+        }
+
+        val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+
+        val userProfileData = mapOf(
+            "name" to name,
+            "dob" to dob,
+            "age" to age,
+            "gender" to gender,
+            "genderLabel" to genderLabel,
+            "pronoun" to pronouns
+        )
+
+        userRef.update(userProfileData)
+            .addOnSuccessListener {
+                Log.d(TAG, "User profile updated successfully")
+                startActivity(Intent(this, Register_Image_Upload::class.java))
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error updating user profile", e)
+            }
     }
 
-    private fun hideExtras() {
+    private fun showExtras(txtMore: TextView, spnMoreGenders: Spinner) {
+        txtMore.visibility = VISIBLE
+        spnMoreGenders.visibility = VISIBLE
+    }
+
+    private fun hideExtras(txtMore: TextView, spnMoreGenders: Spinner) {
         txtMore.visibility = INVISIBLE
-        spnmoregenders.visibility = INVISIBLE
+        spnMoreGenders.visibility = INVISIBLE
     }
 
     private fun calcAge(dob: String): Int {
-        // Define the date format
         val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val birthday: Date = try {
+            dateFormat.parse(dob) ?: return -1
+        } catch (e: ParseException) {
+            return -1
+        }
 
-        // Parse the input date
-        val birthday: Date = dateFormat.parse(dob) ?: return -1 // return -1 if parsing fails
-
-        // Get the current date
         val currentDate = Calendar.getInstance()
-
-        // Create a Calendar instance for the birthday
         val birthdayCalendar = Calendar.getInstance()
         birthdayCalendar.time = birthday
 
-        // Calculate the age
         var age = currentDate.get(Calendar.YEAR) - birthdayCalendar.get(Calendar.YEAR)
 
-        // Adjust age if the birthday hasn't occurred yet this year
         if (currentDate.get(Calendar.MONTH) < birthdayCalendar.get(Calendar.MONTH) ||
             (currentDate.get(Calendar.MONTH) == birthdayCalendar.get(Calendar.MONTH) &&
                     currentDate.get(Calendar.DAY_OF_MONTH) < birthdayCalendar.get(Calendar.DAY_OF_MONTH))

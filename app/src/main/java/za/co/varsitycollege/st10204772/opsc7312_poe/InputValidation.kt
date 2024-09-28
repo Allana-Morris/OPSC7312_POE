@@ -9,7 +9,7 @@ import java.util.Locale
 
 class InputValidation {
 
-    fun isStringInput(input: Editable): Boolean{
+    fun isStringInput(input: String): Boolean{
         return if (!input.isNullOrEmpty()){
             true
         } else {
@@ -49,9 +49,9 @@ class InputValidation {
         // (?=.*[a-z]) requires at least one lowercase letter (if needed)
         // (?=.*[0-9]) requires at least one digit
         // (?=.*[@#$%^&+=!]) requires at least one special character
-        // .{12,} requires at least 12 characters
+        // .{8,} requires at least 12 characters
         // $ asserts end of string
-        val passwordPattern = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[@#\$%^&+=!])(?=.{12,}).*$".toRegex()
+        val passwordPattern = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[@#\$%^&+=!])(?=.{8,}).*$".toRegex()
 
         return input.matches(passwordPattern)
     }
