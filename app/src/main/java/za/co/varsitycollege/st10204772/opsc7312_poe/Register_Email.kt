@@ -14,7 +14,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class Register_Email : AppCompatActivity() {
-        var user: User = User()
+    var user: User = User()
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,55 +27,54 @@ class Register_Email : AppCompatActivity() {
             insets
         }
 
-        var txtEmail = findViewById<EditText>(R.id.etxtEmailReg)
-        var txtPassword = findViewById<EditText>(R.id.etxtPasswordReg)
-        var btnnext = findViewById<Button>(R.id.btnContinueReg)
-        var inpval = InputValidation()
+        val txtEmail = findViewById<EditText>(R.id.etxtEmailReg)
+        val txtPassword = findViewById<EditText>(R.id.etxtPasswordReg)
+        val btnNext = findViewById<Button>(R.id.btnContinueReg)
+        val inpVal = InputValidation()
 
-        btnnext.setOnClickListener {
-           var newemail = txtEmail.text
-            var newpassword = txtPassword.text
-            if ((inpval.isStringInput(newemail)) && (inpval.isStringInput(newpassword))) {
-                var email = newemail.toString()
-                var password = newpassword.toString()
+        btnNext.setOnClickListener {
+            val newEmail = txtEmail.text.toString().trim() // trim spaces
+            val newPassword = txtPassword.text.toString().trim()
 
-                if ((inpval.isEmail(email)) && (inpval.isPassword(password))) {
-                    DatabaseReadandWrite().checkLogin(email, password) { isFound ->
+            // Check if the input is valid (non-empty strings)
+            if (inpVal.isStringInput(newEmail) && inpVal.isStringInput(newPassword)) {
+                // Validate the format of email and password
+                if (inpVal.isEmail(newEmail) && inpVal.isPassword(newPassword)) {
+                    // Set user details for registration
+                    user.Email = newEmail
+                    user.Password = newPassword
+                    user.hasGoogle = false
 
-                        if (isFound) {
-                            DatabaseReadandWrite().loginUser(email, password) { user ->
-                                if (user != null) {
-                                    Toast.makeText(this, "User Already Exists", Toast.LENGTH_LONG).show()
-                                } else {
-                                    Log.e(TAG, "Database Read Error")
-                                }
-                            }
-                        } else {
-                          User().Email = email
-                            User().Password = password
-                            User().hasGoogle = false
+                    // Register and save the new user to Firestore
+                    DatabaseReadandWrite().registerUser(user) { success, errorMessage ->
+                        if (success) {
+                            Toast.makeText(this, "Registration Successful", Toast.LENGTH_LONG).show()
                             startActivity(Intent(this, Register_About_You::class.java))
+                        } else {
+                            if (errorMessage?.contains("already in use") == true) {
+                                // Firebase will throw an error if the email is already registered
+                                Toast.makeText(this, "User Already Exists", Toast.LENGTH_LONG).show()
+                            } else {
+                                Log.e(TAG, "Failed to register user: $errorMessage")
+                                Toast.makeText(this, "Failed to save user: $errorMessage", Toast.LENGTH_LONG).show()
+                            }
                         }
                     }
-                } else if (!inpval.isEmail(email)) {
-                    Log.e(TAG, "Invalid Email")
-                    Toast.makeText(this, "Invalid Email Format", Toast.LENGTH_LONG).show()
-                } else if (!inpval.isPassword(password)) {
-                    Log.e(TAG, "Invalid Password")
-                    Toast.makeText(this, "Invalid Password Format", Toast.LENGTH_LONG).show()
                 } else {
-                    Log.e(TAG, "Error (wtf bro)")
-                    Toast.makeText(this, "Input is unable to be Validated", Toast.LENGTH_LONG)
-                        .show()
+                    // Handle invalid email or password format
+                    if (!inpVal.isEmail(newEmail)) {
+                        Log.e(TAG, "Invalid Email")
+                        Toast.makeText(this, "Invalid Email Format", Toast.LENGTH_LONG).show()
+                    }
+                    if (!inpVal.isPassword(newPassword)) {
+                        Log.e(TAG, "Invalid Password")
+                        Toast.makeText(this, "Password must be at least 6 characters and meet other criteria", Toast.LENGTH_LONG).show()
+                    }
                 }
             } else {
-                Log.e(TAG, "Invalid Input")
-                Toast.makeText(this, "Invalid Input", Toast.LENGTH_LONG).show()
+                Log.e(TAG, "Invalid Input: Empty fields")
+                Toast.makeText(this, "Please provide both email and password", Toast.LENGTH_LONG).show()
             }
         }
-
-
-
-        }
-
     }
+}

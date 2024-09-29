@@ -4,6 +4,11 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -18,10 +23,10 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import okio.IOException
+import com.squareup.picasso.Picasso
 import org.json.JSONException
 import org.json.JSONObject
-import com.squareup.picasso.Picasso
+import java.io.IOException
 
 class Register_Spotify_Link : AppCompatActivity() {
 

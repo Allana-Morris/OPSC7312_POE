@@ -61,7 +61,7 @@ class Login_Main : AppCompatActivity() {
         }
 
         btnLogin.setOnClickListener {
-            if ((inpval.isStringInput(uEmail)) && (inpval.isStringInput(uPass))) {
+            if ((inpval.isStringInput(uEmail.toString())) && (inpval.isStringInput(uPass.toString()))) {
                 var email = uEmail.toString()
                 var password = uPass.toString()
 
@@ -72,14 +72,14 @@ class Login_Main : AppCompatActivity() {
                             DatabaseReadandWrite().loginUser(email, password) { user ->
                                 if (user != null) {
                                     authenticateWithSpotify()
-                                    var intent = Intent(this, MatchUI::class.java)
+                                    var intent = Intent(this, ProfileUI::class.java)
                                     startActivity(intent)
                                 } else {
                                     Log.e(TAG, "Failed to load user")
                                 }
                             }
                         } else {
-                            Log.e(TAG, "User Not Found")
+                            Log.e(TAG, "User Not Found or Failed to load user")
                             Toast.makeText(this, "User Not Found", Toast.LENGTH_LONG).show()
                         }
                     }
@@ -115,7 +115,8 @@ class Login_Main : AppCompatActivity() {
         startActivity(intent)
     }
 
-     fun onNewIntent(intent: Intent?) {
+
+     override fun onNewIntent(intent: Intent) {
          if (intent != null) {
              super.onNewIntent(intent)
          }
@@ -161,3 +162,4 @@ class Login_Main : AppCompatActivity() {
         storage.saveID("REFRESH_TOKEN", refreshToken)
     }
 }
+

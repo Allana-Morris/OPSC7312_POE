@@ -22,8 +22,8 @@ class Contact : AppCompatActivity() {
 
        // var loggedUser = User("ed sheeran", "0987654321");
 
-        loggedUser.name = "ed sheeran"
-        loggedUser.cellNo = "0987654321"
+        loggedUser.user?.Name = "ed sheeran"
+        loggedUser.user?.Email = "0987654321"
 
         val db = Firebase.firestore
         FirebaseApp.initializeApp(this)
@@ -32,7 +32,7 @@ class Contact : AppCompatActivity() {
 
 // Query where loggedUser's cellNo matches "fromUid"
         db.collection("message")
-            .whereEqualTo("fromUid", loggedUser.cellNo)
+            .whereEqualTo("fromUid", loggedUser.user?.Email)
             .get()
             .addOnSuccessListener { fromDocuments ->
                 for (document in fromDocuments) {
@@ -42,7 +42,7 @@ class Contact : AppCompatActivity() {
 
                 // Now query where loggedUser's cellNo matches "toUid"
                 db.collection("message")
-                    .whereEqualTo("toUid", loggedUser.cellNo)
+                    .whereEqualTo("toUid", loggedUser.user?.Email)
                     .get()
                     .addOnSuccessListener { toDocuments ->
                         for (document in toDocuments) {

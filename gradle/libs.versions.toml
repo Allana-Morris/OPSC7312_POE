@@ -9,6 +9,7 @@ credentials = "1.2.2"
 credentialsPlayServicesAuth = "1.2.2"
 credentialsVersion = "1.5.0-alpha05"
 firebaseBom = "33.3.0"
+glide = "4.15.1"
 googleApiClient = "1.33.0"
 googleHttpClient = "1.39.2"
 googleid = "1.1.1"
@@ -33,6 +34,7 @@ firebaseCommonKtx = "21.0.0"
 okhttp = "4.9.3"
 playServicesIdentity = "18.1.0"
 firebaseAuth = "23.0.0"
+securityCryptoKtx = "1.0.0"
 
 [libraries]
 androidx-browser = { module = "androidx.browser:browser", version.ref = "browser" }
@@ -46,7 +48,10 @@ auth = { module = "com.spotify.android:auth", version.ref = "auth" }
 auth-v111 = { module = "com.spotify.android:auth", version.ref = "authVersion" }
 cidaas-android-sdk = { module = "com.github.Cidaas:cidaas-android-sdk", version.ref = "cidaasAndroidSdk" }
 circleimageview = { module = "de.hdodenhof:circleimageview", version.ref = "circleimageview" }
+compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-storage = { module = "com.google.firebase:firebase-storage", version.ref = "firebaseCommonKtx" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 google-api-client = { module = "com.google.api-client:google-api-client", version.ref = "googleApiClient" }
 google-api-client-android = { module = "com.google.api-client:google-api-client-android", version.ref = "googleApiClient" }
 google-api-client-gson = { module = "com.google.api-client:google-api-client-gson", version.ref = "googleApiClient" }
@@ -70,6 +75,7 @@ firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-k
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 play-services-identity = { module = "com.google.android.gms:play-services-identity", version.ref = "playServicesIdentity" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+androidx-security-crypto-ktx = { group = "androidx.security", name = "security-crypto-ktx", version.ref = "securityCryptoKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
