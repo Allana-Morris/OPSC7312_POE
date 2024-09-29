@@ -1,12 +1,15 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.firestore.firestore
 
 class Liked_you : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,43 +17,52 @@ class Liked_you : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_liked_you)
 
-        var navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Liked_You)
-
-        navbar.setOnNavigationItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_match -> {
-                    startActivity(Intent(this, MatchUI::class.java))
-                    true
-                }
-                R.id.nav_like -> {
-                    startActivity(Intent(this, Liked_you::class.java))
-                    true
-                }
-                R.id.nav_chat -> {
-                    startActivity(Intent(this, Contact::class.java))
-                    true
-                }
-                R.id.nav_profile -> {
-                    startActivity(Intent(this, ProfileUI::class.java))
-                    true
-                }
-                else -> false
-            }
-        }
-
         val layout: LinearLayout = findViewById(R.id.vert_layout_liked)
 
+        var liked = mutableListOf<String>()  // To store message docID and contactID
 
-        //makes some liked you elements for testing
-        //images dont work tho smh
-        for ( int in 1..30)
-        {
-            val inflatedView = LayoutInflater.from(this@Liked_you)
-                .inflate(R.layout.layout_liked_you, layout, false)
+        val db = Firebase.firestore
+        FirebaseApp.initializeApp(this)
 
-            layout.addView(inflatedView)
-        }
+        // Query the Users collection to get the current user's document
+        db.collection("Users")
+            .whereEqualTo("email", loggedUser.user?.Email)
+            .get()
+            .addOnSuccessListener { userDocuments ->
+                for (userDocument in userDocuments) {
+                    // Access the liked_by sub-collection
+                    db.collection("Users")
+                        .document(userDocument.id) // Get the user document ID
+                        .collection("liked_by")
+                        .get()
+                        .addOnSuccessListener { likedByDocuments ->
+                            for (likedByDocument in likedByDocuments) {
+                                // Extract the uid field from each document in the liked_by sub-collection
+                                val uid = likedByDocument.getString("uid")
+                                uid?.let { liked.add(it) } // Add uid to the liked list
+                            }
 
-
+                            // Optionally, you can display or process the liked list here
+                            if (liked.isNotEmpty()) {
+                                // Display liked users
+                                for (userId in liked) {
+                                    // Create a view for each liked user (assuming a TextView)
+                                    val textView = LayoutInflater.from(this).inflate(R.layout.layout_liked_you, layout, false) // Inflate your user item layout
+                                    textView.findViewById<TextView>(R.id.txtLikedName).text = userId // Assuming you have a TextView to display the uid
+                                    layout.addView(textView) // Add the user view to the layout
+                                }
+                            } else {
+                                // Handle no liked users found
+                                Toast.makeText(this, "No one liked you :(", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Error fetching liked_by: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 }

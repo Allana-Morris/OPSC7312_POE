@@ -3,12 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    app:cardBackgroundColor="@color/light_grey">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="181dp"
-        android:layout_height="182dp">
-
+        android:layout_width="wrap_content"
+        android:layout_height="240dp"
+        android:background="@color/light_grey"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <View
             android:id="@+id/view5"
@@ -21,21 +26,22 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.789" />
+            app:layout_constraintVertical_bias="0.851" />
 
         <ImageView
             android:id="@+id/imgLikedYou"
-            android:layout_width="133dp"
-            android:layout_height="112dp"
+            android:layout_width="197dp"
+            android:layout_height="167dp"
             android:layout_marginStart="24dp"
             android:layout_marginTop="11dp"
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="59dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@drawable/profile_placeholder" />
+            app:layout_constraintVertical_bias="0.125" />
 
         <TextView
             android:id="@+id/txtLikedName"
@@ -51,10 +57,63 @@
             android:textSize="24sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.529"
+            app:layout_constraintHorizontal_bias="0.089"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <Button
+            android:id="@+id/viewLikedProfileBtn"
+            android:layout_width="89dp"
+            android:layout_height="47dp"
+            android:layout_marginStart="190dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="40dp"
+            android:layout_marginBottom="119dp"
+            android:backgroundTint="@color/dark_green"
+            android:text="View profile"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.989"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
+
+        <Button
+            android:id="@+id/contactLikedBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="190dp"
+            android:layout_marginTop="64dp"
+            android:layout_marginEnd="41dp"
+            android:layout_marginBottom="70dp"
+            android:backgroundTint="@color/link_label_blue"
+            android:text="Contact"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.189" />
+
+        <Button
+            android:id="@+id/rejectBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="190dp"
+            android:layout_marginTop="112dp"
+            android:layout_marginEnd="41dp"
+            android:layout_marginBottom="22dp"
+            android:backgroundTint="#E71111"
+            android:text="Reject"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
