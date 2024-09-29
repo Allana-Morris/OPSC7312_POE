@@ -1,6 +1,9 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import com.bumptech.glide.Glide
 import android.util.Log
@@ -11,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.common.api.Response
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FirebaseFirestore
@@ -18,10 +22,13 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 import javax.security.auth.callback.Callback
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.api.Context
+
 
 class MatchUI : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
-    private var spotifyAccessToken: String? = null
+
     private val TAG = "MatchUI"
     // Store user's top songs, artists, and genres
     private lateinit var currentUserTopSongs: List<String>
@@ -31,6 +38,14 @@ class MatchUI : AppCompatActivity() {
     private var selectedGender: String? = null
     private var selectedGenre: String? = null
     private var selectedLocation: String? = null
+    private lateinit var profileImages: MutableList<Bitmap>
+    private val sStorage = SecureStorage(this)
+    private var spotifyAccessToken: String? = sStorage.getID("ACCESS_TOKEN")
+    private val CLIENT_ID = sStorage.getID("CLIENT_ID")
+    private val REDIRECT_URI = sStorage.getID("REDIRECT_URI")
+    private val SPOTIFY_AUTH_REQUEST_CODE = 1001
+
+    private val AUTH_URL = "https://accounts.spotify.com/authorize?client_id=$CLIENT_ID&response_type=token&redirect_uri=$REDIRECT_URI&scope=user-top-read"
 
     // Register a result launcher for the filter activity
     private val filterResultLauncher = registerForActivityResult(
@@ -52,12 +67,13 @@ class MatchUI : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_match_ui)
 
         // Trigger FilterActivity
-        findViewById<Button>(R.id.btnFilter).setOnClickListener {
+        findViewById<ImageView>(R.id.iV_Filter).setOnClickListener {
             val intent = Intent(this, FilterActivity::class.java)
             filterResultLauncher.launch(intent)
         }
@@ -74,10 +90,11 @@ class MatchUI : AppCompatActivity() {
         }
 
         // Set an onClickListener on the profile picture to navigate to ProfileUI
-        val profilePic = findViewById<ImageView>(R.id.tvProfilePic)
+        val profilePic = findViewById<FloatingActionButton>(R.id.fab_profile)
         profilePic.setOnClickListener {
-            val intent = Intent(this, ProfileUI::class.java)
+            val intent = Intent(this, MatchProfile::class.java)
             // Pass any additional data if needed (e.g., user ID)
+            intent.putExtra("AccessToken", spotifyAccessToken)
             startActivity(intent)
         }
 
@@ -90,6 +107,29 @@ class MatchUI : AppCompatActivity() {
         findViewById<FloatingActionButton>(R.id.fab_like).setOnClickListener {
             // Handle Like: Check for match based on top 3 songs
             checkForMatch()
+        }
+
+    }
+    // Method to retrieve the Spotify access token
+    private fun getSpotifyAccessToken() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(AUTH_URL))
+        startActivityForResult(intent, SPOTIFY_AUTH_REQUEST_CODE)
+    }
+
+    // Handle the result in onActivityResult
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == SPOTIFY_AUTH_REQUEST_CODE) {
+            val uri = data?.data
+            if (uri != null && REDIRECT_URI?.let { uri.toString().startsWith(it) } == true) {
+                val token = uri.getFragment()?.split("&")?.firstOrNull { it.startsWith("access_token=") }
+                    ?.substringAfter("access_token=")
+                if (token != null) {
+                    spotifyAccessToken = token
+                    Log.d(TAG, "Access token retrieved: $spotifyAccessToken")
+                    // Now you can call methods that require the access token
+                }
+            }
         }
     }
 
@@ -122,6 +162,14 @@ class MatchUI : AppCompatActivity() {
                         Log.d(TAG, "Found profile: ${document.data}")
                         // Handle displaying of profiles here
                     }
+        // Adjust Firestore query to include gender and genre filters
+        selectedGenre?.let {
+            db.collection("Users")
+                .whereEqualTo("Gender", selectedGender)
+                .whereArrayContains("favoriteGenres", it)
+                .get()
+                .addOnSuccessListener { documents ->
+                    // Handle profile loading and display
                 }
             }
             .addOnFailureListener { exception ->
@@ -132,16 +180,31 @@ class MatchUI : AppCompatActivity() {
 
     private fun fetchUserDetails() {
         // Assuming Firestore stores user's name, age, and pronouns
-        db.collection("users").document("user_id").get()
+         db.collection("Users").document("User_id").get()
             .addOnSuccessListener { document ->
                 if (document != null) {
-                    val userName = document.getString("name")
-                    val userAge = document.getLong("age")?.toString() ?: ""
-                    val userPronouns = document.getString("pronouns")
+                    val userName = document.getString("Name")
+                    val userAge = document.getLong("Age")?.toString() ?: ""
+                    val userPronouns = document.getString("Pronouns")
 
                     // Display user data in respective fields
                     findViewById<TextView>(R.id.tvName).text = "$userName, $userAge"
                     findViewById<TextView>(R.id.tvPronouns).text = userPronouns
+                    DatabaseReadandWrite().loadProfileImages("$userName", this ) { images ->
+                        if (images.isNotEmpty()) {
+                            profileImages = images.toMutableList()
+                        } else {
+                            // Handle the case where no images were loaded
+                            Log.d(TAG, "No images found")
+                        }
+                    }
+                    // Load your bitmap images into the list (replace with your actual loading logic)
+                    for (i in 0 until minOf(6, profileImages.size)){
+                    profileImages.add(profileImages[i])}
+                    // Find the ViewPager2 and set the adapter
+                    val viewPager = findViewById<ViewPager2>(R.id.imagePager)
+                    val adapter = ProfileImageAdapter(profileImages)
+                    viewPager.adapter = adapter
                 } else {
                     Log.d(TAG, "No such document")
                 }
@@ -191,7 +254,7 @@ class MatchUI : AppCompatActivity() {
 
     private fun fetchNextUser() {
         // Fetch and display the next user from Firestore
-        db.collection("users").document("next_user_id").get()
+        db.collection("Users").document("next_user_id").get()
             .addOnSuccessListener { document ->
                 if (document != null) {
                     val userName = document.getString("name")
@@ -204,6 +267,21 @@ class MatchUI : AppCompatActivity() {
                     // Update the UI with new user's details
                     findViewById<TextView>(R.id.tvName).text = "$userName, $userAge"
                     findViewById<TextView>(R.id.tvPronouns).text = userPronouns
+                    DatabaseReadandWrite().loadProfileImages("$userName", this ) { images ->
+                        if (images.isNotEmpty()) {
+                            profileImages = images.toMutableList()
+                        } else {
+                            // Handle the case where no images were loaded
+                            Log.d(TAG, "No images found")
+                        }
+                    }
+                    // Load your bitmap images into the list (replace with your actual loading logic)
+                    for (i in 0 until minOf(6, profileImages.size)){
+                        profileImages.add(profileImages[i])}
+                    // Find the ViewPager2 and set the adapter
+                    val viewPager = findViewById<ViewPager2>(R.id.imagePager)
+                    val adapter = ProfileImageAdapter(profileImages)
+                    viewPager.adapter = adapter
                     findViewById<TextView>(R.id.tvSongName).text = topSongName ?: "No song available"
 
                     // Load the first profile image using Glide, if available
@@ -237,7 +315,7 @@ class MatchUI : AppCompatActivity() {
 
     private fun checkForMatch() {
         spotifyAccessToken?.let { token ->
-            val request = okhttp3.Request.Builder()
+            val request = Request.Builder()
                 .url("https://api.spotify.com/v1/me/top/tracks?limit=3")
                 .addHeader("Authorization", "Bearer $token")
                 .build()
@@ -291,6 +369,30 @@ class MatchUI : AppCompatActivity() {
                     }
                 }
             })
+        }
+
+        var navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Match)
+
+        navbar.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_match -> {
+                    startActivity(Intent(this, MatchUI::class.java))
+                    true
+                }
+                R.id.nav_like -> {
+                    startActivity(Intent(this, Liked_you::class.java))
+                    true
+                }
+                R.id.nav_chat -> {
+                    startActivity(Intent(this, Contact::class.java))
+                    true
+                }
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, ProfileUI::class.java))
+                    true
+                }
+                else -> false
+            }
         }
     }
 

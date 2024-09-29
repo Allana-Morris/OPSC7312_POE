@@ -34,6 +34,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            release {
+                buildConfigField("String", "CLIENT_SECRET", "44bdee846c714d22ad432b9b7cb1451b")
+                buildConfigField("String", "CLIENT_ID", "eb9b8af983d94603adaa1d212cf58980")
+                buildConfigField("String", "REDIRECT_URI", "myapp://callback")
+                buildConfigField("String", "GOOGLE_ID", "905988466931-h3di4chs18somrfitguu3g95b0bf72sb.apps.googleusercontent.com")
+            }
         }
     }
     compileOptions {
@@ -50,13 +56,16 @@ android {
 
 dependencies {
 
-    //CircleImageView Library
     implementation(libs.circleimageview)
+    implementation ("androidx.viewpager2:viewpager2:1.1.0")
+    implementation ("com.github.bumptech.glide:glide:4.12.0")
 
     //Spotify Authentication
-    //implementation(files("libs/spotify-auth-release-2.1.0.aar"))
+    implementation(files("libs/spotify-auth-release-2.1.0.aar"))
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
     implementation ("com.squareup.picasso:picasso:2.71828")
+    implementation ("androidx.security:security-crypto:1.1.0-alpha03")
+
     implementation ("com.spotify.android:auth:1.2.5")
 
     //Glide for image loading

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="56dp"
+    android:layout_height="wrap_content"
     android:layout_gravity="bottom"
-    android:background="@android:color/holo_green_dark"
+    android:background="@color/dark_green"
     android:gravity="bottom"
     android:orientation="horizontal">
 
@@ -11,37 +12,44 @@
     <ImageView
         android:id="@+id/navMusic"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:layout_gravity="bottom"
         android:layout_weight="1"
-        android:contentDescription="Music"
-        android:src="@drawable/ic_music" />
+        android:contentDescription="@string/match"
+        android:scaleType="fitCenter"
+        android:src="@drawable/navbar_match" />
 
     <ImageView
         android:id="@+id/navLike"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:layout_gravity="bottom"
         android:layout_weight="1"
-        android:contentDescription="Like"
-        android:src="@drawable/ic_like" />
+        android:contentDescription="@string/liked_you"
+        android:scaleType="fitCenter"
+        android:src="@drawable/navbar_liked_you"
+        app:tint="@color/black" />
 
     <ImageView
         android:id="@+id/navChat"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:layout_gravity="bottom"
         android:layout_weight="1"
-        android:contentDescription="Chat"
-        android:src="@drawable/ic_chat" />
+        android:contentDescription="@string/chat"
+        android:scaleType="fitCenter"
+        android:src="@drawable/navbar_chat"
+         />
 
     <ImageView
         android:id="@+id/navProfile"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:layout_gravity="bottom"
         android:layout_weight="1"
-        android:contentDescription="Profile"
-        android:src="@drawable/ic_profile" />
+        android:contentDescription="@string/profile"
+        android:scaleType="fitCenter"
+        android:src="@drawable/navbar_profile"
+        app:tint="@color/black"/>
 
 </LinearLayout>
