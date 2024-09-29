@@ -20,11 +20,6 @@ class Contact : AppCompatActivity() {
         setContentView(R.layout.activity_contact)
         val layout: LinearLayout = findViewById(R.id.vert_layout_contact)
 
-       // var loggedUser = User("ed sheeran", "0987654321");
-
-        loggedUser.user?.Name = "ed sheeran"
-        loggedUser.user?.Email = "0987654321"
-
         val db = Firebase.firestore
         FirebaseApp.initializeApp(this)
 
@@ -72,13 +67,13 @@ class Contact : AppCompatActivity() {
     fun showContacts(messageDocs: List<Pair<String, String>>, db: FirebaseFirestore, layout: LinearLayout) {
         for ((messageDocID, contactID) in messageDocs) {
             db.collection("Users")
-                .whereEqualTo("cellNo", contactID)
+                .whereEqualTo("email", contactID)
                 .get()
                 .addOnSuccessListener { userDocs ->
                     if (!userDocs.isEmpty) {
                         val document = userDocs.documents[0]
 
-                        val userName = document.getString("Name")
+                        val userName = document.getString("name")
 
                         val inflatedView = LayoutInflater.from(this@Contact)
                             .inflate(R.layout.layout_contact_listing, layout, false)
