@@ -13,16 +13,18 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
+
 class DatabaseReadandWrite {
 
-    val db = Firebase.firestore
+    private val db = Firebase.firestore
 
-    fun writeUser(user: User) {
-
-    }
+    /**
+     * Write user data to Firestore after registration.
+     */
 
     fun readUser(): User {
 
@@ -45,18 +47,22 @@ class DatabaseReadandWrite {
             }
     }
 
+
+    /**
+     * Login an existing user using FirebaseAuth.
+     * Now returns `FirebaseUser` to provide user ID and authentication details.
+     */
     fun loginUser(email: String, password: String, onUserLoaded: (User?) -> Unit) {
         val auth = FirebaseAuth.getInstance()
-        val db = FirebaseFirestore.getInstance()
 
         // Step 1: Authenticate the user using email and password
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     // Step 2: After successful authentication, fetch the user data from Firestore
-                    val userId = auth.currentUser?.uid
+                    val userId = auth.currentUser
                     userId?.let {
-                        db.collection("Users").document(it).get()
+                        db.collection("Users").document(it.uid).get()
                             .addOnSuccessListener { documentSnapshot ->
                                 if (documentSnapshot.exists()) {
                                     // Step 3: Map the Firestore document into the User class
@@ -82,12 +88,7 @@ class DatabaseReadandWrite {
             }
     }
 
-    fun CreateUser(
-        email: String,
-        password: String,
-        user: User,
-        onComplete: (Boolean, String?) -> Unit
-    ) {
+    fun CreateUser(email: String, password: String, user: User, onComplete: (Boolean, String?) -> Unit){
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
 
@@ -122,67 +123,5 @@ class DatabaseReadandWrite {
     }
 
 
-    fun readSpotifyData() {
 
     }
-
-    fun writeSpotifyData(data: SpotifyData) {
-
-    }
-
-    fun loadProfileImages(userId: String, context: Context, callback: (List<Bitmap>) -> Unit) {
-        val db = FirebaseFirestore.getInstance()
-        val profileImages = mutableListOf<Bitmap>() // Mutable list to hold loaded Bitmaps
-
-        // Retrieve user document from Firestore
-        db.collection("Users").document(userId).get()
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val documentSnapshot = task.result
-                    if (documentSnapshot != null && documentSnapshot.exists()) {
-                        // Retrieve image URLs
-                        val imageUrls = (documentSnapshot.get("ProfilePhotos") as? List<String>)
-                            ?: emptyList()
-
-                        val imageLoadCount = imageUrls.size
-                        var imagesLoaded = 0
-
-                        for (imageUrl in imageUrls) {
-                            Glide.with(context)
-                                .asBitmap()
-                                .load(Uri.parse(imageUrl))
-                                .into(object : CustomTarget<Bitmap>() {
-                                    override fun onResourceReady(
-                                        resource: Bitmap,
-                                        transition: Transition<in Bitmap>?
-                                    ) {
-                                        profileImages.add(resource) // Add loaded Bitmap to the list
-                                        imagesLoaded++
-
-                                        // Notify callback once all images are loaded
-                                        if (imagesLoaded == imageLoadCount) {
-                                            callback(profileImages) // Return the list
-                                        }
-                                    }
-
-                                    override fun onLoadCleared(placeholder: Drawable?) {
-                                        // Handle any cleanup if necessary
-                                    }
-                                })
-                        }
-
-                        // If there are no images, call the callback immediately
-                        if (imageLoadCount == 0) {
-                            callback(profileImages)
-                        }
-                    } else {
-                        // Document does not exist
-                        callback(emptyList())
-                    }
-                } else {
-                    // Handle the error
-                    callback(emptyList())
-                }
-            }
-    }
-}

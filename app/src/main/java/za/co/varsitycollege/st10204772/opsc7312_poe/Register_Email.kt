@@ -47,7 +47,6 @@ class Register_Email : AppCompatActivity() {
                                     Toast.makeText(this, "User Already Exists", Toast.LENGTH_LONG).show()
                                 } else {
                                     Log.e(TAG, "Database Read Error")
-                                    return@loginUser
                                 }
                             }
                         } else {
