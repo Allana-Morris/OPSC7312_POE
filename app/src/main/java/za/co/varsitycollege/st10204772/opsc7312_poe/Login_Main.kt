@@ -61,7 +61,7 @@ class Login_Main : AppCompatActivity() {
         }
 
         btnLogin.setOnClickListener {
-            if ((inpval.isStringInput(uEmail.toString())) && (inpval.isStringInput(uPass))) {
+            if ((inpval.isStringInput(uEmail.toString())) && (inpval.isStringInput(uPass.toString()))) {
                 var email = uEmail.toString()
                 var password = uPass.toString()
 

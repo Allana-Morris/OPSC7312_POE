@@ -155,26 +155,36 @@ class MatchUI : AppCompatActivity() {
         query.get()
             .addOnSuccessListener { documents ->
                 if (documents.isEmpty) {
-                    Toast.makeText(this, "No profiles found with selected filters", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "No profiles found with selected filters",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     Log.d(TAG, "No profiles found")
                 } else {
                     for (document in documents) {
                         Log.d(TAG, "Found profile: ${document.data}")
                         // Handle displaying of profiles here
                     }
-        // Adjust Firestore query to include gender and genre filters
-        selectedGenre?.let {
-            db.collection("Users")
-                .whereEqualTo("Gender", selectedGender)
-                .whereArrayContains("favoriteGenres", it)
-                .get()
-                .addOnSuccessListener { documents ->
-                    // Handle profile loading and display
+                    // Adjust Firestore query to include gender and genre filters
+                    selectedGenre?.let {
+                        db.collection("Users")
+                            .whereEqualTo("Gender", selectedGender)
+                            .whereArrayContains("favoriteGenres", it)
+                            .get()
+                            .addOnSuccessListener { documents ->
+                                // Handle profile loading and display
+                            }
+                    }
+                        ?.addOnFailureListener { exception ->
+                            Log.d(TAG, "Error fetching profiles with filters: ", exception)
+                            Toast.makeText(
+                                this,
+                                "Error loading filtered profiles",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                 }
-            }
-            .addOnFailureListener { exception ->
-                Log.d(TAG, "Error fetching profiles with filters: ", exception)
-                Toast.makeText(this, "Error loading filtered profiles", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -283,17 +293,6 @@ class MatchUI : AppCompatActivity() {
                     val adapter = ProfileImageAdapter(profileImages)
                     viewPager.adapter = adapter
                     findViewById<TextView>(R.id.tvSongName).text = topSongName ?: "No song available"
-
-                    // Load the first profile image using Glide, if available
-                    val profilePicImageView = findViewById<ImageView>(R.id.tvProfilePic)
-                    if (!profileImageUrls.isNullOrEmpty()) {
-                        Glide.with(this)
-                            .load(profileImageUrls[0])  // Load the first image in the list
-                            .into(profilePicImageView)
-                    } else {
-                        // Set a placeholder image if no image is available
-                        profilePicImageView.setImageResource(R.drawable.ic_profile)
-                    }
 
                     // Load the album cover using Glide, if available
                     val albumCoverImageView = findViewById<ImageView>(R.id.tvAlbumCover)

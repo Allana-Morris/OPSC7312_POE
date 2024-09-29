@@ -49,36 +49,6 @@ class DatabaseReadandWrite {
             }
     }
 
-    fun loginUser(email: String, password: String, onUserLoaded: (User?) -> Unit) {
-        val auth = FirebaseAuth.getInstance()
-
-        // Create a user with email and password
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    // Get the user's UID and store it in Firestore
-                    val userId = auth.currentUser?.uid
-                    userId?.let {
-                        db.collection("users").document(it).set(user)
-                            .addOnSuccessListener {
-                                onComplete(true, "User registered successfully!")
-                            }
-                            .addOnFailureListener { e ->
-                                Log.e(TAG, "Error writing user to Firestore", e)
-                                onComplete(false, "Failed to save user data: ${e.message}")
-                            }
-                    } ?: onComplete(false, "User ID not found after registration.")
-                } else {
-                    // Registration failed
-                    val errorMessage = task.exception?.message ?: "Unknown error"
-                    onComplete(false, "Registration failed: $errorMessage")
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Error during registration", e)
-                onComplete(false, "Registration failed: ${e.message}")
-            }
-    }
 
     /**
      * Login an existing user using FirebaseAuth.
