@@ -24,12 +24,13 @@ class ProfileUI : AppCompatActivity() {
         db = FirebaseFirestore.getInstance()
 
         fetchUserProfile()
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        //this caused an error somehow so i killed him
+       /* ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+*/
         // Optional: Handle back navigation here if needed
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 

@@ -71,6 +71,9 @@
             android:name=".MatchUI"
             android:exported="false" />
         <activity
+            android:name=".ProfileUI"
+            android:exported="false" />
+        <activity
             android:name=".StartActivity"
             android:exported="true">
             <intent-filter>

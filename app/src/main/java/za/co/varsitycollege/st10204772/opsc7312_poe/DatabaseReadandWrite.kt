@@ -91,27 +91,47 @@ class DatabaseReadandWrite {
      * Login an existing user using FirebaseAuth.
      * Now returns `FirebaseUser` to provide user ID and authentication details.
      */
-    fun loginUser(email: String, password: String, onUserLoaded: (FirebaseUser?) -> Unit) {
-        val auth = FirebaseAuth.getInstance()
+    fun loginUser(email: String, password: String, onUserLoaded: (User?) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
 
-        // Authenticate with FirebaseAuth
-        auth.signInWithEmailAndPassword(email, password)
+        // Query to find a user document with matching email and password
+        db.collection("Users")
+            .whereEqualTo("email", email)
+            .whereEqualTo("password", password) // Note: Storing plain passwords is not secure!
+            .get()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    // Pass back the authenticated `FirebaseUser` object
-                    val user = auth.currentUser
-                    onUserLoaded(user)
+                    val userDocuments = task.result
+                    if (userDocuments != null && !userDocuments.isEmpty) {
+                        // Assuming there is only one user document for the email and password
+                        val userDoc = userDocuments.documents[0]
+
+                        // Convert the Firestore document to a User object
+                        val user = userDoc.toObject(User::class.java)
+
+                        if (user != null) {
+                            loggedUser.user?.Email = user.Email // Assuming loggedUser has a user property that is mutable
+                        }
+
+                        // Pass back the authenticated `User` object
+                        onUserLoaded(user)
+                    } else {
+                        // No user found with matching email and password
+                        Log.e(TAG, "No user found with the provided email and password.")
+                        onUserLoaded(null)
+                    }
                 } else {
-                    // Authentication failed
-                    Log.e(TAG, "Authentication failed", task.exception)
+                    // Query failed
+                    Log.e(TAG, "Error querying user for login", task.exception)
                     onUserLoaded(null)
                 }
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Error during login", e)
+                Log.e(TAG, "Error during login query", e)
                 onUserLoaded(null)
             }
     }
+
 
     fun CreateUser(
         email: String,
