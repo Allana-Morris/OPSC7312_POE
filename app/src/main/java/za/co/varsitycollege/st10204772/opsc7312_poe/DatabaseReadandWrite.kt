@@ -110,7 +110,9 @@ class DatabaseReadandWrite {
                         val user = userDoc.toObject(User::class.java)
 
                         if (user != null) {
-                            loggedUser.user?.Email = user.Email // Assuming loggedUser has a user property that is mutable
+                            var logUser = User()
+                            logUser.Email = email
+                            loggedUser.initializeUser(logUser)
                         }
 
                         // Pass back the authenticated `User` object

@@ -25,7 +25,7 @@ class ProfileUI : AppCompatActivity() {
 
         fetchUserProfile()
         //this caused an error somehow so i killed him
-       /* ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        /* ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
@@ -42,18 +42,22 @@ class ProfileUI : AppCompatActivity() {
                     startActivity(Intent(this, MatchUI::class.java))
                     true
                 }
+
                 R.id.nav_like -> {
                     startActivity(Intent(this, Liked_you::class.java))
                     true
                 }
+
                 R.id.nav_chat -> {
                     startActivity(Intent(this, Contact::class.java))
                     true
                 }
+
                 R.id.nav_profile -> {
                     startActivity(Intent(this, ProfileUI::class.java))
                     true
                 }
+
                 else -> false
             }
         }
@@ -61,30 +65,45 @@ class ProfileUI : AppCompatActivity() {
 
 
     fun fetchUserProfile() {
-        val userId = "user_id" // Replace with actual user ID logic
+        val userEmail = loggedUser.user?.Email // Ensure this is the email, not an ID
 
-        db.collection("users").document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    val userName = document.getString("name")
-                    val userAge = document.getLong("age")?.toString() ?: ""
-                    val userPronouns = document.getString("pronouns")
-                    val profilePicUrl = document.getString("profilePicUrl")
+        if (userEmail != null) {
+            // Query the Users collection where the email matches the logged-in user's email
+            db.collection("Users")
+                .whereEqualTo("email", userEmail)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (documents != null && !documents.isEmpty) {
+                        // Assuming only one user document matches the email
+                        val document = documents.documents[0]
 
-                    findViewById<TextView>(R.id.tvProfileName).text = "$userName, $userAge"
-                    findViewById<TextView>(R.id.tvProfilePronouns).text = userPronouns
+                        // Retrieve user data
+                        val userName = document.getString("name")
+                        val userAge = document.getLong("age")?.toString() ?: ""
+                        val userPronouns = document.getString("pronoun")
+                        val profilePicUrl = document.getString("profilePicUrl")
 
-                    // Load profile picture using Glide or Picasso
-                    profilePicUrl?.let { url ->
-                        Glide.with(this)
-                            .load(url)
-                            .placeholder(R.drawable.ic_profile)
-                            .into(findViewById(R.id.profileImageView))
+                        // Update UI elements with the retrieved data
+                        findViewById<TextView>(R.id.tvProfileName).text = "$userName, $userAge"
+                        findViewById<TextView>(R.id.tvProfilePronouns).text = userPronouns
+
+                        // Load profile picture using Glide or Picasso
+                        profilePicUrl?.let { url ->
+                            Glide.with(this)
+                                .load(url)
+                                .placeholder(R.drawable.ic_profile)
+                                .into(findViewById(R.id.profileImageView))
+                        }
+                    } else {
+                        Log.e(TAG, "No user found with the provided email.")
                     }
                 }
-            }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "Error fetching profile: ", exception)
-            }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "Error fetching profile: ", exception)
+                }
+        } else {
+            Log.e(TAG, "Logged user email is null.")
+        }
     }
 }
+
