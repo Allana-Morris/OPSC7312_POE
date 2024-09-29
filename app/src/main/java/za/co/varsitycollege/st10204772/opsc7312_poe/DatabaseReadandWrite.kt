@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -26,7 +27,43 @@ class DatabaseReadandWrite {
      * Write user data to Firestore after registration.
      */
     fun registerUser(user: User, onComplete: (Boolean, String?) -> Unit) {
+        // Check if a user with the same email already exists
+        db.collection("Users")
+            .whereEqualTo("email", user.Email)
+            .get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // If a document with the same email exists
+                    if (task.result != null && !task.result.isEmpty) {
+                        onComplete(false, "User with this email already exists.")
+                    } else {
+                        // If no such document exists, create a new user document
+                        val newUser = hashMapOf(
+                            "email" to user.Email,
+                            "password" to user.Password // Note: Storing plain passwords is not secure!
+                        )
+
+                        db.collection("Users").add(newUser)
+                            .addOnSuccessListener {
+                                onComplete(true, "User registered successfully!")
+                                var logUser = User()
+                                logUser.Email = user.Email
+                                loggedUser.initializeUser(logUser)
+
+
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e(TAG, "Error writing user to Firestore", e)
+                                onComplete(false, "Failed to save user data: ${e.message}")
+                            }
+                    }
+                } else {
+                    Log.e(TAG, "Error checking for existing user", task.exception)
+                    onComplete(false, "Error checking for existing user: ${task.exception?.message}")
+                }
+            }
     }
+
 
     fun readUser(): User {
 

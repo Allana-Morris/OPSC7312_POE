@@ -76,7 +76,7 @@ class Register_Image_Upload : AppCompatActivity() {
 
         btnContinue.setOnClickListener {
             // Ensure the user is authenticated before uploading
-            val userId = FirebaseAuth.getInstance().currentUser?.uid
+            val userId = loggedUser.user?.Email
             if (userId == null) {
                 Toast.makeText(this, "Error: User not authenticated", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -100,7 +100,7 @@ class Register_Image_Upload : AppCompatActivity() {
 
                         // Proceed to the next activity once all images are uploaded
                         if (imagesUploaded == selectedImages.size) {
-                            saveProfileImageUrls(userId, imageUrls)
+                            saveProfileImageUrls(imageUrls)
                             startActivity(Intent(this, Register_Spotify_Link::class.java))
                         }
                     } else {
@@ -143,19 +143,48 @@ class Register_Image_Upload : AppCompatActivity() {
         }
     }
 
-    private fun saveProfileImageUrls(userId: String, imageUrls: List<String>) {
+    private fun saveProfileImageUrls(imageUrls: List<String>) {
         val db = FirebaseFirestore.getInstance()
-        val userRef = db.collection("users").document(userId)
+        val userEmail = loggedUser.user?.Email
 
-        userRef.update(mapOf("profileImageUrls" to imageUrls))
-            .addOnSuccessListener {
-                Log.d("Firestore", "Profile image URLs updated successfully")
-                // Navigate to Register_Spotify_Link after successful upload
-                startActivity(Intent(this, Register_Spotify_Link::class.java))
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Error updating profile image URLs", e)
-                Toast.makeText(this, "Failed to save profile images. Try again.", Toast.LENGTH_SHORT).show()
+        // Check if the user email is not null
+        if (userEmail == null) {
+            Log.e("Firestore", "Error: User not authenticated")
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Query to find the document with the email field matching the logged user's email
+        db.collection("Users")
+            .whereEqualTo("email", userEmail)
+            .get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val userDocuments = task.result
+                    if (userDocuments != null && !userDocuments.isEmpty) {
+                        // Assuming there is only one user document for the email
+                        val userDoc = userDocuments.documents[0]
+
+                        // Update the user's profile image URLs
+                        userDoc.reference.update(mapOf("profileImageUrls" to imageUrls))
+                            .addOnSuccessListener {
+                                Log.d("Firestore", "Profile image URLs updated successfully")
+                                // Navigate to Register_Spotify_Link after successful upload
+                                startActivity(Intent(this, Register_Spotify_Link::class.java))
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("Firestore", "Error updating profile image URLs", e)
+                                Toast.makeText(this, "Failed to save profile images. Try again.", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Log.e("Firestore", "No user document found for email: $userEmail")
+                        Toast.makeText(this, "No user found with the given email.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Log.e("Firestore", "Error querying user by email", task.exception)
+                    Toast.makeText(this, "Error querying user by email: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
             }
     }
+
 }

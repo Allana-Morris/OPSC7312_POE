@@ -96,32 +96,52 @@ class Register_About_You : AppCompatActivity() {
     }
 
     private fun saveUserProfile(name: String, dob: Date, age: Int, gender: String, genderLabel: String?, pronouns: String) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid
-        if (userId == null) {
+        val userEmail = loggedUser.user?.Email
+        Toast.makeText(this, "check this: " + loggedUser.user?.Email.toString(), Toast.LENGTH_LONG).show()
+
+        if (userEmail == null) {
             Log.e(TAG, "Error: User not authenticated")
             return
         }
 
-        val userRef = FirebaseFirestore.getInstance().collection("users").document(userId)
+        val db = FirebaseFirestore.getInstance()
 
-        val userProfileData = mapOf(
-            "name" to name,
-            "dob" to dob,
-            "age" to age,
-            "gender" to gender,
-            "genderLabel" to genderLabel,
-            "pronoun" to pronouns
-        )
+        // Query for the user document where the "email" field equals userEmail
+        db.collection("Users")
+            .whereEqualTo("email", userEmail)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    // Get the first matching document
+                    val userDoc = querySnapshot.documents.first()
 
-        userRef.update(userProfileData)
-            .addOnSuccessListener {
-                Log.d(TAG, "User profile updated successfully")
-                startActivity(Intent(this, Register_Image_Upload::class.java))
+                    val userProfileData = mapOf(
+                        "name" to name,
+                        "dob" to dob,
+                        "age" to age,
+                        "gender" to gender,
+                        "genderLabel" to genderLabel,
+                        "pronoun" to pronouns
+                    )
+
+                    // Update the user document
+                    userDoc.reference.update(userProfileData)
+                        .addOnSuccessListener {
+                            Log.d(TAG, "User profile updated successfully")
+                            startActivity(Intent(this, Register_Image_Upload::class.java))
+                        }
+                        .addOnFailureListener { e ->
+                            Log.e(TAG, "Error updating user profile", e)
+                        }
+                } else {
+                    Log.e(TAG, "No user found with email: $userEmail")
+                }
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Error updating user profile", e)
+                Log.e(TAG, "Error retrieving user document", e)
             }
     }
+
 
     private fun showExtras(txtMore: TextView, spnMoreGenders: Spinner) {
         txtMore.visibility = VISIBLE
