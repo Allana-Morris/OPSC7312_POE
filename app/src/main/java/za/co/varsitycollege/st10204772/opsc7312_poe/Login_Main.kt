@@ -115,7 +115,8 @@ class Login_Main : AppCompatActivity() {
         startActivity(intent)
     }
 
-     fun onNewIntent(intent: Intent?) {
+
+     override fun onNewIntent(intent: Intent) {
          if (intent != null) {
              super.onNewIntent(intent)
          }

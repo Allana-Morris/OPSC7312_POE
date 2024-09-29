@@ -40,7 +40,7 @@ class Chat : AppCompatActivity() {
         FirebaseApp.initializeApp(this)
 
         db.collection("message")
-            .whereEqualTo("fromUid", loggedUser.cellNo)
+            .whereEqualTo("fromUid", loggedUser.user?.Email)
             .whereEqualTo("toUid", contactID)
             .get()
             .addOnSuccessListener { fromResults ->
@@ -48,7 +48,7 @@ class Chat : AppCompatActivity() {
                     // Check for documents where loggedUser is the recipient and contactID is the sender
                     db.collection("message")
                         .whereEqualTo("fromUid", contactID)
-                        .whereEqualTo("toUid", loggedUser.cellNo)
+                        .whereEqualTo("toUid", loggedUser.user?.Email)
                         .get()
                         .addOnSuccessListener { toResults ->
                             if (toResults.isEmpty) {
@@ -83,7 +83,7 @@ class Chat : AppCompatActivity() {
                 val newMessage = hashMapOf(
                     "content" to messageText,
                     "type" to "text",   // Setting type to 'text'
-                    "uID" to loggedUser.cellNo,  // User's UID (cellNo)
+                    "uID" to loggedUser.user?.Email,  // User's UID (cellNo)
                     "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp() // Add timestamp
                 )
 
@@ -136,7 +136,7 @@ class Chat : AppCompatActivity() {
                     val messageUid = msgDoc.getString("uID") // Get the Uid of the message sender
 
                     // Check if the message Uid matches the logged-in user's cellNo
-                    if (messageUid == loggedUser.cellNo) {
+                    if (messageUid == loggedUser.user?.Email) {
                         displayMessage(messageText, "sender", layout) // Inflate sender layout
                     } else {
                         displayMessage(messageText, "receiver", layout) // Inflate receiver layout
