@@ -8,8 +8,6 @@
     android:background="@color/grey">
 
     <!-- Profile Section -->
-
-
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profileImageView"
         android:layout_width="140dp"
@@ -18,10 +16,10 @@
         android:src="@drawable/profile_placeholder"
         app:civ_border_color="@android:color/white"
         app:civ_border_width="2dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5" />
 
     <TextView
         android:id="@+id/tvProfileName"
@@ -34,7 +32,7 @@
         app:layout_constraintTop_toBottomOf="@id/profileImageView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp" />
 
     <TextView
         android:id="@+id/tvProfilePronouns"
@@ -45,14 +43,9 @@
         android:textColor="@android:color/white"
         app:layout_constraintTop_toBottomOf="@id/tvProfileName"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Settings Icon -->
-
-    <!-- Spotify Data Section -->
-
-    <!-- Bottom Navigation Bar -->
-
     <ImageView
         android:id="@+id/settingsIcon"
         android:layout_width="32dp"
@@ -63,19 +56,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Include the Navigation Bar -->
-
+    <!-- Spotify Data Section -->
     <LinearLayout
         android:id="@+id/spotifySection"
-        android:layout_width="411dp"
-        android:layout_height="363dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:background="@android:color/black"
         android:orientation="vertical"
         android:padding="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvProfilePronouns">
 
         <!-- Spotify Logo -->
@@ -133,19 +124,18 @@
             android:id="@+id/topSongList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1. Rocket Man by Elton John\n2. When Doves Cry by Prince\n3. Uptown Girl by Billie Joel"
+            android:text="1. Rocket Man by Elton John\n2. When Doves Cry by Prince\n3. Uptown Girl by Billy Joel"
             android:textColor="@android:color/white" />
-
     </LinearLayout>
 
+    <!-- Bottom Navigation Bar -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/BNV_Navbar_Profile"
-        android:layout_width="410dp"
-        android:layout_height="83dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         app:menu="@menu/bottom_navbar"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
