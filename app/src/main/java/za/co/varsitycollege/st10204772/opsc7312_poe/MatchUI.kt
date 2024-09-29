@@ -73,9 +73,10 @@ class MatchUI : AppCompatActivity() {
         // Set an onClickListener on the profile picture to navigate to ProfileUI
         val profilePic = findViewById<FloatingActionButton>(R.id.fab_profile)
         profilePic.setOnClickListener {
-            //val intent = Intent(this, ProfileUI::class.java)
+            val intent = Intent(this, MatchProfile::class.java)
             // Pass any additional data if needed (e.g., user ID)
-            //startActivity(intent)
+            intent.putExtra("AccessToken", spotifyAccessToken)
+            startActivity(intent)
         }
 
         // Set onClickListeners for Floating Action Buttons

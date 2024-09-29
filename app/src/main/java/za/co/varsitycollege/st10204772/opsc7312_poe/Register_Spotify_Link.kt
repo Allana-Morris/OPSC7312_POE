@@ -5,15 +5,10 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.snackbar.Snackbar
 import com.spotify.sdk.android.auth.AccountsQueryParameters.CLIENT_ID
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
@@ -29,91 +24,112 @@ import org.json.JSONObject
 import com.squareup.picasso.Picasso
 
 class Register_Spotify_Link : AppCompatActivity() {
-    class Register_Spotify_Link : AppCompatActivity() {
 
-        private val mOkHttpClient: OkHttpClient = OkHttpClient()
-        private var mAccessToken: String? = null
-        private var mCall: Call? = null
-        val imageView: ImageView = findViewById(R.id.imgAccountPP)
-        val textView: TextView = findViewById(R.id.txtSpotifyAccount)
+    private val redirectUri= "myapp://callback"
+    private val authRequestCode = 1337
+    private val scopes = "user-read-private user-read-email user-top-read"
+    private val mOkHttpClient: OkHttpClient = OkHttpClient()
+    private var mAccessToken: String? = null
+    private var mCall: Call? = null
 
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            enableEdgeToEdge()
-            setContentView(R.layout.activity_register_spotify_link)
-            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-                insets
+    private lateinit var imageView: ImageView
+    private lateinit var textView: TextView
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_register_spotify_link)
+
+        imageView = findViewById(R.id.imgAccountPP)
+        textView = findViewById(R.id.txtSpotifyAccount)
+        val btnSpotify = findViewById<Button>(R.id.btnspotifysearch)
+
+        btnSpotify.setOnClickListener {
+            val builder = AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.CODE, redirectUri)
+            builder.setScopes(arrayOf(scopes))
+            val request = builder.build()
+            AuthorizationClient.openLoginActivity(this, authRequestCode, request)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        super.onActivityResult(requestCode, resultCode, intent)
+        if (requestCode == authRequestCode) {
+            val response = AuthorizationClient.getResponse(resultCode, intent)
+            when (response.type) {
+                AuthorizationResponse.Type.TOKEN -> {
+                    mAccessToken = response.accessToken
+                    fetchSpotifyUserProfile()
+                }
+                AuthorizationResponse.Type.ERROR -> {
+                    textView.text = getString(R.string.spotify_user_fetch_fail)
+                }
+                else -> {}
             }
+        }
+    }
 
-            // Spotify Authentication
-            val btnSpotify = findViewById<Button>(R.id.btnspotifysearch)
-            val btnsubmit = findViewById<Button>(R.id.btnContinueSpotify)
-            val spotifyUserIdInput = findViewById<EditText>(R.id.edUsername)
+    // Fetch Spotify account details
+    private fun fetchSpotifyUserProfile() {
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/me")  // Spotify API endpoint for current user profile
+            .addHeader("Authorization", "Bearer $mAccessToken")  // Use access token
+            .build()
 
-            btnSpotify.setOnClickListener {
-                val userId = spotifyUserIdInput.text.toString().trim()
-                if (userId.isNotEmpty()) {
-                    fetchSpotifyUserProfile(userId)
-                } else {
-                    textView.text = (R.string.spotify_userid_empty).toString()
+        mCall = mOkHttpClient.newCall(request)
+
+        mCall?.enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                runOnUiThread {
+                    textView.text = getString(R.string.spotify_user_fetch_fail)
                 }
             }
 
-            btnsubmit.setOnClickListener {
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    val jsonObject = JSONObject(response.body?.string() ?: "")
+                    val displayName = jsonObject.getString("display_name")
+                    val email = jsonObject.getString("email")
+                    val spotifyId = jsonObject.getString("id")
+                    val profileImages = jsonObject.optJSONArray("images")
+                    val profileImageUrl = profileImages?.getJSONObject(0)?.getString("url") ?: ""
+                    val apiHref = jsonObject.getString("external_urls").let {
+                        Uri.parse(it)
+                    }
 
-            }
-        }
-
-        // Fetch Spotify account details using the Spotify User ID
-        private fun fetchSpotifyUserProfile(userId: String) {
-            val request = Request.Builder()
-                .url("https://api.spotify.com/v1/users/$userId")  // Spotify API endpoint for user profiles
-                .addHeader("Authorization", "Bearer $mAccessToken")  // Use access token
-                .build()
-
-            mCall = mOkHttpClient.newCall(request)
-
-            mCall?.enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
+                    // Update UI on the main thread
+                    if(User().Email.equals(email)) {
                         runOnUiThread {
-                            textView.text = getString(R.string.spotify_user_fetch_fail)
-                        }
-                    }
+                            textView.text = displayName
+                            if (profileImageUrl.isNotEmpty()) {
+                                Picasso.get().load(profileImageUrl).into(imageView)
 
-                    override fun onResponse(call: Call, response: Response) {
-                        try {
-                            val jsonObject = JSONObject(response.body?.string() ?: "")
-                            val displayName = jsonObject.getString("display_name")
-                            val profileImages = jsonObject.optJSONArray("images")
-                            val profileImageUrl = profileImages?.getJSONObject(0)?.getString("url") ?: ""
+                                SpotifyData().spotifyId = spotifyId
+                                SpotifyData().apihref = apiHref
+                                SpotifyData().profpicurl = Uri.parse(profileImageUrl)
+                                SpotifyData().email = email
+                                SpotifyData().displayName = displayName
 
-                            SpotifyData().spotifyId = userId
-                            SpotifyData().displayName = displayName
-                            SpotifyData().profpicurl = profileImageUrl.toUri()
-
-                            // Update UI on the main thread
-                            runOnUiThread {
-                                textView.text = displayName
-                                if (profileImageUrl.isNotEmpty()) {
-                                    Picasso.get().load(profileImageUrl).into(imageView)
-                                } else {
-                                    imageView.setImageResource(R.drawable.profile_placeholder) // Default image if no profile pic
-                                }
-                            }
-                        } catch (e: JSONException) {
-                            runOnUiThread {
-                                textView.text = getString(R.string.spotify_user_parse_fail)
+                            } else {
+                                imageView.setImageResource(R.drawable.profile_placeholder) // Default image if no profile pic
                             }
                         }
+                    } else{
+                        runOnUiThread {
+                            textView.text =
+                                getString(R.string.spotify_account_email_does_not_match_registered_email) // Email does not match spotify account
+                        }
                     }
-                })
-        }
+                } catch (e: JSONException) {
+                    runOnUiThread {
+                        textView.text = getString(R.string.spotify_user_parse_fail)
+                    }
+                }
+            }
+        })
+    }
 
-        override fun onDestroy() {
-            mCall?.cancel() // Cancel any ongoing API requests
-            super.onDestroy()
-        }
+    override fun onDestroy() {
+        mCall?.cancel() // Cancel any ongoing API requests
+        super.onDestroy()
     }
 }

@@ -80,6 +80,11 @@
     <string name="match">Match</string>
     <string name="chat">Chat</string>
     <string name="profile">Profile</string>
+    <string name="spotify_account_email_does_not_match_registered_email">Spotify Account email does not match registered email</string>
+    <string name="title_activity_match_profile">activity_match_profile</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
 
     <!--Reilly Mare strings -->
 

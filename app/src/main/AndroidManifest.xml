@@ -2,11 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
 
     <application
         android:allowBackup="true"
@@ -18,8 +17,11 @@
         android:supportsRtl="true"
         android:theme="@style/Base.Theme.OPSC7312_POE"
         tools:targetApi="34">
-
-           <activity
+        <activity
+            android:name=".MatchProfile"
+            android:exported="false"
+            android:label="@string/title_activity_match_profile" />
+        <activity
             android:name=".Chat"
             android:exported="false" />
         <activity
@@ -30,7 +32,18 @@
             android:exported="false" />
         <activity
             android:name=".Register_Spotify_Link"
-            android:exported="false" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="callback"
+                    android:scheme="myapp" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".Register_Image_Upload"
             android:exported="false" />
@@ -61,17 +74,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".MainActivity"
-            android:exported="false">
-
-    </activity>
+            android:exported="false"></activity>
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
     </application>
-    </manifest>
 
+</manifest>
