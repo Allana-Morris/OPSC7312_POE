@@ -71,6 +71,7 @@ dependencies {
     //Glide for image loading
     implementation (libs.glide)
     implementation ("androidx.security:security-crypto:1.1.0-alpha03")
+    implementation(libs.firebase.storage.ktx)
     annotationProcessor (libs.compiler)
 
     //Google SSO with OAuth2.0
@@ -78,7 +79,7 @@ dependencies {
     implementation (libs.androidx.credentials.play.services.auth)
     implementation (libs.googleid)
 
-    // Firebase Authentication
+    // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.google.play.services.auth)

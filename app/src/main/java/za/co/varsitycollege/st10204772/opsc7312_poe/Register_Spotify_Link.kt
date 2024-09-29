@@ -14,6 +14,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import za.co.varsitycollege.st10204772.opsc7312_poe.ClientID
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
@@ -39,7 +41,9 @@ class Register_Spotify_Link : AppCompatActivity() {
 
     private lateinit var imageView: ImageView
     private lateinit var textView: TextView
-
+    private val sStorage = SecureStorage(this)
+    private val CLIENT_ID = sStorage.getID("CLIENT_ID")
+    private val REDIRECT_URI = sStorage.getID("REDIRECT_URI")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register_spotify_link)
@@ -48,8 +52,10 @@ class Register_Spotify_Link : AppCompatActivity() {
         textView = findViewById(R.id.txtSpotifyAccount)
         val btnSpotify = findViewById<Button>(R.id.btnspotifysearch)
 
+
+
         btnSpotify.setOnClickListener {
-            val builder = AuthorizationRequest.Builder(ClientID.server_client_id, AuthorizationResponse.Type.CODE, redirectUri)
+            val builder = AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.CODE, REDIRECT_URI)
             builder.setScopes(arrayOf(scopes))
             val request = builder.build()
             AuthorizationClient.openLoginActivity(this, authRequestCode, request)

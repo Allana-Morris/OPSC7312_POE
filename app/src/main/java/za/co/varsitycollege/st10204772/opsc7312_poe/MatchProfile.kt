@@ -26,6 +26,8 @@ class MatchProfile : AppCompatActivity() {
     private lateinit var genreRecyclerView: RecyclerView
     private val genres = mutableListOf<String>()
 
+    private val sStorage = SecureStorage(this)
+    private var spotifyAccessToken: String? = sStorage.getID("ACCESS_TOKEN")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -38,18 +40,7 @@ class MatchProfile : AppCompatActivity() {
         artistRecyclerView.layoutManager = LinearLayoutManager(this)
         trackRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Initialize Encrypted Shared Preferences
-        val masterKey = MasterKey.Builder(this)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
 
-        val sharedPreferences = EncryptedSharedPreferences.create(
-            this,
-            "YOUR_SHARED_PREFS_NAME",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
 
         var navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_ProfileMatch)
 
@@ -75,9 +66,9 @@ class MatchProfile : AppCompatActivity() {
             }
         }
 
-        val sAccessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
-        if (sAccessToken != null) {
-            fetchUserTopItems(sAccessToken)
+
+        if (spotifyAccessToken != null) {
+            fetchUserTopItems(spotifyAccessToken!!)
         } else {
             // Handle the case where the access token is not available (e.g., show login)
         }
