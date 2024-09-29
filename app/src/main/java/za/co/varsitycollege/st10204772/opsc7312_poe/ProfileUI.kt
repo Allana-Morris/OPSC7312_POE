@@ -21,6 +21,7 @@ class ProfileUI : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
+
         db = FirebaseFirestore.getInstance()
 
         fetchUserProfile()
