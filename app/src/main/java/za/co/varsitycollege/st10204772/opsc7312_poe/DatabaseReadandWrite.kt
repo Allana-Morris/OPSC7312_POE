@@ -31,7 +31,7 @@ class DatabaseReadandWrite {
     }
 
     fun checkLogin(Email: String, Password: String, callback: (Boolean) -> Unit) {
-        db.collection("users")
+        db.collection("Users")
             .whereEqualTo("Email", Email)
             .whereEqualTo("Password", Password)// Assuming "cell" is the field in the database
             .get()

@@ -3,6 +3,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.telecom.Call
 import android.util.Log
@@ -24,15 +25,23 @@ import javax.security.auth.callback.Callback
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.api.Context
 
+
 class MatchUI : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
-    private var spotifyAccessToken: String? = null
+
     private val TAG = "MatchUI"
     private lateinit var currentUserTopSongs: List<String>
     // Variables to hold filter data
     private var selectedGender: String? = null
     private var selectedGenre: String? = null
     private lateinit var profileImages: MutableList<Bitmap>
+    private val sStorage = SecureStorage(this)
+    private var spotifyAccessToken: String? = sStorage.getID("ACCESS_TOKEN")
+    private val CLIENT_ID = sStorage.getID("CLIENT_ID")
+    private val REDIRECT_URI = sStorage.getID("REDIRECT_URI")
+    private val SPOTIFY_AUTH_REQUEST_CODE = 1001
+
+    private val AUTH_URL = "https://accounts.spotify.com/authorize?client_id=$CLIENT_ID&response_type=token&redirect_uri=$REDIRECT_URI&scope=user-top-read"
 
     // Register a result launcher for the filter activity
     private val filterResultLauncher = registerForActivityResult(
@@ -90,6 +99,28 @@ class MatchUI : AppCompatActivity() {
             checkForMatch()
         }
 
+    }
+    // Method to retrieve the Spotify access token
+    private fun getSpotifyAccessToken() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(AUTH_URL))
+        startActivityForResult(intent, SPOTIFY_AUTH_REQUEST_CODE)
+    }
+
+    // Handle the result in onActivityResult
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == SPOTIFY_AUTH_REQUEST_CODE) {
+            val uri = data?.data
+            if (uri != null && REDIRECT_URI?.let { uri.toString().startsWith(it) } == true) {
+                val token = uri.getFragment()?.split("&")?.firstOrNull { it.startsWith("access_token=") }
+                    ?.substringAfter("access_token=")
+                if (token != null) {
+                    spotifyAccessToken = token
+                    Log.d(TAG, "Access token retrieved: $spotifyAccessToken")
+                    // Now you can call methods that require the access token
+                }
+            }
+        }
     }
 
     // Fetch profiles based on selected filters

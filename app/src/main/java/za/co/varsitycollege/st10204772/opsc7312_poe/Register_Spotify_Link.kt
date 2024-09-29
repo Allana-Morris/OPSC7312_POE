@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
-import com.spotify.sdk.android.auth.AccountsQueryParameters.CLIENT_ID
+import za.co.varsitycollege.st10204772.opsc7312_poe.ClientID
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
@@ -44,7 +44,7 @@ class Register_Spotify_Link : AppCompatActivity() {
         val btnSpotify = findViewById<Button>(R.id.btnspotifysearch)
 
         btnSpotify.setOnClickListener {
-            val builder = AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.CODE, redirectUri)
+            val builder = AuthorizationRequest.Builder(ClientID.server_client_id, AuthorizationResponse.Type.CODE, redirectUri)
             builder.setScopes(arrayOf(scopes))
             val request = builder.build()
             AuthorizationClient.openLoginActivity(this, authRequestCode, request)

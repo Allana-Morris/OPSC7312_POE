@@ -19,7 +19,7 @@ class SongAdapter(private val songs: SpotifyData.Songs) : RecyclerView.Adapter<S
     }
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
-        holder.songName.text = songs.songName[position]
+        holder.songName.text = (position+1).toString() + ". " + songs.songName[position]
         // Bind other data if necessary
     }
 

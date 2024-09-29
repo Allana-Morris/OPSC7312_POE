@@ -6,6 +6,8 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -34,13 +36,26 @@ class MatchProfile : AppCompatActivity() {
 
         artistRecyclerView.layoutManager = LinearLayoutManager(this)
         trackRecyclerView.layoutManager = LinearLayoutManager(this)
-        var intent = Intent.getIntent("")
-        var sAccessToken = intent.getStringExtra("AccessToken")
-        sAccessToken?.let { token ->
-            fetchUserTopItems(token)
+
+        // Initialize Encrypted Shared Preferences
+        val masterKey = MasterKey.Builder(this)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+
+        val sharedPreferences = EncryptedSharedPreferences.create(
+            this,
+            "YOUR_SHARED_PREFS_NAME",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+        )
+
+        val sAccessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
+        if (sAccessToken != null) {
+            fetchUserTopItems(sAccessToken)
+        } else {
+            // Handle the case where the access token is not available (e.g., show login)
         }
-
-
     }
 
     private fun fetchUserTopItems(accessToken: String) {
@@ -115,7 +130,7 @@ class MatchProfile : AppCompatActivity() {
 
     private fun fetchTopGenres(accessToken: String) {
         val genresRequest = Request.Builder()
-            .url("https://api.spotify.com/v1/me/top/artists?limit=50") // More items to determine genres
+            .url("https://api.spotify.com/v1/me/top/artists?limit=50")
             .addHeader("Authorization", "Bearer $accessToken")
             .build()
 
@@ -141,10 +156,13 @@ class MatchProfile : AppCompatActivity() {
                         }
                     }
 
-                    // Sort genres by count and get top 3
-                    genreCount.entries.sortedByDescending { it.value }.take(3).forEach { entry ->
-                        genres.add(Genre(entry.key))
-                    }
+                    // Get the top 3 unique genres
+                    val topGenres = genreCount.entries
+                        .sortedByDescending { it.value }
+                        .take(3)
+                        .map { it.key }
+
+                    genres.addAll(topGenres)
 
                     runOnUiThread {
                         genreRecyclerView.adapter = GenreAdapter(genres) // Implement this adapter
@@ -152,4 +170,5 @@ class MatchProfile : AppCompatActivity() {
                 }
             }
         })
+    }
     }
