@@ -1,31 +1,21 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
-import za.co.varsitycollege.st10204772.opsc7312_poe.ClientID
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
+import com.squareup.picasso.Picasso
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import com.squareup.picasso.Picasso
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
@@ -55,26 +45,40 @@ class Register_Spotify_Link : AppCompatActivity() {
 
 
         btnSpotify.setOnClickListener {
-            val builder = AuthorizationRequest.Builder(CLIENT_ID, AuthorizationResponse.Type.CODE, REDIRECT_URI)
-            builder.setScopes(arrayOf(scopes))
+            val builder =
+                AuthorizationRequest.Builder(
+                    CLIENT_ID,
+                    AuthorizationResponse.Type.TOKEN,
+                    REDIRECT_URI
+                )
+            builder.setScopes(arrayOf("streaming"))
             val request = builder.build()
-            AuthorizationClient.openLoginActivity(this, authRequestCode, request)
+            AuthorizationClient.openLoginInBrowser(this, request)
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
-        super.onActivityResult(requestCode, resultCode, intent)
-        if (requestCode == authRequestCode) {
-            val response = AuthorizationClient.getResponse(resultCode, intent)
+     fun onNewIntent(intent: Intent?) {
+        if (intent != null) {
+            super.onNewIntent(intent)
+        }
+
+        val uri: Uri? = intent?.data
+        uri?.let {
+            val response = AuthorizationResponse.fromUri(it)
+
             when (response.type) {
                 AuthorizationResponse.Type.TOKEN -> {
+                    // Handle successful response
                     mAccessToken = response.accessToken
                     fetchSpotifyUserProfile()
                 }
                 AuthorizationResponse.Type.ERROR -> {
+                    // Handle error response
                     textView.text = getString(R.string.spotify_user_fetch_fail)
                 }
-                else -> {}
+                else -> {
+                    // Handle other cases
+                }
             }
         }
     }
