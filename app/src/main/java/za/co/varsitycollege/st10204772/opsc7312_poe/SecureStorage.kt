@@ -22,6 +22,6 @@ class SecureStorage(context: Context) {
     }
 
     fun getID( secrettitle: String): String? {
-        return sharedPreferences.getString( secrettitle, null)
+        return sharedPreferences.getString( secrettitle, "")
     }
 }
