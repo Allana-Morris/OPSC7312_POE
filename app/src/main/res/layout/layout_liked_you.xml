@@ -62,25 +62,24 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="1.0" />
 
-        <Button
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/viewLikedProfileBtn"
-            android:layout_width="89dp"
-            android:layout_height="47dp"
+            android:layout_width="85dp"
+            android:layout_height="50dp"
             android:layout_marginStart="190dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="40dp"
-            android:layout_marginBottom="119dp"
+            android:layout_marginEnd="41dp"
+            android:layout_marginBottom="70dp"
             android:backgroundTint="@color/dark_green"
-            android:text="View profile"
-            android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.989"
+            app:layout_constraintHorizontal_bias="0.838"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.0"
+            tools:srcCompat="@drawable/ic_profile" />
 
-        <Button
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/contactLikedBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -89,16 +88,15 @@
             android:layout_marginEnd="41dp"
             android:layout_marginBottom="70dp"
             android:backgroundTint="@color/link_label_blue"
-            android:text="Contact"
-            android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintHorizontal_bias="0.879"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.189" />
+            app:layout_constraintVertical_bias="0.18"
+            tools:srcCompat="@drawable/navbar_liked_you" />
 
-        <Button
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/rejectBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -107,13 +105,12 @@
             android:layout_marginEnd="41dp"
             android:layout_marginBottom="22dp"
             android:backgroundTint="#E71111"
-            android:text="Reject"
-            android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintHorizontal_bias="0.879"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

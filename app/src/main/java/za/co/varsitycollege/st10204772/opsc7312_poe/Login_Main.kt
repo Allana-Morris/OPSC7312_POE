@@ -35,8 +35,6 @@ class Login_Main : AppCompatActivity() {
     private val AUTHORIZATION_CODE = 1337
     private var mOkHttpClient = OkHttpClient.Builder().build()
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
