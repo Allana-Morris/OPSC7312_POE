@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -49,6 +50,30 @@ class MatchProfile : AppCompatActivity() {
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
         )
+
+        var navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_ProfileMatch)
+
+        navbar.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_match -> {
+                    startActivity(Intent(this, MatchUI::class.java))
+                    true
+                }
+                R.id.nav_like -> {
+                    startActivity(Intent(this, Liked_you::class.java))
+                    true
+                }
+                R.id.nav_chat -> {
+                    startActivity(Intent(this, Contact::class.java))
+                    true
+                }
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, ProfileUI::class.java))
+                    true
+                }
+                else -> false
+            }
+        }
 
         val sAccessToken = sharedPreferences.getString("ACCESS_TOKEN", null)
         if (sAccessToken != null) {

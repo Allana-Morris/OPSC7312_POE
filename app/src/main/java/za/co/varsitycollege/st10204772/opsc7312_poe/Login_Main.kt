@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -49,10 +50,15 @@ class Login_Main : AppCompatActivity() {
         var btnLogin = findViewById<Button>(R.id.btnContinueLogin)
         var userEmail = findViewById<EditText>(R.id.etxtEmailLogin)
         var userPassword = findViewById<EditText>(R.id.etxtPassword)
+        var signup = findViewById<TextView>(R.id.txtSignUpRedirectLogin)
         var uEmail = userEmail.text
         var uPass = userPassword.text
         var inpval = InputValidation()
 
+        signup.setOnClickListener {
+            var intent = Intent(this, Register_Permissions::class.java)
+            startActivity(intent)
+        }
 
         btnLogin.setOnClickListener {
             if ((inpval.isStringInput(uEmail)) && (inpval.isStringInput(uPass))) {
@@ -66,8 +72,8 @@ class Login_Main : AppCompatActivity() {
                             DatabaseReadandWrite().loginUser(email, password) { user ->
                                 if (user != null) {
                                     authenticateWithSpotify()
-                                    //var intent = Intent(this, MatchUI::class.java)
-                                    //startActivity(intent)
+                                    var intent = Intent(this, MatchUI::class.java)
+                                    startActivity(intent)
                                 } else {
                                     Log.e(TAG, "Failed to load user")
                                 }
