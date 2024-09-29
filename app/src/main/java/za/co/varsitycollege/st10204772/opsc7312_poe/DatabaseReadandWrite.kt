@@ -36,8 +36,8 @@ class DatabaseReadandWrite {
 
     fun checkLogin(Email: String, Password: String, callback: (Boolean) -> Unit) {
         db.collection("Users")
-            .whereEqualTo("Email", Email)
-            .whereEqualTo("Password", Password)// Assuming "cell" is the field in the database
+            .whereEqualTo("email", Email)
+            .whereEqualTo("password", Password)// Assuming "cell" is the field in the database
             .get()
             .addOnSuccessListener { result ->
                 val found = !result.isEmpty
@@ -89,7 +89,7 @@ class DatabaseReadandWrite {
      * This method checks if key fields such as profile image URLs and Spotify user ID are populated.
      */
     fun checkUserProfileExists(userId: String, callback: (Boolean) -> Unit) {
-        db.collection("users").document(userId).get()
+        db.collection("Users").document(userId).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     // Log the found document for debugging purposes
