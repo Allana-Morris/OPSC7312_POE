@@ -20,12 +20,9 @@ class User() {
     data class GoogleUser(
         var googleID: String = "",
         var email: String = "",
-        var emailVerified: Boolean = false,
         var name: String = "",
         var pictureUrl: String = "",
-        var locale: String = "",
-        var familyName: String = "",
-        var givenName: String = "",
+
     ) {
 
     }

@@ -113,6 +113,20 @@ class StartActivity : AppCompatActivity() {
                                         // Sign in success, update UI with the signed-in user's information
                                         Log.d(TAG, "signInWithCredential:success")
                                         val user = auth.currentUser
+                                        user?.let {
+                                            User.GoogleUser().apply {
+                                                name = it.displayName.toString()
+                                                email = it.email.toString()
+                                                pictureUrl = it.photoUrl.toString()
+                                                googleID = it.uid
+                                            }
+                                             User().apply {
+                                                Email = it.email.toString()
+                                                hasGoogle = true
+                                            }
+                                        }
+                                        val intent = Intent(this, Register_About_You::class.java)
+                                        startActivity(intent)
 
                                     } else {
                                         // If sign in fails, display a message to the user.
