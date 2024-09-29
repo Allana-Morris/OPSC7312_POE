@@ -22,10 +22,8 @@ class DatabaseReadandWrite {
 
     private val db = Firebase.firestore
 
-    /**
-     * Write user data to Firestore after registration.
-     */
-    fun registerUser(user: User, onComplete: (Boolean, String?) -> Unit) {
+    fun writeUser(user: User) {
+
     }
 
     fun readUser(): User {
@@ -36,8 +34,8 @@ class DatabaseReadandWrite {
 
     fun checkLogin(Email: String, Password: String, callback: (Boolean) -> Unit) {
         db.collection("Users")
-            .whereEqualTo("email", Email)
-            .whereEqualTo("password", Password)// Assuming "cell" is the field in the database
+            .whereEqualTo("Email", Email)
+            .whereEqualTo("Password", Password)// Assuming "cell" is the field in the database
             .get()
             .addOnSuccessListener { result ->
                 val found = !result.isEmpty
@@ -54,85 +52,77 @@ class DatabaseReadandWrite {
      * Login an existing user using FirebaseAuth.
      * Now returns `FirebaseUser` to provide user ID and authentication details.
      */
-    fun loginUser(email: String, password: String, onUserLoaded: (FirebaseUser?) -> Unit) {
+    fun loginUser(email: String, password: String, onUserLoaded: (User?) -> Unit) {
         val auth = FirebaseAuth.getInstance()
 
-        // Authenticate with FirebaseAuth
+        // Step 1: Authenticate the user using email and password
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    // Pass back the authenticated `FirebaseUser` object
-                    val user = auth.currentUser
-                    onUserLoaded(user)
+                    // Step 2: After successful authentication, fetch the user data from Firestore
+                    val userId = auth.currentUser
+                    userId?.let {
+                        db.collection("Users").document(it.uid).get()
+                            .addOnSuccessListener { documentSnapshot ->
+                                if (documentSnapshot.exists()) {
+                                    // Step 3: Map the Firestore document into the User class
+                                    val user = documentSnapshot.toObject(User::class.java)
+                                    onUserLoaded(user)
+                                } else {
+                                    onUserLoaded(null) // No user data found
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                e.printStackTrace()
+                                onUserLoaded(null)
+                            }
+                    }
                 } else {
                     // Authentication failed
-                    Log.e(TAG, "Authentication failed", task.exception)
                     onUserLoaded(null)
                 }
             }
             .addOnFailureListener { e ->
-                Log.e(TAG, "Error during login", e)
+                e.printStackTrace()
                 onUserLoaded(null)
             }
     }
 
-    fun CreateUser(
-        email: String,
-        password: String,
-        user: User,
-        onComplete: (Boolean, String?) -> Unit
-    ) {
+    fun CreateUser(email: String, password: String, user: User, onComplete: (Boolean, String?) -> Unit){
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
-    /**
-     * Check if user profile exists and is complete.
-     * This method checks if key fields such as profile image URLs and Spotify user ID are populated.
-     */
-    fun checkUserProfileExists(userId: String, callback: (Boolean) -> Unit) {
-        db.collection("Users").document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    // Log the found document for debugging purposes
-                    Log.d(TAG, "User profile found for ID: $userId")
 
-                    // Check if key fields like profile images or Spotify ID exist
-                    val profileImageUrls = document.get("profileImageUrls") as? List<String>
-                    val spotifyUserId = document.getString("spotifyUserId")
+        // Step 1: Create a new user with email and password
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    // Step 2: After successful registration, get the user's UID
+                    val userId = auth.currentUser?.uid
+                    user.Email = email // Set the email in the user object
 
-                    if (!profileImageUrls.isNullOrEmpty() && !spotifyUserId.isNullOrEmpty()) {
-                        Log.d(TAG, "Profile is complete for user: $userId")
-                        callback(true)  // Profile is complete
-                    } else {
-                        Log.d(TAG, "Profile is incomplete for user: $userId")
-                        callback(false)  // Profile is incomplete
+                    // Step 3: Save the user data to Firestore
+                    userId?.let {
+                        db.collection("Users").document(it).set(user)
+                            .addOnSuccessListener {
+                                onComplete(true, "User registered successfully!")
+                            }
+                            .addOnFailureListener { e ->
+                                e.printStackTrace()
+                                onComplete(false, "Failed to save user data: ${e.message}")
+                            }
                     }
                 } else {
-                    Log.d(TAG, "No user profile found for ID: $userId")
-                    callback(false)  // Profile doesn't exist
+                    // Registration failed
+                    onComplete(false, "Registration failed: ${task.exception?.message}")
                 }
             }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "Error checking user profile: ${exception.message}")
-                callback(false)  // Error fetching profile, assume incomplete
+            .addOnFailureListener { e ->
+                e.printStackTrace()
+                onComplete(false, "Registration failed: ${e.message}")
             }
     }
 
-    /**
-     * Example method for reading Spotify data.
-     */
-    fun readSpotifyData() {
-        // Add logic to read Spotify data from Firestore or any other source.
-    }
 
-
-    /**
-     * Example method for writing Spotify data.
-     */
-    fun writeSpotifyData(data: SpotifyData) {
-        // Add logic to write Spotify data to Firestore or any other source.
-    }
-}
-    fun writeSpotifyData(data: SpotifyData) {
 
     }
 

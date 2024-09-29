@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
+import android.provider.ContactsContract.CommonDataKinds.Email
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
@@ -44,37 +45,41 @@ class Register_Email : AppCompatActivity() {
                     user.Email = newEmail
                     user.Password = newPassword
                     user.hasGoogle = false
-
-                    // Register and save the new user to Firestore
-                    DatabaseReadandWrite().registerUser(user) { success, errorMessage ->
-                        if (success) {
-                            Toast.makeText(this, "Registration Successful", Toast.LENGTH_LONG).show()
-                            startActivity(Intent(this, Register_About_You::class.java))
-                        } else {
-                            if (errorMessage?.contains("already in use") == true) {
-                                // Firebase will throw an error if the email is already registered
-                                Toast.makeText(this, "User Already Exists", Toast.LENGTH_LONG).show()
-                            } else {
-                                Log.e(TAG, "Failed to register user: $errorMessage")
-                                Toast.makeText(this, "Failed to save user: $errorMessage", Toast.LENGTH_LONG).show()
+                    DatabaseReadandWrite().checkLogin(newEmail, newPassword) { isFound ->
+                        if (isFound) {
+                            DatabaseReadandWrite().loginUser(newEmail, newPassword) { user ->
+                                if (user != null) {
+                                    Toast.makeText(this, "User Already Exists", Toast.LENGTH_LONG).show()
+                                } else {
+                                    Log.e(TAG, "Database Read Error")
+                                }
                             }
+                        } else {
+                          User().Email = newEmail
+                            User().Password = newPassword
+                            User().hasGoogle = false
+                            startActivity(Intent(this, Register_About_You::class.java))
                         }
                     }
+                } else if (!inpVal.isEmail(newEmail)) {
+                    Log.e(TAG, "Invalid Email")
+                    Toast.makeText(this, "Invalid Email Format", Toast.LENGTH_LONG).show()
+                } else if (!inpVal.isPassword(newPassword)) {
+                    Log.e(TAG, "Invalid Password")
+                    Toast.makeText(this, "Invalid Password Format", Toast.LENGTH_LONG).show()
                 } else {
-                    // Handle invalid email or password format
-                    if (!inpVal.isEmail(newEmail)) {
-                        Log.e(TAG, "Invalid Email")
-                        Toast.makeText(this, "Invalid Email Format", Toast.LENGTH_LONG).show()
-                    }
-                    if (!inpVal.isPassword(newPassword)) {
-                        Log.e(TAG, "Invalid Password")
-                        Toast.makeText(this, "Password must be at least 6 characters and meet other criteria", Toast.LENGTH_LONG).show()
-                    }
+                    Log.e(TAG, "Error (wtf bro)")
+                    Toast.makeText(this, "Input is unable to be Validated", Toast.LENGTH_LONG)
+                        .show()
                 }
             } else {
-                Log.e(TAG, "Invalid Input: Empty fields")
-                Toast.makeText(this, "Please provide both email and password", Toast.LENGTH_LONG).show()
+                Log.e(TAG, "Invalid Input")
+                Toast.makeText(this, "Invalid Input", Toast.LENGTH_LONG).show()
             }
         }
+
+
+
+        }
+
     }
-}
