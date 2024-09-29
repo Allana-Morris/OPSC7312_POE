@@ -72,7 +72,7 @@ class Login_Main : AppCompatActivity() {
                             DatabaseReadandWrite().loginUser(email, password) { user ->
                                 if (user != null) {
                                     authenticateWithSpotify()
-                                    var intent = Intent(this, MatchUI::class.java)
+                                    var intent = Intent(this, ProfileUI::class.java)
                                     startActivity(intent)
                                 } else {
                                     Log.e(TAG, "Failed to load user")
