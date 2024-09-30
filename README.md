@@ -1,4 +1,5 @@
 Music Match - The Spotify Dating App
+By Allana Morris(ST10204772), Sven Masche(ST10030798), Max Walsh(ST10203070), Reilly Mare(ST10080623)
 
 This is a Kotlin-based Android dating application built using Android Studio. The app matches users based on their Spotify listening habits, utilizing the Spotify API. Users can sign in with their Google accounts or register using the in-app registration
 Next the User must sign in to Spotify to display their profiles and get matched with others based on their favorite songs, artists, and playlists.
