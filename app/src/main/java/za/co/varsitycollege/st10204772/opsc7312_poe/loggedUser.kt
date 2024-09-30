@@ -2,6 +2,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 
 object loggedUser {
     var user: User? = null
+    var shownList: MutableList<String> = mutableListOf()
 
     // Initialize the loggedUser with a User object
     fun initializeUser(user: User) {
