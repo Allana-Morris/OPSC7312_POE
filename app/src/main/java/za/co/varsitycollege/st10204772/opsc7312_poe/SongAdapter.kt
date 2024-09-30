@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class SongAdapter(private val songs: SpotifyData.Songs) : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
+class SongAdapter(private val songs: SpotifyData) : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
 
     class SongViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val songName: TextView = itemView.findViewById(R.id.trackName)
@@ -19,7 +19,10 @@ class SongAdapter(private val songs: SpotifyData.Songs) : RecyclerView.Adapter<S
     }
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
-        holder.songName.text = (position+1).toString() + ". " + songs.songName[position]
+        var songartist = songs.artistName.zip(songs.songartistID.zip(songs.artistID))
+            .filter { (_, ids) -> ids.first == ids.second }
+            .map { (name, _) -> name }
+        holder.songName.text = (position+1).toString() + ". " + songs.songName[position] + "By " + "$songartist"
         // Bind other data if necessary
     }
 

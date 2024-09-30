@@ -26,8 +26,7 @@ class MatchProfile : AppCompatActivity() {
     private lateinit var genreRecyclerView: RecyclerView
     private val genres = mutableListOf<String>()
 
-    private val sStorage = SecureStorage(this)
-    private var spotifyAccessToken: String? = sStorage.getID("ACCESS_TOKEN")
+    private var spotifyAccessToken: String? = loggedUser.user?.Name
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -93,13 +92,12 @@ class MatchProfile : AppCompatActivity() {
 
                     for (i in 0 until items.length()) {
                         val artist = items.getJSONObject(i)
-                        SpotifyData.Artists().artistID.add(artist.getString("id"))
-                        SpotifyData.Artists().artistName.add(artist.getString("name"))
+                        SpotifyData().artistName.add(artist.getString("name"))
                     }
 
                     runOnUiThread {
                         // Update RecyclerView with artist data
-                        artistRecyclerView.adapter = ArtistAdapter(SpotifyData.Artists()) // Implement this adapter
+                       // artistRecyclerView.adapter = ArtistAdapter() // Implement this adapter
                     }
 
                     // Fetch Top Genres (aggregate genres from top artists)
@@ -126,18 +124,18 @@ class MatchProfile : AppCompatActivity() {
 
                     for (i in 0 until items.length()) {
                         val track = items.getJSONObject(i)
-                        SpotifyData.Songs().songID.add(track.getString("id"))
+                       /* SpotifyData.Songs().songID.add(track.getString("id"))
                         SpotifyData.Songs().songName.add(track.getString("name"))
                         SpotifyData.Songs().albumName.add(track.getJSONObject("album").getString("name"))
                         SpotifyData.Songs().artistID.add(track.getJSONArray("artists").getJSONObject(0).getString("id")) // Assuming one artist
 
                         val albumImageUrl = track.getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url")
-                        SpotifyData.Songs().albumpicUrl.add(Uri.parse(albumImageUrl))
+                        SpotifyData.Songs().albumpicUrl.add(Uri.parse(albumImageUrl)) */
                     }
 
                     runOnUiThread {
                         // Update RecyclerView with song data
-                        trackRecyclerView.adapter = SongAdapter(SpotifyData.Songs()) // Implement this adapter
+                       // trackRecyclerView.adapter = SongAdapter(SpotifyData.Songs()) // Implement this adapter
                     }
                 }
             }

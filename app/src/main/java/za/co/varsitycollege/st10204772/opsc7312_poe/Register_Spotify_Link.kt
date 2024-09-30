@@ -25,7 +25,6 @@ import java.io.IOException
 
 class Register_Spotify_Link : AppCompatActivity() {
 
-    private val redirectUri= "myapp://callback"
     private val authRequestCode = 1337
     private val scopes = "user-read-private user-read-email user-top-read" // Add necessary scopes here
     private val mOkHttpClient: OkHttpClient = OkHttpClient()
@@ -40,18 +39,9 @@ class Register_Spotify_Link : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register_spotify_link)
-        val sStorage = SecureStorage(this)
 
-
-
-
-        sStorage.saveID("eb9b8af983d94603adaa1d212cf58980", "CLIENT_ID")
-        sStorage.saveID("myapp://callback", "REDIRECT_URI")
-        sStorage.saveID( "44bdee846c714d22ad432b9b7cb1451b", "CLIENT_SECRET")
-        sStorage.saveID( "905988466931-h3di4chs18somrfitguu3g95b0bf72sb.apps.googleusercontent.com", "GOOGLE_ID")
-
-        val CLIENT_ID = sStorage.getID("CLIENT_ID")
-        val REDIRECT_URI = sStorage.getID("REDIRECT_URI")
+        val CLIENT_ID =  ClientID.CLIENT_ID
+        val REDIRECT_URI = ClientID.REDIRECT_URI
 
         imageView = findViewById(R.id.imgAccountPP)
         textView = findViewById(R.id.txtSpotifyAccount)
@@ -213,6 +203,7 @@ class Register_Spotify_Link : AppCompatActivity() {
                                 setSpotifyID = spotifyId;
                                 fetchTopGenre()
                                 fetchTopSongs()
+                                fetchTopArtists()
 
 
                                 button.isEnabled = true;
@@ -238,8 +229,7 @@ class Register_Spotify_Link : AppCompatActivity() {
 
     private fun saveAccessToken(token: String?) {
         if (token != null) {
-            val sStorage = SecureStorage(this)
-            sStorage.saveID("SPOTIFY_ACCESS_TOKEN", token)  // Save the token securely
+            loggedUser.user?.Name = token
         }
     }
 
@@ -345,25 +335,39 @@ class Register_Spotify_Link : AppCompatActivity() {
                     val jsonResponse = JSONObject(response.body?.string() ?: "")
                     val songs = jsonResponse.getJSONArray("items")
                     val topSongs = mutableListOf<String>() // To hold top song names
+                    val SongArtistName = mutableListOf<String>()
+                    val albumArt = mutableListOf<String>()
 
                     // Retrieve the top 3 song names
                     for (i in 0 until songs.length()) {
                         val song = songs.getJSONObject(i)
                         val songName = song.getString("name")
+
+                        val artistArray = song.getJSONArray("artists")
+                        val artistName = artistArray.getJSONObject(0).getString("name")
+
+                        // Get the album artwork URL
+                        val album = song.getJSONObject("album")
+                        val images = album.getJSONArray("images")
+                        val artworkUrl = images.getJSONObject(0).getString("url") // Usually, index 0 is the highest resolution
+
                         topSongs.add(songName)
+                        SongArtistName.add(artistName)
+                        albumArt.add(artworkUrl)
+
                     }
-                    fetchTopArtists(topSongs)
+
 
 
                     // Store the top songs in Firestore
-                    storeTopSongsInFirestore(topSongs)
+                    storeTopSongsInFirestore(topSongs, SongArtistName, albumArt)
                 }
             }
         })
     }
 
     // Store top songs in Firestore
-    private fun storeTopSongsInFirestore(topSongs: List<String>) {
+    private fun storeTopSongsInFirestore(topSongs: List<String>, songartist: List<String>, albumart: List<String>) {
         val firestore = FirebaseFirestore.getInstance()
 
         // Get the logged user's email
@@ -387,6 +391,20 @@ class Register_Spotify_Link : AppCompatActivity() {
                             .addOnFailureListener { e ->
                                 Toast.makeText(this, "Error updating top songs: ${e.message}", Toast.LENGTH_SHORT).show()
                             }
+                        userDocument.reference.update("songArtist", songartist)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Top songs artists updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Error updating top songs artists: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        userDocument.reference.update("albumArt", albumart)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Top songs updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Error updating top songs: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
                     } else {
                         Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
                     }
@@ -398,7 +416,7 @@ class Register_Spotify_Link : AppCompatActivity() {
             Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
         }
     }
-    private fun fetchTopArtists(topSongs: List<String>) {
+    private fun fetchTopArtists() {
         val request = Request.Builder()
             .url("https://api.spotify.com/v1/me/top/artists?limit=3") // Fetch top artists
             .addHeader("Authorization", "Bearer $mAccessToken") // Use access token
