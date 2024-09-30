@@ -1,7 +1,6 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -9,14 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.FirebaseFirestore
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import org.json.JSONObject
 import za.co.varsitycollege.st10204772.opsc7312_poe.databinding.ActivityMatchProfileBinding
-import java.io.IOException
 
 class MatchProfile : AppCompatActivity() {
 
@@ -55,7 +47,7 @@ class MatchProfile : AppCompatActivity() {
         GenreAdapter(adapterGenre)
 
         var navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_ProfileMatch)
-
+        navbar.selectedItemId = 0
         navbar.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_match -> {
