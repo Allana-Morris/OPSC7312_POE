@@ -19,10 +19,10 @@ class SongAdapter(private val songs: SpotifyData) : RecyclerView.Adapter<SongAda
     }
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
-        var songartist = songs.artistName.zip(songs.songartistID.zip(songs.artistID))
+      /*  var songartist = songs.artistName.zip(songs.songartistID.zip(songs.artistID))
             .filter { (_, ids) -> ids.first == ids.second }
             .map { (name, _) -> name }
-        holder.songName.text = (position+1).toString() + ". " + songs.songName[position] + "By " + "$songartist"
+        holder.songName.text = (position+1).toString() + ". " + songs.songName[position] + "By " + "$songartist"*/
         // Bind other data if necessary
     }
 

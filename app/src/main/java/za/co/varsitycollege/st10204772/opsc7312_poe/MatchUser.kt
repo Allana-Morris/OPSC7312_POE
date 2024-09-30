@@ -12,6 +12,7 @@ class MatchUser {
     var topGenre: List<String> = emptyList()
     var topArtist: List<String> = emptyList()
     var topSong: List<String> = emptyList()
+    var album : List<String> = emptyList()
 
 
 }

@@ -103,6 +103,7 @@ class MatchUI : AppCompatActivity() {
                       topGenre = document.getList("topGenres")?.map { it.toString() } ?: emptyList()
                       topArtist = document.getList("topArtists")?.map { it.toString() } ?: emptyList()
                       topSong = document.getList("topSongs")?.map { it.toString() } ?: emptyList()
+                      album = document.getList("albumArt")?.map { it.toString() } ?: emptyList()
                   }
                   user = matchUser
               }
@@ -117,6 +118,9 @@ class MatchUI : AppCompatActivity() {
               pronouns.text = user.Pronoun
               songName.text = user.topSong[0]
               artistName.text = user.topArtist[0]
+              Glide.with(this)
+                  .load(user.album[0]) // Use the first album art URL from the list
+                  .into(albumCover)
 
               // Set up the ViewPager adapter with the first user's images
               val imageAdapter = ImagePagerAdapter(user.profilePictureUrl ?: emptyList())

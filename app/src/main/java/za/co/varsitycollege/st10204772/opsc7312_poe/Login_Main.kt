@@ -36,9 +36,10 @@ import java.io.IOException
 
 class Login_Main : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
-   // private val AUTHORIZATION_CODE = 1337
+    private val AUTHORIZATION_CODE = 1337
     private var mOkHttpClient = OkHttpClient.Builder().build()
     private lateinit var sAccessToken: String
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,7 +76,7 @@ class Login_Main : AppCompatActivity() {
                             DatabaseReadandWrite().loginUser(email, password) { user ->
                                 if (user != null) {
                                     authenticateWithSpotify()
-                                    CallSpotifyFun()
+                                     //CallSpotifyFun()
                                      intent = Intent(this, ProfileUI::class.java)
                                     startActivity(intent)
                                 } else {
