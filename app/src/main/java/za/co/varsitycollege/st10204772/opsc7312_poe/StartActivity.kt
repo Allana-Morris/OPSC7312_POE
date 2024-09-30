@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.ContentValues.TAG
@@ -14,9 +16,16 @@ import androidx.credentials.CredentialManager
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.common.api.Status
+import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
@@ -26,9 +35,12 @@ class StartActivity : AppCompatActivity() {
 
     //Google SSO Variables
     val credManager = CredentialManager.create(this)
-    private lateinit var auth: FirebaseAuth
-    private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
-    private lateinit var oneTapClient: SignInClient
+  //  private lateinit var auth: FirebaseAuth
+  //  private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
+ //   private lateinit var oneTapClient: SignInClient
+
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
+    private val RC_SIGN_IN = 9001
 
     lateinit var context: Context
 
@@ -37,6 +49,8 @@ class StartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_start)
+
+        FirebaseApp.initializeApp(this)
 
         //Sign In Button
         var btnSignIn = findViewById<TextView>(R.id.tvSignIn)
@@ -58,119 +72,55 @@ class StartActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Google SSO
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(ClientID.app_client_id)
+            .requestEmail()
+            .build()
+
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
+
         var btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
         btnGoogle.setOnClickListener {
-            auth = Firebase.auth
-            oneTapClient = Identity.getSignInClient(this)
-
-            val signInRequest = BeginSignInRequest.builder()
-                .setGoogleIdTokenRequestOptions(
-                    BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                        .setSupported(true)
-                        .setServerClientId(ClientID.server_client_id)
-                        .setFilterByAuthorizedAccounts(false)
-                        .build()
-                ).build()
-
-            oneTapClient.beginSignIn(signInRequest)
-                .addOnSuccessListener(this) { result ->
-                    try {
-                        startIntentSenderForResult(
-                            result.pendingIntent.intentSender, REQ_ONE_TAP,
-                            null, 0, 0, 0
-                        )
-
-                    } catch (e: IntentSender.SendIntentException) {
-                        Log.e(TAG, "Couldn't start One Tap UI: ${e.localizedMessage}")
-                    }
-                }
-                .addOnFailureListener(this) { e ->
-                    e.localizedMessage?.let { it1 -> Log.d(TAG, it1) }
-                }
-
-
+            googleSignin()
         }
     }
 
-    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+    private fun googleSignin() {
+        val signInIntent = mGoogleSignInClient.signInIntent
+        startActivityForResult(signInIntent, RC_SIGN_IN)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        when (requestCode) {
-            REQ_ONE_TAP -> {
-                try {
-                    val googleCredential = oneTapClient.getSignInCredentialFromIntent(data)
-                    val idToken = googleCredential.googleIdToken
-                    when {
-                        idToken != null -> {
-                            // Got an ID token from Google. Use it to authenticate
-                            // with Firebase.
-                            val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-                            auth.signInWithCredential(firebaseCredential)
-                                .addOnCompleteListener(this) { task ->
-                                    if (task.isSuccessful) {
-                                        // Sign in success, update UI with the signed-in user's information
-                                        Log.d(TAG, "signInWithCredential:success")
-                                        val user = auth.currentUser
-                                        user?.let {
-                                            User.GoogleUser().apply {
-                                                name = it.displayName.toString()
-                                                email = it.email.toString()
-                                                pictureUrl = it.photoUrl.toString()
-                                                googleID = it.uid
-                                            }
-                                             User().apply {
-                                                Email = it.email.toString()
-                                                hasGoogle = true
-                                            }
-                                        }
-                                        val intent = Intent(this, Register_About_You::class.java)
-                                        startActivity(intent)
-
-                                    } else {
-                                        // If sign in fails, display a message to the user.
-                                        Log.w(TAG, "signInWithCredential:failure", task.exception)
-
-                                    }
-                                }
-                        }
-
-                        else -> {
-                            // Shouldn't happen.
-                            Log.d(TAG, "No ID token!")
-                        }
-                    }
-
-                } catch (e: ApiException) {
-                    Log.d(
-                        TAG,
-                        "Gad, what have you done? You're a Pink Pony girl and you dance at the club"
-                    )
-                    when (e.statusCode) {
-                        CommonStatusCodes.CANCELED -> {
-                            Log.d(TAG, "One-tap dialog was closed.")
-                            // Don't re-prompt the user.
-                            var showOneTapUI = false
-                        }
-
-                        CommonStatusCodes.NETWORK_ERROR -> {
-                            Log.d(TAG, "One-tap encountered a network error.")
-                            // Try again or just ignore.
-                        }
-
-                        else -> {
-                            Log.d(
-                                TAG, "Couldn't get credential from result." +
-                                        " (${e.localizedMessage})"
-                            )
-
-                        }
-                    }
-                }
-
-
-            }
+        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            handleSignInResult(task)
         }
     }
+
+    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+        try {
+            val account = completedTask.getResult(ApiException::class.java)
+
+            // Signed in successfully, show authenticated UI.
+            updateUI(account)
+        } catch (e: ApiException) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.w(TAG, "signInResult:failed code=" + e.statusCode)
+            updateUI(null)
+        }
+    }
+
+
+    private fun updateUI(account: GoogleSignInAccount?) {
+        if (account != null) {
+            // Update your UI with the user's information
+            val intent = Intent(this, Register_About_You::class.java)
+        } else {
+            // Update your UI to show the user is signed out
+        }
+    }
+
 }

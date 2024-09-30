@@ -109,7 +109,7 @@ class Register_Spotify_Link : AppCompatActivity() {
             // Split the scopes string into an array and set it
             builder.setScopes(arrayOf(*scopes.split(" ").toTypedArray()))
             val request = builder.build()
-            AuthorizationClient.clearCookies(this)
+           // AuthorizationClient.clearCookies(this)
             AuthorizationClient.openLoginInBrowser(this, request)
         }
     }

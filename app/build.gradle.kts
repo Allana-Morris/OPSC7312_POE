@@ -32,12 +32,6 @@ android {
                 "proguard-rules.pro"
             )
 
-                buildConfigField("String", "CLIENT_SECRET", "44bdee846c714d22ad432b9b7cb1451b")
-                buildConfigField("String", "CLIENT_ID", "eb9b8af983d94603adaa1d212cf58980")
-                buildConfigField("String", "REDIRECT_URI", "myapp://callback")
-                buildConfigField("String", "GOOGLE_ID", "905988466931-h3di4chs18somrfitguu3g95b0bf72sb.apps.googleusercontent.com")
-
-
         }
     }
     compileOptions {
@@ -59,7 +53,7 @@ dependencies {
     implementation(libs.circleimageview)
 
     //Spotify Authentication
-    //implementation(files("libs/spotify-auth-release-2.1.0.aar"))
+   // implementation(files("libs/spotify-auth-release-2.1.0.aar"))
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
     implementation ("com.squareup.picasso:picasso:2.71828")
     implementation ("com.spotify.android:auth:1.2.5")
@@ -67,12 +61,14 @@ dependencies {
 
     //Glide for image loading
     implementation (libs.glide)
-    implementation ("androidx.security:security-crypto:1.1.0-alpha03")
     implementation(libs.firebase.storage.ktx)
 
     //Google SSO with OAuth2.0
     implementation (libs.androidx.credentials.v150alpha05)
-    implementation (libs.androidx.credentials.play.services.auth)
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.firebase:firebase-auth-ktx:23.0.0")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation (libs.googleid)
 
     // Firebase
