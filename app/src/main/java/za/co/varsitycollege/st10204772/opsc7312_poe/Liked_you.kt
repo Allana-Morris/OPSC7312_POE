@@ -144,7 +144,7 @@ class Liked_you : AppCompatActivity() {
     }
 
     private fun setupBottomNavigation() {
-        val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Profile)
+        val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Liked_You)
 
         navbar.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
