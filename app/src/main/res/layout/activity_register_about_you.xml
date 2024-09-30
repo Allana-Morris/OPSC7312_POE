@@ -135,6 +135,7 @@
         android:background="@drawable/rounded_corners"
         android:backgroundTint="@color/light_grey"
         android:textAlignment="center"
+        android:textColor="@color/black"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"

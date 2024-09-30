@@ -41,9 +41,9 @@ class Register_About_You : AppCompatActivity() {
         val genderItems = resources.getStringArray(R.array.XtraGenders)
         val pronounItems = resources.getStringArray(R.array.pronoun_array)
         val adapter1 = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderItems)
-        val adapter2 = ArrayAdapter(this, android.R.layout.simple_spinner_item, pronounItems)
+        val adapter2 = ArrayAdapter(this, R.layout.custom_spinner_item, pronounItems)
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        adapter2.setDropDownViewResource(R.layout.custom_spinner_item)
         spnMoreGenders.adapter = adapter1
         spPronouns.adapter = adapter2
 
