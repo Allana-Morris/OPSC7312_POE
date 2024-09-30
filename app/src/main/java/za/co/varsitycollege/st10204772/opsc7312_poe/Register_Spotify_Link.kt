@@ -26,7 +26,7 @@ class Register_Spotify_Link : AppCompatActivity() {
 
     private val redirectUri= "myapp://callback"
     private val authRequestCode = 1337
-    private val scopes = "user-read-private user-read-email user-top-read"
+    private val scopes = "user-read-private user-read-email user-top-read" // Add necessary scopes here
     private val mOkHttpClient: OkHttpClient = OkHttpClient()
     private var mAccessToken: String? = null
     private var mCall: Call? = null
@@ -111,8 +111,6 @@ class Register_Spotify_Link : AppCompatActivity() {
 
         val btnSpotify = findViewById<Button>(R.id.btnspotifysearch)
 
-
-
         btnSpotify.setOnClickListener {
             val builder =
                 AuthorizationRequest.Builder(
@@ -120,11 +118,12 @@ class Register_Spotify_Link : AppCompatActivity() {
                     AuthorizationResponse.Type.TOKEN,
                     REDIRECT_URI
                 )
-            builder.setScopes(arrayOf("streaming"))
+            // Split the scopes string into an array and set it
+            builder.setScopes(arrayOf(*scopes.split(" ").toTypedArray()))
             val request = builder.build()
             AuthorizationClient.openLoginInBrowser(this, request)
-
         }
+
     }
 
      override fun onNewIntent(intent: Intent) {
@@ -141,6 +140,8 @@ class Register_Spotify_Link : AppCompatActivity() {
                 AuthorizationResponse.Type.TOKEN -> {
                     // Handle successful response
                     mAccessToken = response.accessToken
+                    loggedUser.user?.Name = mAccessToken.toString();
+                        saveAccessToken(mAccessToken)  // Save the access token
                     fetchSpotifyUserProfile()
                 }
                 AuthorizationResponse.Type.ERROR -> {
@@ -215,6 +216,8 @@ class Register_Spotify_Link : AppCompatActivity() {
 
 
 
+
+
                             } else {
                                 imageView.setImageResource(R.drawable.profile_placeholder) // Default image if no profile pic
                             }
@@ -233,6 +236,14 @@ class Register_Spotify_Link : AppCompatActivity() {
             }
         })
     }
+
+    private fun saveAccessToken(token: String?) {
+        if (token != null) {
+            val sStorage = SecureStorage(this)
+            sStorage.saveID("SPOTIFY_ACCESS_TOKEN", token)  // Save the token securely
+        }
+    }
+
 
     override fun onDestroy() {
         mCall?.cancel() // Cancel any ongoing API requests

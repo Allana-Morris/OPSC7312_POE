@@ -1,6 +1,7 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.graphics.Bitmap
+import android.media.session.MediaSession
 import java.util.Date
 
 class User() {

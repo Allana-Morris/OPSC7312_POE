@@ -18,6 +18,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.spotify.sdk.android.auth.AccountsQueryParameters.REDIRECT_URI
+import com.spotify.sdk.android.auth.AuthorizationClient
+import com.spotify.sdk.android.auth.AuthorizationRequest
+import com.spotify.sdk.android.auth.AuthorizationResponse
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType
@@ -70,8 +73,8 @@ class Login_Main : AppCompatActivity() {
                             DatabaseReadandWrite().loginUser(email, password) { user ->
                                 if (user != null) {
                                     authenticateWithSpotify()
-                                    var intent = Intent(this, ProfileUI::class.java)
-                                    startActivity(intent)
+                                    /*var intent = Intent(this, ProfileUI::class.java)
+                                    startActivity(intent)*/
                                 } else {
                                     Log.e(TAG, "Failed to load user")
                                 }
@@ -100,29 +103,35 @@ class Login_Main : AppCompatActivity() {
     }
 
     private fun authenticateWithSpotify() {
-        val redirectUri = "YOUR_REDIRECT_URI"
-         val SCOPES = "user-read-private user-read-email user-top-read" // Add scopes as needed
+        val builder = AuthorizationRequest.Builder(
+            CLIENT_ID,
+            AuthorizationResponse.Type.TOKEN,
+            "myapp://callback" // Ensure this matches your registered redirect URI
+        )
+        builder.setScopes(arrayOf("user-read-private", "user-read-email", "user-top-read")) // Add scopes as needed
+        val request = builder.build()
 
-        val authUrl = "https://accounts.spotify.com/authorize" +
-                "?client_id=$CLIENT_ID" +
-                "&response_type=$AUTHORIZATION_CODE" +
-                "&redirect_uri=$REDIRECT_URI" +
-                "&scope=$SCOPES"
-
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authUrl))
-        startActivity(intent)
+        AuthorizationClient.openLoginInBrowser(this, request)
     }
 
 
-     override fun onNewIntent(intent: Intent) {
-         if (intent != null) {
-             super.onNewIntent(intent)
-         }
-        val uri = intent?.data
-        uri?.getQueryParameter("code")?.let { authorizationCode ->
-            exchangeAuthorizationCodeForToken(authorizationCode)
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent) // Ensure the new intent is set
+
+        intent.data?.let { uri ->
+            uri.getFragment()?.let { fragment ->
+                // Extract the access token from the fragment
+                val accessToken = Uri.parse("http://localhost/?$fragment").getQueryParameter("access_token")
+                accessToken?.let { token ->
+                    // Store the token securely
+                    saveTokens(token, "") // You may need to adjust how you handle the refresh token based on your needs
+                }
+            }
         }
     }
+
 
     private fun exchangeAuthorizationCodeForToken(authorizationCode: String) {
         val tokenRequest = Request.Builder()
@@ -155,6 +164,7 @@ class Login_Main : AppCompatActivity() {
 
     private fun saveTokens(accessToken: String, refreshToken: String) {
         // Implement secure storage for tokens
+        loggedUser.user?.SpotifyUserId = accessToken
         val storage = SecureStorage(this)
         storage.saveID("ACCESS_TOKEN", accessToken)
         storage.saveID("REFRESH_TOKEN", refreshToken)
