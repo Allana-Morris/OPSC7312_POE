@@ -3,6 +3,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.webkit.CookieManager
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -41,6 +42,9 @@ class Register_Spotify_Link : AppCompatActivity() {
         setContentView(R.layout.activity_register_spotify_link)
         val sStorage = SecureStorage(this)
 
+
+
+
         sStorage.saveID("eb9b8af983d94603adaa1d212cf58980", "CLIENT_ID")
         sStorage.saveID("myapp://callback", "REDIRECT_URI")
         sStorage.saveID( "44bdee846c714d22ad432b9b7cb1451b", "CLIENT_SECRET")
@@ -53,10 +57,6 @@ class Register_Spotify_Link : AppCompatActivity() {
         textView = findViewById(R.id.txtSpotifyAccount)
         button = findViewById(R.id.btnContinueSpotify)
         button.isEnabled = false;
-
-        Toast.makeText(this, loggedUser.user?.Email.toString(), Toast.LENGTH_LONG).show()
-
-
 
         //this is the continue button
         button.setOnClickListener {
@@ -120,10 +120,12 @@ class Register_Spotify_Link : AppCompatActivity() {
             // Split the scopes string into an array and set it
             builder.setScopes(arrayOf(*scopes.split(" ").toTypedArray()))
             val request = builder.build()
+            AuthorizationClient.clearCookies(this)
             AuthorizationClient.openLoginInBrowser(this, request)
         }
 
     }
+
 
      override fun onNewIntent(intent: Intent) {
 

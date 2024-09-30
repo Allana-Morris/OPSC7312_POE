@@ -14,6 +14,4 @@ class MatchUser {
     var topSong: List<String> = emptyList()
 
 
-
-
 }
