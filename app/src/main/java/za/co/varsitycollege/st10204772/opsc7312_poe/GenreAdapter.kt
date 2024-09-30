@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class GenreAdapter(private val genres: List<String>) : RecyclerView.Adapter<GenreAdapter.GenreViewHolder>() {
+class GenreAdapter(private val genres: MutableList<String>) : RecyclerView.Adapter<GenreAdapter.GenreViewHolder>() {
     class GenreViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val genreName: TextView = itemView.findViewById(R.id.genreName)
     }

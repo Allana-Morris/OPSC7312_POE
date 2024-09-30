@@ -36,7 +36,6 @@ import java.io.IOException
 
 class Login_Main : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
-   // private val AUTHORIZATION_CODE = 1337
     private var mOkHttpClient = OkHttpClient.Builder().build()
     private lateinit var sAccessToken: String
 

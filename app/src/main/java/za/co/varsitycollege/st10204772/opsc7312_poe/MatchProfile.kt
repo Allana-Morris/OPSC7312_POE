@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.firestore.FirebaseFirestore
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -20,13 +21,17 @@ import java.io.IOException
 
 class MatchProfile : AppCompatActivity() {
 
-    private val mOkHttpClient: OkHttpClient = OkHttpClient()
     private lateinit var artistRecyclerView: RecyclerView
     private lateinit var trackRecyclerView: RecyclerView
     private lateinit var genreRecyclerView: RecyclerView
-    private val genres = mutableListOf<String>()
+    private lateinit var MatchUserID: String
+    private  var adapterSongName: MutableList<String> = mutableListOf()
+    private var adapterSongArtist: MutableList<String> = mutableListOf()
+    private var adapterArtist: MutableList<String> = mutableListOf()
+    private var adapterGenre: MutableList<String> = mutableListOf()
+    private val db = FirebaseFirestore.getInstance()
+    private var intent= Intent()
 
-    private var spotifyAccessToken: String? = loggedUser.user?.Name
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -35,11 +40,20 @@ class MatchProfile : AppCompatActivity() {
 
         artistRecyclerView = findViewById(R.id.RV_Artists)
         trackRecyclerView = findViewById(R.id.RV_Songs)
+        genreRecyclerView = findViewById(R.id.RV_Genre)
 
         artistRecyclerView.layoutManager = LinearLayoutManager(this)
         trackRecyclerView.layoutManager = LinearLayoutManager(this)
+        genreRecyclerView.layoutManager = LinearLayoutManager(this)
 
+        intent =getIntent()
+        MatchUserID = intent.getStringExtra("Email").toString()
 
+        GetMatchSpotifyData(MatchUserID)
+
+        SongAdapter(adapterSongName, adapterSongArtist)
+        ArtistAdapter(adapterArtist)
+        GenreAdapter(adapterGenre)
 
         var navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_ProfileMatch)
 
@@ -49,140 +63,48 @@ class MatchProfile : AppCompatActivity() {
                     startActivity(Intent(this, MatchUI::class.java))
                     true
                 }
+
                 R.id.nav_like -> {
                     startActivity(Intent(this, Liked_you::class.java))
                     true
                 }
+
                 R.id.nav_chat -> {
                     startActivity(Intent(this, Contact::class.java))
                     true
                 }
+
                 R.id.nav_profile -> {
                     startActivity(Intent(this, ProfileUI::class.java))
                     true
                 }
+
                 else -> false
             }
         }
-
-
-        if (spotifyAccessToken != null) {
-            fetchUserTopItems(spotifyAccessToken!!)
-        } else {
-            // Handle the case where the access token is not available (e.g., show login)
-        }
     }
 
-    private fun fetchUserTopItems(accessToken: String) {
-        // Fetch Top Artists
-        val artistsRequest = Request.Builder()
-            .url("https://api.spotify.com/v1/me/top/artists?limit=3") // Limit to top 3
-            .addHeader("Authorization", "Bearer $accessToken")
-            .build()
+    private fun GetMatchSpotifyData(userEmail: String){
+        db.collection("Users")
+            .whereEqualTo("email", userEmail)
+            .get()
+            .addOnSuccessListener{ documents ->
+                for (document in documents){
+                    val dbSongName = document.get("topSongs") as? MutableList<String> ?: emptyList()
+                    val dbSongArtist = document.get("songArtist") as? MutableList<String>?: emptyList()
+                    val dbArtists = document.get("topArtists") as? MutableList<String>?: emptyList()
+                    val dbGenre = document.get("topGenres") as? MutableList<String>?: emptyList()
 
-        mOkHttpClient.newCall(artistsRequest).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                // Handle failure
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val jsonObject = JSONObject(response.body?.string() ?: "")
-                    val items = jsonObject.getJSONArray("items")
-
-                    for (i in 0 until items.length()) {
-                        val artist = items.getJSONObject(i)
-                        SpotifyData().artistName.add(artist.getString("name"))
-                    }
-
-                    runOnUiThread {
-                        // Update RecyclerView with artist data
-                       // artistRecyclerView.adapter = ArtistAdapter() // Implement this adapter
-                    }
-
-                    // Fetch Top Genres (aggregate genres from top artists)
-                    fetchTopGenres(accessToken)
+                    adapterSongName.addAll(dbSongName)
+                    adapterSongArtist.addAll(dbSongArtist)
+                    adapterArtist.addAll(dbArtists)
+                    adapterGenre.addAll(dbGenre)
                 }
             }
-        })
-
-        // Fetch Top Tracks
-        val tracksRequest = Request.Builder()
-            .url("https://api.spotify.com/v1/me/top/tracks?limit=3") // Limit to top 3
-            .addHeader("Authorization", "Bearer $accessToken")
-            .build()
-
-        mOkHttpClient.newCall(tracksRequest).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                // Handle failure
+            .addOnFailureListener { exception ->
+                println("Error getting documents: $exception")
             }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val jsonObject = JSONObject(response.body?.string() ?: "")
-                    val items = jsonObject.getJSONArray("items")
-
-                    for (i in 0 until items.length()) {
-                        val track = items.getJSONObject(i)
-                       /* SpotifyData.Songs().songID.add(track.getString("id"))
-                        SpotifyData.Songs().songName.add(track.getString("name"))
-                        SpotifyData.Songs().albumName.add(track.getJSONObject("album").getString("name"))
-                        SpotifyData.Songs().artistID.add(track.getJSONArray("artists").getJSONObject(0).getString("id")) // Assuming one artist
-
-                        val albumImageUrl = track.getJSONObject("album").getJSONArray("images").getJSONObject(0).getString("url")
-                        SpotifyData.Songs().albumpicUrl.add(Uri.parse(albumImageUrl)) */
-                    }
-
-                    runOnUiThread {
-                        // Update RecyclerView with song data
-                       // trackRecyclerView.adapter = SongAdapter(SpotifyData.Songs()) // Implement this adapter
-                    }
-                }
-            }
-        })
     }
+}
 
-    private fun fetchTopGenres(accessToken: String) {
-        val genresRequest = Request.Builder()
-            .url("https://api.spotify.com/v1/me/top/artists?limit=50")
-            .addHeader("Authorization", "Bearer $accessToken")
-            .build()
 
-        mOkHttpClient.newCall(genresRequest).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                runOnUiThread {
-                    // Handle failure
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val jsonObject = JSONObject(response.body?.string() ?: "")
-                    val items = jsonObject.getJSONArray("items")
-                    val genreCount = mutableMapOf<String, Int>()
-
-                    for (i in 0 until items.length()) {
-                        val artist = items.getJSONObject(i)
-                        val genresArray = artist.getJSONArray("genres")
-                        for (j in 0 until genresArray.length()) {
-                            val genreName = genresArray.getString(j)
-                            genreCount[genreName] = genreCount.getOrDefault(genreName, 0) + 1
-                        }
-                    }
-
-                    // Get the top 3 unique genres
-                    val topGenres = genreCount.entries
-                        .sortedByDescending { it.value }
-                        .take(3)
-                        .map { it.key }
-
-                    genres.addAll(topGenres)
-
-                    runOnUiThread {
-                        genreRecyclerView.adapter = GenreAdapter(genres) // Implement this adapter
-                    }
-                }
-            }
-        })
-    }
-    }

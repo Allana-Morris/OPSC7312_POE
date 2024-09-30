@@ -25,38 +25,19 @@
         app:layout_constraintTop_toBottomOf="@+id/vSpotify"
         app:layout_constraintVertical_bias="1.0" />
 
-    <EditText
-        android:id="@+id/edUsername"
-        android:layout_width="255dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="108dp"
-        android:background="@drawable/rounded_corners"
-        android:ems="10"
-        android:fontFamily="@font/circular_regular"
-        android:hint="@string/spotifyinputhints"
-        android:focusableInTouchMode="true"
-        android:clickable="true"
-        android:textAlignment="center"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtAccountSearch" />
-
     <Button
         android:id="@+id/btnspotifysearch"
         android:layout_width="193dp"
         android:layout_height="55dp"
-        android:layout_marginTop="32dp"
-        android:backgroundTint="@color/black"
+        android:layout_marginTop="172dp"
+        android:backgroundTint="@color/light_green"
         android:fontFamily="@font/circular_black"
         android:text="@string/search"
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edUsername" />
+        app:layout_constraintTop_toBottomOf="@+id/txtAccountSearch" />
 
     <ImageView
         android:id="@+id/imgSpotifyIcon"
@@ -108,7 +89,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/circular_bold"
         android:text="@string/thisu"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/imgAccountPP"
         app:layout_constraintEnd_toEndOf="@+id/vSpotify"

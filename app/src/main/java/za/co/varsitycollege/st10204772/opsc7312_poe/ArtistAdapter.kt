@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ArtistAdapter(private val artists: SpotifyData) : RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder>() {
+class ArtistAdapter(private val artists: MutableList<String>) : RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder>() {
 
     class ArtistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val artistName: TextView = itemView.findViewById(R.id.artistName)
@@ -19,9 +19,9 @@ class ArtistAdapter(private val artists: SpotifyData) : RecyclerView.Adapter<Art
     }
 
     override fun onBindViewHolder(holder: ArtistViewHolder, position: Int) {
-        holder.artistName.text = (position+1).toString() + ". " + artists.artistName[position]
+        holder.artistName.text = (position+1).toString() + ". " + artists[position]
         // Bind other data if necessary
     }
 
-    override fun getItemCount() = artists.artistName.size
+    override fun getItemCount() = artists.size
 }

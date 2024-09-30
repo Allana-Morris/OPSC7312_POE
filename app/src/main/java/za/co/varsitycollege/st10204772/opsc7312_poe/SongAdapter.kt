@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class SongAdapter(private val songs: SpotifyData) : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
+class SongAdapter(val songs: MutableList<String>, val artistName: MutableList<String>) : RecyclerView.Adapter<SongAdapter.SongViewHolder>() {
 
     class SongViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val songName: TextView = itemView.findViewById(R.id.trackName)
@@ -19,13 +19,10 @@ class SongAdapter(private val songs: SpotifyData) : RecyclerView.Adapter<SongAda
     }
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
-        var songartist = songs.artistName.zip(songs.songartistID.zip(songs.artistID))
-            .filter { (_, ids) -> ids.first == ids.second }
-            .map { (name, _) -> name }
-        holder.songName.text = (position+1).toString() + ". " + songs.songName[position] + "By " + "$songartist"
+        holder.songName.text = (position+1).toString() + ". " + songs[position] + "By " + artistName[position]
         // Bind other data if necessary
     }
 
-    override fun getItemCount() = songs.songName.size
+    override fun getItemCount() = songs.size
 }
 
