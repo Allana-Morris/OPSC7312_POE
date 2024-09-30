@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class ArtistAdapter(private val artists: SpotifyData.Artists) : RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder>() {
+class ArtistAdapter(private val artists: SpotifyData) : RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder>() {
 
     class ArtistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val artistName: TextView = itemView.findViewById(R.id.artistName)

@@ -17,6 +17,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.google.firebase.firestore.FirebaseFirestore
 import com.spotify.sdk.android.auth.AccountsQueryParameters.REDIRECT_URI
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
@@ -35,8 +36,9 @@ import java.io.IOException
 
 class Login_Main : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
-    private val AUTHORIZATION_CODE = 1337
+   // private val AUTHORIZATION_CODE = 1337
     private var mOkHttpClient = OkHttpClient.Builder().build()
+    private lateinit var sAccessToken: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,8 +75,9 @@ class Login_Main : AppCompatActivity() {
                             DatabaseReadandWrite().loginUser(email, password) { user ->
                                 if (user != null) {
                                     authenticateWithSpotify()
-                                    /*var intent = Intent(this, ProfileUI::class.java)
-                                    startActivity(intent)*/
+                                    CallSpotifyFun()
+                                     intent = Intent(this, ProfileUI::class.java)
+                                    startActivity(intent)
                                 } else {
                                     Log.e(TAG, "Failed to load user")
                                 }
@@ -106,7 +109,7 @@ class Login_Main : AppCompatActivity() {
         val builder = AuthorizationRequest.Builder(
             CLIENT_ID,
             AuthorizationResponse.Type.TOKEN,
-            "myapp://callback" // Ensure this matches your registered redirect URI
+            ClientID.REDIRECT_URI2 // Ensure this matches your registered redirect URI
         )
         builder.setScopes(arrayOf("user-read-private", "user-read-email", "user-top-read")) // Add scopes as needed
         val request = builder.build()
@@ -126,48 +129,287 @@ class Login_Main : AppCompatActivity() {
                 val accessToken = Uri.parse("http://localhost/?$fragment").getQueryParameter("access_token")
                 accessToken?.let { token ->
                     // Store the token securely
-                    saveTokens(token, "") // You may need to adjust how you handle the refresh token based on your needs
+                   sAccessToken = token
+                    saveTokens(token) // You may need to adjust how you handle the refresh token based on your needs
                 }
             }
         }
     }
 
+    private fun CallSpotifyFun(){
+        fetchTopGenre()
+        fetchTopSongs()
+        fetchTopArtists()
+    }
 
-    private fun exchangeAuthorizationCodeForToken(authorizationCode: String) {
-        val tokenRequest = Request.Builder()
-            .url("https://accounts.spotify.com/api/token")
-            .post(
-                RequestBody.create(
-                    "application/x-www-form-urlencoded".toMediaTypeOrNull(),
-                    "grant_type=authorization_code&code=$authorizationCode&redirect_uri=$REDIRECT_URI&client_id=$CLIENT_ID&client_secret=YOUR_CLIENT_SECRET"
-                )
-            )
+    private fun fetchTopGenre() {
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/me/top/artists?limit=50") // Fetch top artists
+            .addHeader("Authorization", "Bearer $sAccessToken") // Use access token
             .build()
 
-        mOkHttpClient.newCall(tokenRequest).enqueue(object : Callback {
+        mOkHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                // Handle failure
             }
 
             override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val jsonObject = JSONObject(response.body?.string() ?: "")
-                    val accessToken = jsonObject.getString("access_token")
-                    val refreshToken = jsonObject.getString("refresh_token")
+                response.use {
+                    if (!it.isSuccessful) {
+                        val errorBody = response.body?.string()
+                        return
+                    }
 
-                    // Store tokens securely
-                    saveTokens(accessToken, refreshToken)
+                    val jsonResponse = JSONObject(response.body?.string() ?: "")
+                    val artists = jsonResponse.getJSONArray("items")
+                    val genreMap = mutableMapOf<String, Int>() // To count genres
+
+                    // Count occurrences of each genre
+                    for (i in 0 until artists.length()) {
+                        val artist = artists.getJSONObject(i)
+                        val genres = artist.getJSONArray("genres")
+                        for (j in 0 until genres.length()) {
+                            val genre = genres.getString(j)
+                            genreMap[genre] = genreMap.getOrDefault(genre, 0) + 1
+                        }
+                    }
+
+                    // Sort genres by count and retrieve the top 3
+                    val topGenres = genreMap.toList()
+                        .sortedByDescending { it.second }
+                        .take(3)
+                        .map { it.first } // Get only the genre names
+
+                    // Store the top genres in Firestore
+                    storeTopGenresInFirestore(topGenres)
                 }
             }
         })
     }
 
-    private fun saveTokens(accessToken: String, refreshToken: String) {
+    // Store top genres in Firestore
+    private fun storeTopGenresInFirestore(topGenres: List<String>) {
+        val firestore = FirebaseFirestore.getInstance()
+
+        // Get the logged user's email
+        val email = loggedUser.user?.Email
+
+        if (email != null) {
+            // Reference to the Users collection
+            val usersCollection = firestore.collection("Users")
+
+            // Query to find the user document where email matches
+            usersCollection.whereEqualTo("email", email).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val userDocument = querySnapshot.documents[0]
+
+                        // Update the document with the top genres
+                        userDocument.reference.update("topGenres", topGenres)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Top genres updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Error updating top genres: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun fetchTopSongs() {
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/me/top/tracks?limit=3") // Fetch top tracks
+            .addHeader("Authorization", "Bearer $sAccessToken") // Use access token
+            .build()
+
+        mOkHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                // Handle failure
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!it.isSuccessful) {
+                        val errorBody = response.body?.string()
+                        return
+                    }
+
+                    val jsonResponse = JSONObject(response.body?.string() ?: "")
+                    val songs = jsonResponse.getJSONArray("items")
+                    val topSongs = mutableListOf<String>() // To hold top song names
+                    val SongArtistName = mutableListOf<String>()
+                    val albumArt = mutableListOf<String>()
+
+                    // Retrieve the top 3 song names
+                    for (i in 0 until songs.length()) {
+                        val song = songs.getJSONObject(i)
+                        val songName = song.getString("name")
+
+                        val artistArray = song.getJSONArray("artists")
+                        val artistName = artistArray.getJSONObject(0).getString("name")
+
+                        // Get the album artwork URL
+                        val album = song.getJSONObject("album")
+                        val images = album.getJSONArray("images")
+                        val artworkUrl = images.getJSONObject(0).getString("url") // Usually, index 0 is the highest resolution
+
+                        topSongs.add(songName)
+                        SongArtistName.add(artistName)
+                        albumArt.add(artworkUrl)
+
+                    }
+
+
+
+                    // Store the top songs in Firestore
+                    storeTopSongsInFirestore(topSongs, SongArtistName, albumArt)
+                }
+            }
+        })
+    }
+
+    // Store top songs in Firestore
+    private fun storeTopSongsInFirestore(topSongs: List<String>, songartist: List<String>, albumart: List<String>) {
+        val firestore = FirebaseFirestore.getInstance()
+
+        // Get the logged user's email
+        val email = loggedUser.user?.Email
+
+        if (email != null) {
+            // Reference to the Users collection
+            val usersCollection = firestore.collection("Users")
+
+            // Query to find the user document where email matches
+            usersCollection.whereEqualTo("email", email).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val userDocument = querySnapshot.documents[0]
+
+                        // Update the document with the top songs
+                        userDocument.reference.update("topSongs", topSongs)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Top songs updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Error updating top songs: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        userDocument.reference.update("songArtist", songartist)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Top songs artists updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Error updating top songs artists: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        userDocument.reference.update("albumArt", albumart)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Top songs updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Error updating top songs: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun fetchTopArtists() {
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/me/top/artists?limit=3") // Fetch top artists
+            .addHeader("Authorization", "Bearer $sAccessToken") // Use access token
+            .build()
+
+        mOkHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                // Handle failure
+                runOnUiThread {
+                    Toast.makeText(this@Login_Main, "Error fetching top artists: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!it.isSuccessful) {
+                        val errorBody = response.body?.string()
+                        runOnUiThread {
+                            Toast.makeText(this@Login_Main, "Failed to fetch top artists: $errorBody", Toast.LENGTH_SHORT).show()
+                        }
+                        return
+                    }
+
+                    val jsonResponse = JSONObject(response.body?.string() ?: "")
+                    val artists = jsonResponse.getJSONArray("items")
+
+                    val topArtists = mutableListOf<String>() // Store top artist names
+                    for (i in 0 until artists.length()) {
+                        val artist = artists.getJSONObject(i)
+                        val artistName = artist.getString("name") // Get artist name
+                        topArtists.add(artistName) // Add to list
+                    }
+
+                    // Store top songs and artists in Firestore
+                    storeTopArtistsInFirestore(topArtists)
+
+                }
+            }
+        })
+    }
+    private fun storeTopArtistsInFirestore(topArtists: List<String>) {
+        val firestore = FirebaseFirestore.getInstance()
+        val email = loggedUser.user?.Email
+
+        if (email != null) {
+            // Reference to the Users collection
+            val usersCollection = firestore.collection("Users")
+
+            // Query to find the user document where email matches
+            usersCollection.whereEqualTo("email", email).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val userDocument = querySnapshot.documents[0]
+
+                        // Update the document with the top artists
+                        userDocument.reference.update("topArtists", topArtists)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Top artists updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Error updating top artists: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onDestroy() {
+        val mCall: Call? = null
+        mCall?.cancel() // Cancel any ongoing API requests
+        super.onDestroy()
+    }
+
+    private fun saveTokens(accessToken: String) {
         // Implement secure storage for tokens
         loggedUser.user?.SpotifyUserId = accessToken
-        val storage = SecureStorage(this)
-        storage.saveID("ACCESS_TOKEN", accessToken)
-        storage.saveID("REFRESH_TOKEN", refreshToken)
+
     }
 }
 
