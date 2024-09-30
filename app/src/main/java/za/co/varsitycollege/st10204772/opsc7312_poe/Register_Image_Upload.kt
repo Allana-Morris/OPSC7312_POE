@@ -55,6 +55,8 @@ class Register_Image_Upload : AppCompatActivity() {
                     selectedImageUri?.let { uri ->
                         val bitmap = uriToBitmap(uri)
                         if (currentImageViewIndex != -1 && bitmap != null) {
+                            imageViews[currentImageViewIndex].setImageResource(0)
+                            imageViews[currentImageViewIndex].setBackgroundResource(0)
                             imageViews[currentImageViewIndex].setImageBitmap(bitmap)
                             imageList[currentImageViewIndex] = bitmap
                         } else {
