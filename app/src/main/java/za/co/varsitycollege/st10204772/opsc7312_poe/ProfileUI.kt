@@ -85,7 +85,10 @@ class ProfileUI : AppCompatActivity() {
                     val name = getString("name")
                     val age = getLong("age")?.toString() ?: ""
                     val pronouns = getString("pronoun")
-                    val profilePicUrl = getString("profilePicUrl")
+
+                    // Retrieve the list of uploaded images by casting the result as List<String>
+                    val imageUrls = this["profileImageUrls"] as? List<String>
+                    val profilePicUrl = imageUrls?.firstOrNull()  // Get the first image as the profile picture
 
                     // Fetch top artists, genres, and songs
                     val topArtists = getList("topArtists")
