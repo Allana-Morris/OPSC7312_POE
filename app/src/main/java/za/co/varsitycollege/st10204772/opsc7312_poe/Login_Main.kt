@@ -74,7 +74,7 @@ class Login_Main : AppCompatActivity() {
                             DatabaseReadandWrite().loginUser(email, password) { user ->
                                 if (user != null) {
                                     authenticateWithSpotify()
-                                    CallSpotifyFun()
+
                                      intent = Intent(this, ProfileUI::class.java)
                                     startActivity(intent)
                                 } else {
@@ -130,6 +130,7 @@ class Login_Main : AppCompatActivity() {
                     // Store the token securely
                    sAccessToken = token
                     saveTokens(token) // You may need to adjust how you handle the refresh token based on your needs
+                    CallSpotifyFun()
                 }
             }
         }
