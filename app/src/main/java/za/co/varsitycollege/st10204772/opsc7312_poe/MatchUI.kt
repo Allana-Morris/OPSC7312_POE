@@ -7,13 +7,17 @@ import android.net.Uri
 import android.os.Bundle
 import com.bumptech.glide.Glide
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.common.api.Response
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -24,6 +28,7 @@ import java.io.IOException
 import javax.security.auth.callback.Callback
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.api.Context
+import com.google.firebase.firestore.DocumentSnapshot
 
 
 class MatchUI : AppCompatActivity() {
@@ -39,16 +44,13 @@ class MatchUI : AppCompatActivity() {
     private var selectedGenre: String? = null
     private var selectedLocation: String? = null
     private lateinit var profileImages: MutableList<Bitmap>
-    private val sStorage = SecureStorage(this)
-    private var spotifyAccessToken: String? = sStorage.getID("ACCESS_TOKEN")
-    private val CLIENT_ID = sStorage.getID("CLIENT_ID")
-    private val REDIRECT_URI = sStorage.getID("REDIRECT_URI")
+
+
     private val SPOTIFY_AUTH_REQUEST_CODE = 1001
 
-    private val AUTH_URL = "https://accounts.spotify.com/authorize?client_id=$CLIENT_ID&response_type=token&redirect_uri=$REDIRECT_URI&scope=user-top-read"
 
     // Register a result launcher for the filter activity
-    private val filterResultLauncher = registerForActivityResult(
+ /*   private val filterResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) {
@@ -62,133 +64,196 @@ class MatchUI : AppCompatActivity() {
                 Toast.makeText(this, "Invalid filters selected", Toast.LENGTH_SHORT).show()
             } else {
                 // Apply filtering based on the selected gender, genre, and location
-                fetchFilteredProfiles()
+                //fetchFilteredProfiles()
             }
         }
+    }*/
+
+    //these need to be set under setcontentview if you're gonna use em again
+    /*val sStorage = SecureStorage(this)
+  val CLIENT_ID = sStorage.getID("CLIENT_ID")
+  val REDIRECT_URI = sStorage.getID("REDIRECT_URI")
+  var spotifyAccessToken: String? = sStorage.getID("ACCESS_TOKEN")
+  val AUTH_URL = "https://accounts.spotify.com/authorize?client_id=$CLIENT_ID&response_type=token&redirect_uri=$REDIRECT_URI&scope=user-top-read"*/
+
+  //  @SuppressLint("MissingInflatedId")
+  override fun onCreate(savedInstanceState: Bundle?) {
+      super.onCreate(savedInstanceState)
+      setContentView(R.layout.activity_match_ui)
+
+      // Reference to Firestore
+      val firestore = FirebaseFirestore.getInstance()
+      val usersCollection = firestore.collection("Users")
+
+      // Query to get users with non-null spotifyId and email not equal to loggedUserEmail
+      usersCollection.whereNotEqualTo("email", loggedUser.user?.Email)
+          .whereNotEqualTo("spotifyId", null)
+          .limit(5)
+          .get()
+          .addOnSuccessListener { querySnapshot ->
+              val matchUsers = mutableListOf<MatchUser>()
+
+              for (document in querySnapshot.documents) {
+                  val matchUser = MatchUser().apply {
+                      Name = document.getString("name") ?: ""
+                      Age = document.getLong("age")?.toInt() ?: 0
+                      Email = document.getString("email") ?: ""
+                      Gender = document.getString("gender") ?: ""
+                      Pronoun = document.getString("pronoun") ?: ""
+                      profilePictureUrl = document.getString("profileImageUrls")?.let {
+                          // Get the first profile image URL if available
+                          val profileUrls = it.split(",")
+                          if (profileUrls.isNotEmpty()) profileUrls[0] else ""
+                      } ?: ""
+                      topGenre = document.getList("topGenres")?.map { it.toString() } ?: emptyList()
+                      topArtist = document.getList("topArtists")?.map { it.toString() } ?: emptyList()
+                      topSong = document.getList("topSongs")?.map { it.toString() } ?: emptyList()
+                  }
+                  matchUsers.add(matchUser)
+              }
+
+
+              // Use matchUsers list as needed, for example:
+              // updateUI(matchUsers)
+          }
+          .addOnFailureListener { exception ->
+              Log.e("FirestoreError", "Error getting documents: ", exception)
+          }
+
+  }
+    private fun DocumentSnapshot.getList(field: String): List<String> {
+        return this.get(field) as? List<String> ?: emptyList()
     }
 
-    @SuppressLint("MissingInflatedId")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_match_ui)
 
-        // Trigger FilterActivity
-        findViewById<ImageView>(R.id.iV_Filter).setOnClickListener {
-            val intent = Intent(this, FilterActivity::class.java)
-            filterResultLauncher.launch(intent)
-        }
 
-        // Initialize Firestore instance
-        db = FirebaseFirestore.getInstance()
 
-        // Fetch user data (Name, Age, Pronouns) from Firestore
-        fetchUserDetails()
 
-        // Fetch top 3 songs from Spotify
-        spotifyAccessToken?.let { token ->
-            fetchTopSongsFromSpotify(token)
-        }
 
-        // Set an onClickListener on the profile picture to navigate to ProfileUI
-        val profilePic = findViewById<FloatingActionButton>(R.id.fab_profile)
-        profilePic.setOnClickListener {
-            val intent = Intent(this, MatchProfile::class.java)
-            // Pass any additional data if needed (e.g., user ID)
-            intent.putExtra("AccessToken", spotifyAccessToken)
-            startActivity(intent)
-        }
 
-        // Set onClickListeners for Floating Action Buttons
-        findViewById<FloatingActionButton>(R.id.fab_nope).setOnClickListener {
-            // Handle Nope: Fetch and display the next user
-            fetchNextUser()
-        }
 
-        findViewById<FloatingActionButton>(R.id.fab_like).setOnClickListener {
-            // Handle Like: Check for match based on top 3 songs
-            checkForMatch()
-        }
 
+
+      /*
+
+      // Trigger FilterActivity
+      findViewById<ImageView>(R.id.iV_Filter).setOnClickListener {
+          val intent = Intent(this, FilterActivity::class.java)
+          filterResultLauncher.launch(intent)
+      }
+
+      // Initialize Firestore instance
+      db = FirebaseFirestore.getInstance()
+
+      // Fetch user data (Name, Age, Pronouns) from Firestore
+      fetchUserDetails()
+
+      // Fetch top 3 songs from Spotify
+      spotifyAccessToken?.let { token ->
+          fetchTopSongsFromSpotify(token)
+      }
+
+      // Set an onClickListener on the profile picture to navigate to ProfileUI
+      val profilePic = findViewById<FloatingActionButton>(R.id.fab_profile)
+      profilePic.setOnClickListener {
+          val intent = Intent(this, MatchProfile::class.java)
+          // Pass any additional data if needed (e.g., user ID)
+          intent.putExtra("AccessToken", spotifyAccessToken)
+          startActivity(intent)
+      }
+
+      // Set onClickListeners for Floating Action Buttons
+      findViewById<FloatingActionButton>(R.id.fab_nope).setOnClickListener {
+          // Handle Nope: Fetch and display the next user
+          fetchNextUser()
+      }
+
+      findViewById<FloatingActionButton>(R.id.fab_like).setOnClickListener {
+          // Handle Like: Check for match based on top 3 songs
+          checkForMatch()
+      }
+
+  }
+  // Method to retrieve the Spotify access token
+  private fun getSpotifyAccessToken() {
+      val intent = Intent(Intent.ACTION_VIEW, Uri.parse(AUTH_URL))
+      startActivityForResult(intent, SPOTIFY_AUTH_REQUEST_CODE)
+  }
+
+  // Handle the result in onActivityResult
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+      super.onActivityResult(requestCode, resultCode, data)
+      if (requestCode == SPOTIFY_AUTH_REQUEST_CODE) {
+          val uri = data?.data
+          if (uri != null && REDIRECT_URI?.let { uri.toString().startsWith(it) } == true) {
+              val token = uri.getFragment()?.split("&")?.firstOrNull { it.startsWith("access_token=") }
+                  ?.substringAfter("access_token=")
+              if (token != null) {
+                  spotifyAccessToken = token
+                  Log.d(TAG, "Access token retrieved: $spotifyAccessToken")
+                  // Now you can call methods that require the access token
+              }
+          }
+      }
+  }
+
+  // Fetch profiles based on selected filters
+  private fun fetchFilteredProfiles() {
+      val query = db.collection("users")
+
+      // Apply gender filter
+      selectedGender?.let { gender ->
+          query.whereEqualTo("gender", gender)
+      }
+
+      // Apply genre filter
+      selectedGenre?.let { genre ->
+          query.whereArrayContains("favoriteGenres", genre)
+      }
+
+      // Apply location filter
+      selectedLocation?.let { location ->
+          query.whereEqualTo("location", location)
+      }
+
+      query.get()
+          .addOnSuccessListener { documents ->
+              if (documents.isEmpty) {
+                  Toast.makeText(
+                      this,
+                      "No profiles found with selected filters",
+                      Toast.LENGTH_SHORT
+                  ).show()
+                  Log.d(TAG, "No profiles found")
+              } else {
+                  for (document in documents) {
+                      Log.d(TAG, "Found profile: ${document.data}")
+                      // Handle displaying of profiles here
+                  }
+                  // Adjust Firestore query to include gender and genre filters
+                  selectedGenre?.let {
+                      db.collection("Users")
+                          .whereEqualTo("Gender", selectedGender)
+                          .whereArrayContains("favoriteGenres", it)
+                          .get()
+                          .addOnSuccessListener { documents ->
+                              // Handle profile loading and display
+                          }
+                  }
+                      ?.addOnFailureListener { exception ->
+                          Log.d(TAG, "Error fetching profiles with filters: ", exception)
+                          Toast.makeText(
+                              this,
+                              "Error loading filtered profiles",
+                              Toast.LENGTH_SHORT
+                          ).show()
+                      }
+              }
+          }
+          */
     }
-    // Method to retrieve the Spotify access token
-    private fun getSpotifyAccessToken() {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(AUTH_URL))
-        startActivityForResult(intent, SPOTIFY_AUTH_REQUEST_CODE)
-    }
 
-    // Handle the result in onActivityResult
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == SPOTIFY_AUTH_REQUEST_CODE) {
-            val uri = data?.data
-            if (uri != null && REDIRECT_URI?.let { uri.toString().startsWith(it) } == true) {
-                val token = uri.getFragment()?.split("&")?.firstOrNull { it.startsWith("access_token=") }
-                    ?.substringAfter("access_token=")
-                if (token != null) {
-                    spotifyAccessToken = token
-                    Log.d(TAG, "Access token retrieved: $spotifyAccessToken")
-                    // Now you can call methods that require the access token
-                }
-            }
-        }
-    }
-
-    // Fetch profiles based on selected filters
-    private fun fetchFilteredProfiles() {
-        val query = db.collection("users")
-
-        // Apply gender filter
-        selectedGender?.let { gender ->
-            query.whereEqualTo("gender", gender)
-        }
-
-        // Apply genre filter
-        selectedGenre?.let { genre ->
-            query.whereArrayContains("favoriteGenres", genre)
-        }
-
-        // Apply location filter
-        selectedLocation?.let { location ->
-            query.whereEqualTo("location", location)
-        }
-
-        query.get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    Toast.makeText(
-                        this,
-                        "No profiles found with selected filters",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    Log.d(TAG, "No profiles found")
-                } else {
-                    for (document in documents) {
-                        Log.d(TAG, "Found profile: ${document.data}")
-                        // Handle displaying of profiles here
-                    }
-                    // Adjust Firestore query to include gender and genre filters
-                    selectedGenre?.let {
-                        db.collection("Users")
-                            .whereEqualTo("Gender", selectedGender)
-                            .whereArrayContains("favoriteGenres", it)
-                            .get()
-                            .addOnSuccessListener { documents ->
-                                // Handle profile loading and display
-                            }
-                    }
-                        ?.addOnFailureListener { exception ->
-                            Log.d(TAG, "Error fetching profiles with filters: ", exception)
-                            Toast.makeText(
-                                this,
-                                "Error loading filtered profiles",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                }
-            }
-    }
-
-    private fun fetchUserDetails() {
+   /* private fun fetchUserDetails() {
         // Assuming Firestore stores user's name, age, and pronouns
          db.collection("Users").document("User_id").get()
             .addOnSuccessListener { document ->
@@ -427,4 +492,6 @@ class MatchUI : AppCompatActivity() {
         thread.start()
         return thread
     }
-}
+
+    */
+

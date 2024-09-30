@@ -49,14 +49,13 @@ class Register_Spotify_Link : AppCompatActivity() {
         val CLIENT_ID = sStorage.getID("CLIENT_ID")
         val REDIRECT_URI = sStorage.getID("REDIRECT_URI")
 
-        var user = User()
-        user.Email = "fixiongame@gmail.com"
-        loggedUser.initializeUser(user)
-
         imageView = findViewById(R.id.imgAccountPP)
         textView = findViewById(R.id.txtSpotifyAccount)
         button = findViewById(R.id.btnContinueSpotify)
         button.isEnabled = false;
+
+        Toast.makeText(this, loggedUser.user?.Email.toString(), Toast.LENGTH_LONG).show()
+
 
 
         //this is the continue button

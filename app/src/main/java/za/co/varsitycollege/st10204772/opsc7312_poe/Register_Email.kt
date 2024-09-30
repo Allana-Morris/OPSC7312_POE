@@ -49,6 +49,9 @@ class Register_Email : AppCompatActivity() {
                     DatabaseReadandWrite().registerUser(user) { success, errorMessage ->
                         if (success) {
                             Toast.makeText(this, "Registration Successful", Toast.LENGTH_LONG).show()
+                            var loguser = User()
+                            loguser.Email = newEmail
+                            loggedUser.user = loguser
                             startActivity(Intent(this, Register_About_You::class.java))
                         } else {
                             if (errorMessage?.contains("already in use") == true) {
