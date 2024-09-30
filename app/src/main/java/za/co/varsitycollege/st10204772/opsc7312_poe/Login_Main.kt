@@ -2,9 +2,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
-import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -15,20 +13,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import com.google.firebase.firestore.FirebaseFirestore
-import com.spotify.sdk.android.auth.AccountsQueryParameters.REDIRECT_URI
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.Response
 import org.json.JSONObject
 import za.co.varsitycollege.st10204772.opsc7312_poe.ClientID.CLIENT_ID
@@ -75,7 +67,7 @@ class Login_Main : AppCompatActivity() {
                                 if (user != null) {
                                     authenticateWithSpotify()
 
-                                     intent = Intent(this, ProfileUI::class.java)
+                                    intent = Intent(this, ProfileUI::class.java)
                                     startActivity(intent)
                                 } else {
                                     Log.e(TAG, "Failed to load user")
@@ -110,33 +102,49 @@ class Login_Main : AppCompatActivity() {
             AuthorizationResponse.Type.TOKEN,
             ClientID.REDIRECT_URI2 // Ensure this matches your registered redirect URI
         )
-        builder.setScopes(arrayOf("user-read-private", "user-read-email", "user-top-read")) // Add scopes as needed
+        builder.setScopes(
+            arrayOf(
+                "user-read-private",
+                "user-read-email",
+                "user-top-read"
+            )
+        ) // Add scopes as needed
         val request = builder.build()
 
         AuthorizationClient.openLoginInBrowser(this, request)
     }
 
-
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        setIntent(intent) // Ensure the new intent is set
+        if (intent != null) {
+            handleAuthorizationResponse(intent)
+        }
+    }
 
-        intent.data?.let { uri ->
-            uri.getFragment()?.let { fragment ->
-                // Extract the access token from the fragment
-                val accessToken = Uri.parse("http://localhost/?$fragment").getQueryParameter("access_token")
-                accessToken?.let { token ->
-                    // Store the token securely
-                   sAccessToken = token
-                    saveTokens(token) // You may need to adjust how you handle the refresh token based on your needs
-                    CallSpotifyFun()
-                }
+    private fun handleAuthorizationResponse(intent: Intent) {
+        val response = AuthorizationClient.getResponse(1001, intent)
+        when (response.type) {
+            AuthorizationResponse.Type.TOKEN -> {
+                // Handle successful response
+                sAccessToken = response.accessToken
+                loggedUser.user?.Name = sAccessToken
+                CallSpotifyFun()
+            }
+
+            AuthorizationResponse.Type.ERROR -> {
+                // Handle error response
+                Log.e(this@Login_Main.toString(), "Access Token Issue")
+            }
+
+            else -> {
+                // Handle other cases
+                Log.e(this@Login_Main.toString(), "Access Token Issue")
             }
         }
     }
 
-    private fun CallSpotifyFun(){
+
+    private fun CallSpotifyFun() {
         fetchTopGenre()
         fetchTopSongs()
         fetchTopArtists()
@@ -206,17 +214,26 @@ class Login_Main : AppCompatActivity() {
                         // Update the document with the top genres
                         userDocument.reference.update("topGenres", topGenres)
                             .addOnSuccessListener {
-                                Toast.makeText(this, "Top genres updated successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Top genres updated successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(this, "Error updating top genres: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Error updating top genres: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                     } else {
                         Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
                     }
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
                 }
         } else {
             Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
@@ -258,14 +275,14 @@ class Login_Main : AppCompatActivity() {
                         // Get the album artwork URL
                         val album = song.getJSONObject("album")
                         val images = album.getJSONArray("images")
-                        val artworkUrl = images.getJSONObject(0).getString("url") // Usually, index 0 is the highest resolution
+                        val artworkUrl = images.getJSONObject(0)
+                            .getString("url") // Usually, index 0 is the highest resolution
 
                         topSongs.add(songName)
                         SongArtistName.add(artistName)
                         albumArt.add(artworkUrl)
 
                     }
-
 
 
                     // Store the top songs in Firestore
@@ -276,7 +293,11 @@ class Login_Main : AppCompatActivity() {
     }
 
     // Store top songs in Firestore
-    private fun storeTopSongsInFirestore(topSongs: List<String>, songartist: List<String>, albumart: List<String>) {
+    private fun storeTopSongsInFirestore(
+        topSongs: List<String>,
+        songartist: List<String>,
+        albumart: List<String>
+    ) {
         val firestore = FirebaseFirestore.getInstance()
 
         // Get the logged user's email
@@ -295,36 +316,62 @@ class Login_Main : AppCompatActivity() {
                         // Update the document with the top songs
                         userDocument.reference.update("topSongs", topSongs)
                             .addOnSuccessListener {
-                                Toast.makeText(this, "Top songs updated successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Top songs updated successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(this, "Error updating top songs: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Error updating top songs: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         userDocument.reference.update("songArtist", songartist)
                             .addOnSuccessListener {
-                                Toast.makeText(this, "Top songs artists updated successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Top songs artists updated successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(this, "Error updating top songs artists: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Error updating top songs artists: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         userDocument.reference.update("albumArt", albumart)
                             .addOnSuccessListener {
-                                Toast.makeText(this, "Top songs updated successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Top songs updated successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(this, "Error updating top songs: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Error updating top songs: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                     } else {
                         Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
                     }
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
                 }
         } else {
             Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
         }
     }
+
     private fun fetchTopArtists() {
         val request = Request.Builder()
             .url("https://api.spotify.com/v1/me/top/artists?limit=3") // Fetch top artists
@@ -335,7 +382,11 @@ class Login_Main : AppCompatActivity() {
             override fun onFailure(call: Call, e: IOException) {
                 // Handle failure
                 runOnUiThread {
-                    Toast.makeText(this@Login_Main, "Error fetching top artists: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@Login_Main,
+                        "Error fetching top artists: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
 
@@ -344,7 +395,11 @@ class Login_Main : AppCompatActivity() {
                     if (!it.isSuccessful) {
                         val errorBody = response.body?.string()
                         runOnUiThread {
-                            Toast.makeText(this@Login_Main, "Failed to fetch top artists: $errorBody", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@Login_Main,
+                                "Failed to fetch top artists: $errorBody",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                         return
                     }
@@ -358,7 +413,7 @@ class Login_Main : AppCompatActivity() {
                         val artistName = artist.getString("name") // Get artist name
                         topArtists.add(artistName) // Add to list
                     }
-
+                    topArtists.add("Peanits")
                     // Store top songs and artists in Firestore
                     storeTopArtistsInFirestore(topArtists)
 
@@ -366,6 +421,7 @@ class Login_Main : AppCompatActivity() {
             }
         })
     }
+
     private fun storeTopArtistsInFirestore(topArtists: List<String>) {
         val firestore = FirebaseFirestore.getInstance()
         val email = loggedUser.user?.Email
@@ -383,17 +439,26 @@ class Login_Main : AppCompatActivity() {
                         // Update the document with the top artists
                         userDocument.reference.update("topArtists", topArtists)
                             .addOnSuccessListener {
-                                Toast.makeText(this, "Top artists updated successfully", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Top artists updated successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(this, "Error updating top artists: ${e.message}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    this,
+                                    "Error updating top artists: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                     } else {
                         Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
                     }
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
                 }
         } else {
             Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
@@ -408,7 +473,7 @@ class Login_Main : AppCompatActivity() {
 
     private fun saveTokens(accessToken: String) {
         // Implement secure storage for tokens
-        loggedUser.user?.SpotifyUserId = accessToken
+        loggedUser.user?.Name = accessToken
 
     }
 }

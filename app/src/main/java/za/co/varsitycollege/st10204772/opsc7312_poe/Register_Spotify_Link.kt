@@ -109,7 +109,7 @@ class Register_Spotify_Link : AppCompatActivity() {
             // Split the scopes string into an array and set it
             builder.setScopes(arrayOf(*scopes.split(" ").toTypedArray()))
             val request = builder.build()
-            AuthorizationClient.clearCookies(this)
+           // AuthorizationClient.clearCookies(this)
             AuthorizationClient.openLoginInBrowser(this, request)
         }
     }
@@ -162,6 +162,7 @@ class Register_Spotify_Link : AppCompatActivity() {
 
                     val jsonObject = JSONObject(response.body?.string() ?: "")
                     val displayName = jsonObject.getString("display_name")
+                    val spotifyid = jsonObject.getString("id")
                       val profileImages = jsonObject.optJSONArray("images")
                     val profileImageUrl = if (profileImages != null && profileImages.length() > 0) {
                         profileImages.getJSONObject(0).optString("url", "")
@@ -178,6 +179,8 @@ class Register_Spotify_Link : AppCompatActivity() {
                             if (profileImageUrl.isNotEmpty()) {
                                 Picasso.get().load(profileImageUrl).into(imageView)
 
+                                SpotifyData().spotifyId = spotifyid
+                                setSpotifyID = spotifyid
                                 SpotifyData().apihref = apiHref
                                 SpotifyData().profpicurl = Uri.parse(profileImageUrl)
                                 SpotifyData().email = loggedUser.user?.Email.toString()

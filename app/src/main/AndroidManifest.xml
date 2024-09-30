@@ -21,7 +21,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Base.Theme.OPSC7312_POE"
-        tools:targetApi="34">
+        tools:targetApi="35">
+        <meta-data
+            android:name="com.google.android.gms.auth.api.signin.API_KEY"
+            android:value="905988466931-7dgl1beg0omvj4k1r0ct11sos1eghgsv.apps.googleusercontent.com" />
         <activity
             android:name=".MatchProfile"
             android:exported="false"
