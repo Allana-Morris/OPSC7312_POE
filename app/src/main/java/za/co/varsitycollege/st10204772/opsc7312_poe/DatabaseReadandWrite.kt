@@ -6,15 +6,11 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 
@@ -59,7 +55,10 @@ class DatabaseReadandWrite {
                     }
                 } else {
                     Log.e(TAG, "Error checking for existing user", task.exception)
-                    onComplete(false, "Error checking for existing user: ${task.exception?.message}")
+                    onComplete(
+                        false,
+                        "Error checking for existing user: ${task.exception?.message}"
+                    )
                 }
             }
     }
@@ -135,65 +134,41 @@ class DatabaseReadandWrite {
     }
 
 
-    fun CreateUser(
-        email: String,
-        password: String,
-        user: User,
-        onComplete: (Boolean, String?) -> Unit
-    ) {
-        val auth = FirebaseAuth.getInstance()
-        val db = FirebaseFirestore.getInstance()
-    /**
-     * Check if user profile exists and is complete.
-     * This method checks if key fields such as profile image URLs and Spotify user ID are populated.
-     */
-    fun checkUserProfileExists(userId: String, callback: (Boolean) -> Unit) {
-        db.collection("Users").document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    // Log the found document for debugging purposes
-                    Log.d(TAG, "User profile found for ID: $userId")
+        /**
+         * Check if user profile exists and is complete.
+         * This method checks if key fields such as profile image URLs and Spotify user ID are populated.
+         */
+        fun checkUserProfileExists(userId: String, callback: (Boolean) -> Unit) {
+            val auth = FirebaseAuth.getInstance()
+            val db = FirebaseFirestore.getInstance()
+            db.collection("Users").document(userId).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        // Log the found document for debugging purposes
+                        Log.d(TAG, "User profile found for ID: $userId")
 
-                    // Check if key fields like profile images or Spotify ID exist
-                    val profileImageUrls = document.get("profileImageUrls") as? List<String>
-                    val spotifyUserId = document.getString("spotifyUserId")
+                        // Check if key fields like profile images or Spotify ID exist
+                        val profileImageUrls = document.get("profileImageUrls") as? List<String>
+                        val spotifyUserId = document.getString("spotifyUserId")
 
-                    if (!profileImageUrls.isNullOrEmpty() && !spotifyUserId.isNullOrEmpty()) {
-                        Log.d(TAG, "Profile is complete for user: $userId")
-                        callback(true)  // Profile is complete
+                        if (!profileImageUrls.isNullOrEmpty() && !spotifyUserId.isNullOrEmpty()) {
+                            Log.d(TAG, "Profile is complete for user: $userId")
+                            callback(true)  // Profile is complete
+                        } else {
+                            Log.d(TAG, "Profile is incomplete for user: $userId")
+                            callback(false)  // Profile is incomplete
+                        }
                     } else {
-                        Log.d(TAG, "Profile is incomplete for user: $userId")
-                        callback(false)  // Profile is incomplete
+                        Log.d(TAG, "No user profile found for ID: $userId")
+                        callback(false)  // Profile doesn't exist
                     }
-                } else {
-                    Log.d(TAG, "No user profile found for ID: $userId")
-                    callback(false)  // Profile doesn't exist
                 }
-            }
-            .addOnFailureListener { exception ->
-                Log.e(TAG, "Error checking user profile: ${exception.message}")
-                callback(false)  // Error fetching profile, assume incomplete
-            }
-    }
+                .addOnFailureListener { exception ->
+                    Log.e(TAG, "Error checking user profile: ${exception.message}")
+                    callback(false)  // Error fetching profile, assume incomplete
+                }
+        }
 
-    /**
-     * Example method for reading Spotify data.
-     */
-    fun readSpotifyData() {
-        // Add logic to read Spotify data from Firestore or any other source.
-    }
-
-
-    /**
-     * Example method for writing Spotify data.
-     */
-    fun writeSpotifyData(data: SpotifyData) {
-        // Add logic to write Spotify data to Firestore or any other source.
-    }
-}
-    fun writeSpotifyData(data: SpotifyData) {
-
-    }
 
     fun loadProfileImages(userId: String, context: Context, callback: (List<Bitmap>) -> Unit) {
         val db = FirebaseFirestore.getInstance()
@@ -250,4 +225,5 @@ class DatabaseReadandWrite {
                 }
             }
     }
+
 }
