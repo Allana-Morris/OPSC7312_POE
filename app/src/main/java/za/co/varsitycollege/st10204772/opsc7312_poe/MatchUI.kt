@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.gms.common.api.Response
@@ -86,13 +87,11 @@ class MatchUI : AppCompatActivity() {
       val usersCollection = firestore.collection("Users")
 
       // Query to get users with non-null spotifyId and email not equal to loggedUserEmail
-      usersCollection.whereNotEqualTo("email", loggedUser.user?.Email)
-          .whereNotEqualTo("spotifyId", null)
-          .limit(5)
+      usersCollection.whereEqualTo("email", loggedUser.user?.Email)
           .get()
           .addOnSuccessListener { querySnapshot ->
-              val matchUsers = mutableListOf<MatchUser>()
 
+              var user = MatchUser()
               for (document in querySnapshot.documents) {
                   val matchUser = MatchUser().apply {
                       Name = document.getString("name") ?: ""
@@ -100,25 +99,34 @@ class MatchUI : AppCompatActivity() {
                       Email = document.getString("email") ?: ""
                       Gender = document.getString("gender") ?: ""
                       Pronoun = document.getString("pronoun") ?: ""
-                      profilePictureUrl = document.getString("profileImageUrls")?.let {
-                          // Get the first profile image URL if available
-                          val profileUrls = it.split(",")
-                          if (profileUrls.isNotEmpty()) profileUrls[0] else ""
-                      } ?: ""
+                      profilePictureUrl = document.getList("profileImageUrls")
                       topGenre = document.getList("topGenres")?.map { it.toString() } ?: emptyList()
                       topArtist = document.getList("topArtists")?.map { it.toString() } ?: emptyList()
                       topSong = document.getList("topSongs")?.map { it.toString() } ?: emptyList()
                   }
-                  matchUsers.add(matchUser)
+                  user = matchUser
               }
+              val pager = findViewById<ViewPager2>(R.id.imagePager)
+              val name = findViewById<TextView>(R.id.tvName)
+              val pronouns = findViewById<TextView>(R.id.tvPronouns)
+              val albumCover = findViewById<ImageView>(R.id.tvAlbumCover)
+              val songName = findViewById<TextView>(R.id.tvSongName)
+              val artistName = findViewById<TextView>(R.id.tvArtistName)
+
+              name.text = user.Name
+              pronouns.text = user.Pronoun
+              songName.text = user.topSong[0]
+              artistName.text = user.topArtist[0]
+
+              // Set up the ViewPager adapter with the first user's images
+              val imageAdapter = ImagePagerAdapter(user.profilePictureUrl ?: emptyList())
+              pager.adapter = imageAdapter
 
 
               // Use matchUsers list as needed, for example:
               // updateUI(matchUsers)
           }
-          .addOnFailureListener { exception ->
-              Log.e("FirestoreError", "Error getting documents: ", exception)
-          }
+
 
   }
     private fun DocumentSnapshot.getList(field: String): List<String> {
@@ -494,4 +502,27 @@ class MatchUI : AppCompatActivity() {
     }
 
     */
+   class ImagePagerAdapter(private val images: List<String>) : RecyclerView.Adapter<ImagePagerAdapter.ImageViewHolder>() {
+
+       class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+           val imageView: ImageView = itemView.findViewById(R.id.imageView)
+       }
+
+       override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+           val view = LayoutInflater.from(parent.context).inflate(R.layout.image_pager_item, parent, false)
+           return ImageViewHolder(view)
+       }
+
+       override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+           // Assuming you're using Glide or Picasso to load the image URLs
+           Glide.with(holder.itemView.context)
+               .load(images[position])
+               .into(holder.imageView)
+       }
+
+       override fun getItemCount(): Int {
+           return images.size
+       }
+   }
+
 
