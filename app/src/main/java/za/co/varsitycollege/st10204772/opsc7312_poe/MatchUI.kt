@@ -11,9 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -84,137 +82,158 @@ class MatchUI : AppCompatActivity() {
         // Get the logged-in user's email
         val loggedUserEmail = loggedUser.user?.Email
 
-// Query to get users with a specific spotifyId
-        fun getUsers(){
-        usersCollection.whereNotEqualTo("spotifyId", null).limit(5)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                var user = MatchUser();
-                val matchUsers = mutableListOf<MatchUser>() // List to hold matched users
+        // Query to get users with a specific spotifyId
+        fun getUsers() {
+            usersCollection.whereNotEqualTo("spotifyId", null).limit(5)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    var user = MatchUser();
+                    val matchUsers = mutableListOf<MatchUser>() // List to hold matched users
 
-                for (document in querySnapshot.documents) {
-                    // Filter out documents where email matches the logged-in user
-                    val userEmail = document.getString("email")
-                    if (userEmail != loggedUserEmail) {
-                        val matchUser = MatchUser().apply {
-                            Name = document.getString("name") ?: ""
-                            Age = document.getLong("age")?.toInt() ?: 0
-                            Email = userEmail ?: ""
-                            Gender = document.getString("gender") ?: ""
-                            Pronoun = document.getString("pronoun") ?: ""
-                            profilePictureUrl = document.getList("profileImageUrls")
-                            topGenre = document.getList("topGenres")?.map { it.toString() } ?: emptyList()
-                            topArtist = document.getList("topArtists")?.map { it.toString() } ?: emptyList()
-                            topSong = document.getList("topSongs")?.map { it.toString() } ?: emptyList()
-                            album = document.getList("albumArt")?.map { it.toString() } ?: emptyList()
+                    for (document in querySnapshot.documents) {
+                        // Filter out documents where email matches the logged-in user
+                        val userEmail = document.getString("email")
+                        if (userEmail != loggedUserEmail) {
+                            CheckUserUnseen(userEmail)
+                            if (!UserSeen) {
+                                val matchUser = MatchUser().apply {
+                                    Name = document.getString("name") ?: ""
+                                    Age = document.getLong("age")?.toInt() ?: 0
+                                    Email = userEmail ?: ""
+                                    Gender = document.getString("gender") ?: ""
+                                    Pronoun = document.getString("pronoun") ?: ""
+                                    profilePictureUrl = document.getList("profileImageUrls")
+                                    topGenre = document.getList("topGenres")?.map { it.toString() }
+                                        ?: emptyList()
+                                    topArtist =
+                                        document.getList("topArtists")?.map { it.toString() }
+                                            ?: emptyList()
+                                    topSong = document.getList("topSongs")?.map { it.toString() }
+                                        ?: emptyList()
+                                    album = document.getList("albumArt")?.map { it.toString() }
+                                        ?: emptyList()
 
+                                }
+                                matchUsers.add(matchUser) // Add to the list of matched users
+                            }
                         }
-                        matchUsers.add(matchUser) // Add to the list of matched users
+
                     }
 
-                }
+                    if (matchUsers.isNotEmpty()) {
+                        // Take the first valid user for display (or you can handle them as needed)
+                        user = matchUsers[count]
+                    }
 
-                if (matchUsers.isNotEmpty()) {
-                    // Take the first valid user for display (or you can handle them as needed)
-                     user = matchUsers[count]
-                }
+                    Toast.makeText(this, "he: ${matchUsers.count()}", Toast.LENGTH_LONG).show()
 
-                Toast.makeText(this, "he: ${matchUsers.count()}", Toast.LENGTH_LONG).show()
-
-                Toast.makeText(this, "he: ${user.Email}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "he: ${user.Email}", Toast.LENGTH_LONG).show()
 
                     // UI and button setup code remains the same
-                val pager = findViewById<ViewPager2>(R.id.imagePager)
-                val name = findViewById<TextView>(R.id.tvName)
-                val pronouns = findViewById<TextView>(R.id.tvPronouns)
-                val albumCover = findViewById<ImageView>(R.id.tvAlbumCover)
-                val songName = findViewById<TextView>(R.id.tvSongName)
-                val artistName = findViewById<TextView>(R.id.tvArtistName)
+                    val pager = findViewById<ViewPager2>(R.id.imagePager)
+                    val name = findViewById<TextView>(R.id.tvName)
+                    val pronouns = findViewById<TextView>(R.id.tvPronouns)
+                    val albumCover = findViewById<ImageView>(R.id.tvAlbumCover)
+                    val songName = findViewById<TextView>(R.id.tvSongName)
+                    val artistName = findViewById<TextView>(R.id.tvArtistName)
 
-                val like = findViewById<FloatingActionButton>(R.id.fab_like)
-                val nope = findViewById<FloatingActionButton>(R.id.fab_nope)
-                val layout = findViewById<ConstraintLayout>(R.id.CLMatch)
+                    val like = findViewById<FloatingActionButton>(R.id.fab_like)
+                    val nope = findViewById<FloatingActionButton>(R.id.fab_nope)
+                    val layout = findViewById<ConstraintLayout>(R.id.CLMatch)
 
-                layout.setOnClickListener {
-                    intent = Intent(this, MatchProfile::class.java)
-                    intent.putExtra("Email", user.Email)
-                    startActivity(intent)
-                }
-
-                like.setOnClickListener {
-                    val currentUserEmail = loggedUser.user?.Email
-
-                    if (currentUserEmail != null) {
-                        usersCollection.whereEqualTo("email", currentUserEmail).get()
-                            .addOnSuccessListener { querySnapshot ->
-                                if (!querySnapshot.isEmpty) {
-                                    val userDocument = querySnapshot.documents[0]
-                                    val userName = userDocument.getString("name")
-
-                                    if (userName != null) {
-                                        val likedByData = hashMapOf(
-                                            "uid" to currentUserEmail,
-                                            "name" to userName
-                                        )
-
-                                        userDocument.reference.collection("liked_by")
-                                            .add(likedByData)
-                                            .addOnSuccessListener {
-                                                Toast.makeText(
-                                                    this,
-                                                    "Liked successfully",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                            .addOnFailureListener { e ->
-                                                Toast.makeText(
-                                                    this,
-                                                    "Error adding to liked_by: ${e.message}",
-                                                    Toast.LENGTH_SHORT
-                                                ).show()
-                                            }
-                                    } else {
-                                        Toast.makeText(
-                                            this,
-                                            "User name not found",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                } else {
-                                    Toast.makeText(this, "User not found", Toast.LENGTH_SHORT)
-                                        .show()
-                                }
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(
-                                    this,
-                                    "Error fetching user: ${e.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                    } else {
-                        Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT)
-                            .show()
+                    layout.setOnClickListener {
+                        intent = Intent(this, MatchProfile::class.java)
+                        intent.putExtra("Email", user.Email)
+                        startActivity(intent)
                     }
+
+                    like.setOnClickListener {
+                        val currentUserEmail = loggedUser.user?.Email
+
+                        if (currentUserEmail != null) {
+                            usersCollection.whereEqualTo("email", currentUserEmail).get()
+                                .addOnSuccessListener { querySnapshot ->
+                                    if (!querySnapshot.isEmpty) {
+                                        val userDocument = querySnapshot.documents[0]
+                                        val userName = userDocument.getString("name")
+
+                                        if (userName != null) {
+                                            val likedByData = hashMapOf(
+                                                "uid" to currentUserEmail,
+                                                "name" to userName
+                                            )
+
+                                            userDocument.reference.collection("liked_by")
+                                                .add(likedByData)
+                                                .addOnSuccessListener {
+                                                    loggedUser.shownList.add(user.Email)
+                                                    Toast.makeText(
+                                                        this,
+                                                        "Liked successfully",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                    getUsers()
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    Toast.makeText(
+                                                        this,
+                                                        "Error adding to liked_by: ${e.message}",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                        } else {
+                                            Toast.makeText(
+                                                this,
+                                                "User name not found",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    } else {
+                                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        this,
+                                        "Error fetching user: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        } else {
+                            Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    }
+
+                    nope.setOnClickListener {
+                        // Add logic for "nope" button if needed
+                        loggedUser.shownList.add(user.Email)
+                        getUsers()
+                    }
+
+
+                     name.text = user.Name
+                     pronouns.text = user.Pronoun
+                     songName.text = user.topSong[0]
+                     artistName.text = user.topArtist[0]
+                     Glide.with(this)
+                         .load(user.album[0])
+                         .into(albumCover)
+
+                     val imageAdapter = ImagePagerAdapter(user.profilePictureUrl ?: emptyList())
+                     pager.adapter = imageAdapter
                 }
-
-                nope.setOnClickListener {
-                    // Add logic for "nope" button if needed
-                }
-
-               /* name.text = user.Name
-                pronouns.text = user.Pronoun
-                songName.text = user.topSong[0]
-                artistName.text = user.topArtist[0]
-                Glide.with(this)
-                    .load(user.album[0])
-                    .into(albumCover)
-
-                val imageAdapter = ImagePagerAdapter(user.profilePictureUrl ?: emptyList())
-                pager.adapter = imageAdapter*/
-            }
-    }
         }
+    }
+
+    fun CheckUserUnseen(matchemail: String?) {
+        for (seenuser in loggedUser.shownList) {
+            if (seenuser == matchemail) {
+                UserSeen = true
+            }
+        }
+    }
 
     private fun DocumentSnapshot.getList(field: String): List<String> {
         return this.get(field) as? List<String> ?: emptyList()
@@ -227,8 +246,7 @@ class MatchUI : AppCompatActivity() {
 
 
 
-
-/*
+      /*
 
 // Trigger FilterActivity
 findViewById<ImageView>(R.id.iV_Filter).setOnClickListener {
@@ -310,41 +328,41 @@ selectedLocation?.let { location ->
     query.whereEqualTo("location", location)
 }
 
-      query.get()
-          .addOnSuccessListener { documents ->
-              if (documents.isEmpty) {
-                  Toast.makeText(
-                      this,
-                      "No profiles found with selected filters",
-                      Toast.LENGTH_SHORT
-                  ).show()
-                  Log.d(TAG, "No profiles found")
-              } else {
-                  for (document in documents) {
-                      Log.d(TAG, "Found profile: ${document.data}")
-                      // Handle displaying of profiles here
-                  }
-                  // Adjust Firestore query to include gender and genre filters
-                  selectedGenre?.let {
-                      db.collection("Users")
-                          .whereEqualTo("Gender", selectedGender)
-                          .whereArrayContains("favoriteGenres", it)
-                          .get()
-                          .addOnSuccessListener { documents ->
-                              // Handle profile loading and display
-                          }
-                  }
-                      ?.addOnFailureListener { exception ->
-                          Log.d(TAG, "Error fetching profiles with filters: ", exception)
-                          Toast.makeText(
-                              this,
-                              "Error loading filtered profiles",
-                              Toast.LENGTH_SHORT
-                          ).show()
-                      }
-              }
-          }
-          */
+query.get()
+    .addOnSuccessListener { documents ->
+        if (documents.isEmpty) {
+            Toast.makeText(
+                this,
+                "No profiles found with selected filters",
+                Toast.LENGTH_SHORT
+            ).show()
+            Log.d(TAG, "No profiles found")
+        } else {
+            for (document in documents) {
+                Log.d(TAG, "Found profile: ${document.data}")
+                // Handle displaying of profiles here
+            }
+            // Adjust Firestore query to include gender and genre filters
+            selectedGenre?.let {
+                db.collection("Users")
+                    .whereEqualTo("Gender", selectedGender)
+                    .whereArrayContains("favoriteGenres", it)
+                    .get()
+                    .addOnSuccessListener { documents ->
+                        // Handle profile loading and display
+                    }
+            }
+                ?.addOnFailureListener { exception ->
+                    Log.d(TAG, "Error fetching profiles with filters: ", exception)
+                    Toast.makeText(
+                        this,
+                        "Error loading filtered profiles",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        }
+    }
+    */
 
 
 /* private fun fetchUserDetails() {
@@ -529,30 +547,30 @@ selectedLocation?.let { location ->
          })
      }
 
-        var navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Match)
+     var navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Match)
 
-        navbar.setOnNavigationItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_match -> {
-                    startActivity(Intent(this, MatchUI::class.java))
-                    true
-                }
-                R.id.nav_like -> {
-                    startActivity(Intent(this, Liked_you::class.java))
-                    true
-                }
-                R.id.nav_chat -> {
-                    startActivity(Intent(this, Contact::class.java))
-                    true
-                }
-                R.id.nav_profile -> {
-                    startActivity(Intent(this, ProfileUI::class.java))
-                    true
-                }
-                else -> false
-            }
-        }
-    }
+     navbar.setOnNavigationItemSelectedListener { item ->
+         when (item.itemId) {
+             R.id.nav_match -> {
+                 startActivity(Intent(this, MatchUI::class.java))
+                 true
+             }
+             R.id.nav_like -> {
+                 startActivity(Intent(this, Liked_you::class.java))
+                 true
+             }
+             R.id.nav_chat -> {
+                 startActivity(Intent(this, Contact::class.java))
+                 true
+             }
+             R.id.nav_profile -> {
+                 startActivity(Intent(this, ProfileUI::class.java))
+                 true
+             }
+             else -> false
+         }
+     }
+ }
 
  // Helper function to fetch artist genres from Spotify API
  private fun fetchArtistGenres(accessToken: String, artistName: String, viewedUserTopGenres: MutableSet<String>): Thread {
@@ -587,28 +605,30 @@ selectedLocation?.let { location ->
      return thread
  }
 
-    */
-   class ImagePagerAdapter(private val images: List<String>) : RecyclerView.Adapter<ImagePagerAdapter.ImageViewHolder>() {
+ */
+class ImagePagerAdapter(private val images: List<String>) :
+    RecyclerView.Adapter<ImagePagerAdapter.ImageViewHolder>() {
 
-       class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-           val imageView: ImageView = itemView.findViewById(R.id.imageView)
-       }
+    class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imageView: ImageView = itemView.findViewById(R.id.imageView)
+    }
 
-       override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
-           val view = LayoutInflater.from(parent.context).inflate(R.layout.image_pager_item, parent, false)
-           return ImageViewHolder(view)
-       }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.image_pager_item, parent, false)
+        return ImageViewHolder(view)
+    }
 
-       override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
-           // Assuming you're using Glide or Picasso to load the image URLs
-           Glide.with(holder.itemView.context)
-               .load(images[position])
-               .into(holder.imageView)
-       }
+    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+        // Assuming you're using Glide or Picasso to load the image URLs
+        Glide.with(holder.itemView.context)
+            .load(images[position])
+            .into(holder.imageView)
+    }
 
-       override fun getItemCount(): Int {
-           return images.size
-       }
-   }
+    override fun getItemCount(): Int {
+        return images.size
+    }
+}
 
 

@@ -221,8 +221,10 @@ class Register_Spotify_Link : AppCompatActivity() {
                         return
                     }
 
-                    val jsonResponse = JSONObject(response.body?.string() ?: "")
-                    val artists = jsonResponse.getJSONArray("items")
+                    val responseBody = response.body?.string() ?: ""
+                    Log.d("Response Body", responseBody)
+                    val jsonObject = JSONObject(responseBody)
+                    val artists = jsonObject.getJSONArray("items")
                     val genreMap = mutableMapOf<String, Int>() // To count genres
 
                     // Count occurrences of each genre
@@ -304,8 +306,10 @@ class Register_Spotify_Link : AppCompatActivity() {
                         return
                     }
 
-                    val jsonResponse = JSONObject(response.body?.string() ?: "")
-                    val songs = jsonResponse.getJSONArray("items")
+                    val responseBody = response.body?.string() ?: ""
+                    Log.d("Response Body", responseBody)
+                    val jsonObject = JSONObject(responseBody)
+                    val songs = jsonObject.getJSONArray("items")
                     val topSongs = mutableListOf<String>() // To hold top song names
                     val SongArtistName = mutableListOf<String>()
                     val albumArt = mutableListOf<String>()
