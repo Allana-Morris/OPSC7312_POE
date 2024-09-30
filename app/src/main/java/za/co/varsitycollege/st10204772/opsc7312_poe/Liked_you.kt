@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -21,6 +22,7 @@ class Liked_you : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_liked_you)
+        setupBottomNavigation()
 
         layout = findViewById(R.id.vert_layout_liked)
         db = FirebaseFirestore.getInstance()
@@ -139,6 +141,21 @@ class Liked_you : AppCompatActivity() {
             .addOnFailureListener { e ->
                 showToast("Error fetching user: ${e.message}")
             }
+    }
+
+    private fun setupBottomNavigation() {
+        val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Profile)
+
+        navbar.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_match -> startActivity(Intent(this, MatchUI::class.java))
+                R.id.nav_like -> startActivity(Intent(this, Liked_you::class.java))
+                R.id.nav_chat -> startActivity(Intent(this, Contact::class.java))
+                R.id.nav_profile -> startActivity(Intent(this, ProfileUI::class.java))
+                else -> false
+            }
+            true
+        }
     }
 
     private fun showToast(message: String) {

@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,6 +25,10 @@ class Contact : AppCompatActivity() {
         FirebaseApp.initializeApp(this)
 
         var messageDocs = mutableListOf<Pair<String, String>>()  // To store message docID and contactID
+        setupBottomNavigation()
+
+
+
 
 // Query where loggedUser's cellNo matches "fromUid"
         db.collection("message")
@@ -62,6 +67,21 @@ class Contact : AppCompatActivity() {
             .addOnFailureListener { e ->
                 Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun setupBottomNavigation() {
+        val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Profile)
+
+        navbar.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_match -> startActivity(Intent(this, MatchUI::class.java))
+                R.id.nav_like -> startActivity(Intent(this, Liked_you::class.java))
+                R.id.nav_chat -> startActivity(Intent(this, Contact::class.java))
+                R.id.nav_profile -> startActivity(Intent(this, ProfileUI::class.java))
+                else -> false
+            }
+            true
+        }
     }
 
     fun showContacts(messageDocs: List<Pair<String, String>>, db: FirebaseFirestore, layout: LinearLayout) {

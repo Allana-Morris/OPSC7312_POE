@@ -1,5 +1,6 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
@@ -29,7 +31,7 @@ class Chat : AppCompatActivity() {
         val contactID = intent.getStringExtra("contactID") ?: "Unknown"
         val docID = intent.getStringExtra("messageDocID") ?: "Unknown"
 
-        Toast.makeText(this, "$docID", Toast.LENGTH_LONG).show()
+        setupBottomNavigation()
 
 
         val nameHeader = findViewById<TextView>(R.id.txtChatName)
@@ -143,6 +145,21 @@ class Chat : AppCompatActivity() {
                     }
                 }
             }
+    }
+
+    private fun setupBottomNavigation() {
+        val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Profile)
+
+        navbar.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_match -> startActivity(Intent(this, MatchUI::class.java))
+                R.id.nav_like -> startActivity(Intent(this, Liked_you::class.java))
+                R.id.nav_chat -> startActivity(Intent(this, Contact::class.java))
+                R.id.nav_profile -> startActivity(Intent(this, ProfileUI::class.java))
+                else -> false
+            }
+            true
+        }
     }
 
 

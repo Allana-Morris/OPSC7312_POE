@@ -210,13 +210,11 @@ class Register_Spotify_Link : AppCompatActivity() {
                                 SpotifyData().displayName = displayName
 
                                 setSpotifyID = spotifyId;
+                                fetchTopGenre()
+                                fetchTopSongs()
+
 
                                 button.isEnabled = true;
-
-
-
-
-
 
                             } else {
                                 imageView.setImageResource(R.drawable.profile_placeholder) // Default image if no profile pic
@@ -243,6 +241,238 @@ class Register_Spotify_Link : AppCompatActivity() {
             sStorage.saveID("SPOTIFY_ACCESS_TOKEN", token)  // Save the token securely
         }
     }
+
+    private fun fetchTopGenre() {
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/me/top/artists?limit=50") // Fetch top artists
+            .addHeader("Authorization", "Bearer $mAccessToken") // Use access token
+            .build()
+
+        mOkHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!it.isSuccessful) {
+                        val errorBody = response.body?.string()
+                        return
+                    }
+
+                    val jsonResponse = JSONObject(response.body?.string() ?: "")
+                    val artists = jsonResponse.getJSONArray("items")
+                    val genreMap = mutableMapOf<String, Int>() // To count genres
+
+                    // Count occurrences of each genre
+                    for (i in 0 until artists.length()) {
+                        val artist = artists.getJSONObject(i)
+                        val genres = artist.getJSONArray("genres")
+                        for (j in 0 until genres.length()) {
+                            val genre = genres.getString(j)
+                            genreMap[genre] = genreMap.getOrDefault(genre, 0) + 1
+                        }
+                    }
+
+                    // Sort genres by count and retrieve the top 3
+                    val topGenres = genreMap.toList()
+                        .sortedByDescending { it.second }
+                        .take(3)
+                        .map { it.first } // Get only the genre names
+
+                    // Store the top genres in Firestore
+                    storeTopGenresInFirestore(topGenres)
+                }
+            }
+        })
+    }
+
+    // Store top genres in Firestore
+    private fun storeTopGenresInFirestore(topGenres: List<String>) {
+        val firestore = FirebaseFirestore.getInstance()
+
+        // Get the logged user's email
+        val email = loggedUser.user?.Email
+
+        if (email != null) {
+            // Reference to the Users collection
+            val usersCollection = firestore.collection("Users")
+
+            // Query to find the user document where email matches
+            usersCollection.whereEqualTo("email", email).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val userDocument = querySnapshot.documents[0]
+
+                        // Update the document with the top genres
+                        userDocument.reference.update("topGenres", topGenres)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Top genres updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Error updating top genres: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun fetchTopSongs() {
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/me/top/tracks?limit=3") // Fetch top tracks
+            .addHeader("Authorization", "Bearer $mAccessToken") // Use access token
+            .build()
+
+        mOkHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                // Handle failure
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!it.isSuccessful) {
+                        val errorBody = response.body?.string()
+                        return
+                    }
+
+                    val jsonResponse = JSONObject(response.body?.string() ?: "")
+                    val songs = jsonResponse.getJSONArray("items")
+                    val topSongs = mutableListOf<String>() // To hold top song names
+
+                    // Retrieve the top 3 song names
+                    for (i in 0 until songs.length()) {
+                        val song = songs.getJSONObject(i)
+                        val songName = song.getString("name")
+                        topSongs.add(songName)
+                    }
+                    fetchTopArtists(topSongs)
+
+
+                    // Store the top songs in Firestore
+                    storeTopSongsInFirestore(topSongs)
+                }
+            }
+        })
+    }
+
+    // Store top songs in Firestore
+    private fun storeTopSongsInFirestore(topSongs: List<String>) {
+        val firestore = FirebaseFirestore.getInstance()
+
+        // Get the logged user's email
+        val email = loggedUser.user?.Email
+
+        if (email != null) {
+            // Reference to the Users collection
+            val usersCollection = firestore.collection("Users")
+
+            // Query to find the user document where email matches
+            usersCollection.whereEqualTo("email", email).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val userDocument = querySnapshot.documents[0]
+
+                        // Update the document with the top songs
+                        userDocument.reference.update("topSongs", topSongs)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Top songs updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Error updating top songs: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+    private fun fetchTopArtists(topSongs: List<String>) {
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/me/top/artists?limit=3") // Fetch top artists
+            .addHeader("Authorization", "Bearer $mAccessToken") // Use access token
+            .build()
+
+        mOkHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                // Handle failure
+                runOnUiThread {
+                    Toast.makeText(this@Register_Spotify_Link, "Error fetching top artists: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!it.isSuccessful) {
+                        val errorBody = response.body?.string()
+                        runOnUiThread {
+                            Toast.makeText(this@Register_Spotify_Link, "Failed to fetch top artists: $errorBody", Toast.LENGTH_SHORT).show()
+                        }
+                        return
+                    }
+
+                    val jsonResponse = JSONObject(response.body?.string() ?: "")
+                    val artists = jsonResponse.getJSONArray("items")
+
+                    val topArtists = mutableListOf<String>() // Store top artist names
+                    for (i in 0 until artists.length()) {
+                        val artist = artists.getJSONObject(i)
+                        val artistName = artist.getString("name") // Get artist name
+                        topArtists.add(artistName) // Add to list
+                    }
+
+                    // Store top songs and artists in Firestore
+                    storeTopArtistsInFirestore(topArtists)
+
+                }
+            }
+        })
+    }
+    private fun storeTopArtistsInFirestore(topArtists: List<String>) {
+        val firestore = FirebaseFirestore.getInstance()
+        val email = loggedUser.user?.Email
+
+        if (email != null) {
+            // Reference to the Users collection
+            val usersCollection = firestore.collection("Users")
+
+            // Query to find the user document where email matches
+            usersCollection.whereEqualTo("email", email).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val userDocument = querySnapshot.documents[0]
+
+                        // Update the document with the top artists
+                        userDocument.reference.update("topArtists", topArtists)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Top artists updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(this, "Error updating top artists: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
 
 
     override fun onDestroy() {
