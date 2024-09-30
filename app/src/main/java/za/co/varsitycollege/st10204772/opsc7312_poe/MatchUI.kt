@@ -114,6 +114,70 @@ class MatchUI : AppCompatActivity() {
               val songName = findViewById<TextView>(R.id.tvSongName)
               val artistName = findViewById<TextView>(R.id.tvArtistName)
 
+              val like = findViewById<FloatingActionButton>(R.id.fab_like)
+              val nope = findViewById<FloatingActionButton>(R.id.fab_nope)
+
+              pager.setOnClickListener()
+              {
+                  intent = Intent(this, MatchProfile::class.java)
+                  startActivity(intent)
+              }
+
+              like.setOnClickListener {
+                  // Get Firestore instance
+                  val firestore = FirebaseFirestore.getInstance()
+
+                  // Get the current user's email
+                  val currentUserEmail = loggedUser.user?.Email
+
+                  // Check if the email is not null
+                  if (currentUserEmail != null) {
+                      // Reference to the Users collection
+                      val usersCollection = firestore.collection("Users")
+
+                      // Query to find the user document where email matches the logged in user's email
+                      usersCollection.whereEqualTo("email", currentUserEmail).get()
+                          .addOnSuccessListener { querySnapshot ->
+                              if (!querySnapshot.isEmpty) {
+                                  // Get the first document (since emails should be unique)
+                                  val userDocument = querySnapshot.documents[0]
+
+                                  // Retrieve the user's name from the document
+                                  val userName = userDocument.getString("name")
+
+                                  // Check if userName is not null
+                                  if (userName != null) {
+                                      // Create a new document in the "liked_by" subcollection with an auto-generated ID
+                                      val likedByData = hashMapOf(
+                                          "uid" to currentUserEmail,
+                                          "name" to userName
+                                      )
+
+                                      // Add a new document to the "liked_by" collection
+                                      userDocument.reference.collection("liked_by")
+                                          .add(likedByData)
+                                          .addOnSuccessListener {
+                                              Toast.makeText(this, "Liked successfully", Toast.LENGTH_SHORT).show()
+                                          }
+                                          .addOnFailureListener { e ->
+                                              Toast.makeText(this, "Error adding to liked_by: ${e.message}", Toast.LENGTH_SHORT).show()
+                                          }
+                                  } else {
+                                      Toast.makeText(this, "User name not found", Toast.LENGTH_SHORT).show()
+                                  }
+                              } else {
+                                  Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                              }
+                          }
+                          .addOnFailureListener { e ->
+                              Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
+                          }
+                  } else {
+                      Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
+                  }
+              }
+
+
               name.text = user.Name
               pronouns.text = user.Pronoun
               songName.text = user.topSong[0]
