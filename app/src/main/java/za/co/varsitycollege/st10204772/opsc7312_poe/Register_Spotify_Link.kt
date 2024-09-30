@@ -3,6 +3,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.webkit.CookieManager
 import android.widget.Button
 import android.widget.ImageView
@@ -25,12 +26,13 @@ import java.io.IOException
 
 class Register_Spotify_Link : AppCompatActivity() {
 
-    private val authRequestCode = 1337
     private val scopes = "user-read-private user-read-email user-top-read" // Add necessary scopes here
     private val mOkHttpClient: OkHttpClient = OkHttpClient()
-    private var mAccessToken: String? = null
+    private var mAccessToken: String = ""
     private var mCall: Call? = null
     private var setSpotifyID : String? = null
+    private val CLIENT_ID =  ClientID.CLIENT_ID
+    private val REDIRECT_URI = ClientID.REDIRECT_URI
 
     private lateinit var imageView: ImageView
     private lateinit var textView: TextView
@@ -39,9 +41,6 @@ class Register_Spotify_Link : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register_spotify_link)
-
-        val CLIENT_ID =  ClientID.CLIENT_ID
-        val REDIRECT_URI = ClientID.REDIRECT_URI
 
         imageView = findViewById(R.id.imgAccountPP)
         textView = findViewById(R.id.txtSpotifyAccount)
@@ -113,20 +112,13 @@ class Register_Spotify_Link : AppCompatActivity() {
             AuthorizationClient.clearCookies(this)
             AuthorizationClient.openLoginInBrowser(this, request)
         }
-
     }
 
-
      override fun onNewIntent(intent: Intent) {
-
-         if (intent != null) {
-            super.onNewIntent(intent)
-        }
-
+        super.onNewIntent(intent)
         val uri: Uri? = intent?.data
         uri?.let {
             val response = AuthorizationResponse.fromUri(it)
-
             when (response.type) {
                 AuthorizationResponse.Type.TOKEN -> {
                     // Handle successful response
@@ -141,6 +133,7 @@ class Register_Spotify_Link : AppCompatActivity() {
                 }
                 else -> {
                     // Handle other cases
+                    Log.e(this@Register_Spotify_Link.toString(), "Access Token Issue"  )
                 }
             }
         }
@@ -153,9 +146,7 @@ class Register_Spotify_Link : AppCompatActivity() {
             .addHeader("Authorization", "Bearer $mAccessToken")  // Use access token
             .build()
 
-
         mCall = mOkHttpClient.newCall(request)
-
         mCall?.enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 runOnUiThread {
@@ -169,13 +160,9 @@ class Register_Spotify_Link : AppCompatActivity() {
                 //also removed the try and catch to see what an error was, yall can add it back if you want
                 //fyi the error was the email
 
-
-
                     val jsonObject = JSONObject(response.body?.string() ?: "")
                     val displayName = jsonObject.getString("display_name")
-                   // val email = jsonObject.getString("email")
-                    val spotifyId = jsonObject.getString("id")
-                    val profileImages = jsonObject.optJSONArray("images")
+                      val profileImages = jsonObject.optJSONArray("images")
                     val profileImageUrl = if (profileImages != null && profileImages.length() > 0) {
                         profileImages.getJSONObject(0).optString("url", "")
                     }
@@ -186,21 +173,16 @@ class Register_Spotify_Link : AppCompatActivity() {
                         Uri.parse(it)
                     }
 
-
-                    // Update UI on the main thread
-                    //if(User().Email.equals(email)) {
                         runOnUiThread {
                             textView.text = displayName
                             if (profileImageUrl.isNotEmpty()) {
                                 Picasso.get().load(profileImageUrl).into(imageView)
 
-                                SpotifyData().spotifyId = spotifyId
                                 SpotifyData().apihref = apiHref
                                 SpotifyData().profpicurl = Uri.parse(profileImageUrl)
                                 SpotifyData().email = loggedUser.user?.Email.toString()
                                 SpotifyData().displayName = displayName
 
-                                setSpotifyID = spotifyId;
                                 fetchTopGenre()
                                 fetchTopSongs()
                                 fetchTopArtists()
@@ -212,17 +194,6 @@ class Register_Spotify_Link : AppCompatActivity() {
                                 imageView.setImageResource(R.drawable.profile_placeholder) // Default image if no profile pic
                             }
                         }
-                    /*} else{
-                        runOnUiThread {
-                            textView.text =
-                                getString(R.string.spotify_account_email_does_not_match_registered_email) // Email does not match spotify account
-                        }
-                    }*/
-                 /*catch (e: JSONException) {
-                    runOnUiThread {
-                        textView.text = getString(R.string.spotify_user_parse_fail)
-                    }
-                }*/
             }
         })
     }
@@ -323,6 +294,7 @@ class Register_Spotify_Link : AppCompatActivity() {
         mOkHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 // Handle failure
+                //F*cking Failure
             }
 
             override fun onResponse(call: Call, response: Response) {
@@ -354,11 +326,7 @@ class Register_Spotify_Link : AppCompatActivity() {
                         topSongs.add(songName)
                         SongArtistName.add(artistName)
                         albumArt.add(artworkUrl)
-
                     }
-
-
-
                     // Store the top songs in Firestore
                     storeTopSongsInFirestore(topSongs, SongArtistName, albumArt)
                 }
@@ -416,6 +384,7 @@ class Register_Spotify_Link : AppCompatActivity() {
             Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
         }
     }
+
     private fun fetchTopArtists() {
         val request = Request.Builder()
             .url("https://api.spotify.com/v1/me/top/artists?limit=3") // Fetch top artists
@@ -452,11 +421,11 @@ class Register_Spotify_Link : AppCompatActivity() {
 
                     // Store top songs and artists in Firestore
                     storeTopArtistsInFirestore(topArtists)
-
                 }
             }
         })
     }
+
     private fun storeTopArtistsInFirestore(topArtists: List<String>) {
         val firestore = FirebaseFirestore.getInstance()
         val email = loggedUser.user?.Email
@@ -490,9 +459,6 @@ class Register_Spotify_Link : AppCompatActivity() {
             Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
         }
     }
-
-
-
 
     override fun onDestroy() {
         mCall?.cancel() // Cancel any ongoing API requests

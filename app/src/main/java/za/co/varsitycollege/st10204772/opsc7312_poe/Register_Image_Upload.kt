@@ -2,6 +2,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -54,6 +55,8 @@ class Register_Image_Upload : AppCompatActivity() {
                     selectedImageUri?.let { uri ->
                         val bitmap = uriToBitmap(uri)
                         if (currentImageViewIndex != -1 && bitmap != null) {
+                            imageViews[currentImageViewIndex].setImageResource(0)
+                            imageViews[currentImageViewIndex].setBackgroundResource(0)
                             imageViews[currentImageViewIndex].setImageBitmap(bitmap)
                             imageList[currentImageViewIndex] = bitmap
                         } else {
@@ -113,11 +116,8 @@ class Register_Image_Upload : AppCompatActivity() {
 
     private fun uriToBitmap(uri: Uri): Bitmap? {
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val source = ImageDecoder.createSource(contentResolver, uri)
-                ImageDecoder.decodeBitmap(source)
-            } else {
-                MediaStore.Images.Media.getBitmap(contentResolver, uri)
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                BitmapFactory.decodeStream(inputStream)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -126,10 +126,10 @@ class Register_Image_Upload : AppCompatActivity() {
     }
 
     private fun uploadImageToFirebaseStorage(bitmap: Bitmap, fileName: String, callback: (String?) -> Unit) {
-        val storageRef = storage.child("profile_images/$fileName.jpg")
+        val storageRef = storage.child("profile_images/$fileName.png")
 
         val byteArrayOutputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream)
         val imageData = byteArrayOutputStream.toByteArray()
 
         val uploadTask = storageRef.putBytes(imageData)
