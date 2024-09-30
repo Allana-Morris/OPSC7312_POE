@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- These are the available Genders so far, pay EA for the Gender Expansion Pack -->
-    <string-array name="XtraGenders">
+    <string-array name="xtragenders">
         <item name="agender">Agender</item>
         <item name="bigender">Bigender</item>
         <item name="demigender">Demigender</item>

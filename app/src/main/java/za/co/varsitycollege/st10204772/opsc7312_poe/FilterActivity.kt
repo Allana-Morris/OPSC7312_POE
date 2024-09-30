@@ -17,7 +17,7 @@ class FilterActivity : AppCompatActivity() {
         val genderSpinner: Spinner = findViewById(R.id.spinnerGender)
         val genderAdapter = ArrayAdapter.createFromResource(
             this,
-            R.array.XtraGenders,  // Replace with gender array from genders.xml
+            R.array.xtragenders,  // Replace with gender array from genders.xml
             android.R.layout.simple_spinner_item
         )
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
