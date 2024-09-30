@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.CredentialManager
@@ -29,15 +30,16 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class StartActivity : AppCompatActivity() {
 
     //Google SSO Variables
     val credManager = CredentialManager.create(this)
-  //  private lateinit var auth: FirebaseAuth
-  //  private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
- //   private lateinit var oneTapClient: SignInClient
+    //  private lateinit var auth: FirebaseAuth
+    //  private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
+    //   private lateinit var oneTapClient: SignInClient
 
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private val RC_SIGN_IN = 9001
@@ -73,7 +75,7 @@ class StartActivity : AppCompatActivity() {
         }
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(ClientID.app_client_id)
+            .requestIdToken(ClientID.server_client_id)
             .requestEmail()
             .build()
 
@@ -116,11 +118,60 @@ class StartActivity : AppCompatActivity() {
 
     private fun updateUI(account: GoogleSignInAccount?) {
         if (account != null) {
-            // Update your UI with the user's information
-            val intent = Intent(this, Register_About_You::class.java)
-        } else {
-            // Update your UI to show the user is signed out
+            if (account != null) {
+                // Capture user information
+                User().Email = account.email.toString()
+                User().hasGoogle = true
+
+                // Write user information to Firestore
+                val db = FirebaseFirestore.getInstance()
+                val userId = account.id ?: ""
+
+                val usersCollection = db.collection("Users")
+
+                // Query to find the user document where email matches
+                usersCollection.whereEqualTo("email", account.email).get()
+                    .addOnSuccessListener { querySnapshot ->
+                        if (querySnapshot.isEmpty) {
+                            val userDocument = querySnapshot.documents[0]
+
+                            // Update the document with the top songs
+                            userDocument.reference.update("email", account.email)
+                                .addOnSuccessListener {
+                                    Toast.makeText(
+                                        this,
+                                        "Email added to db",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        this,
+                                        "Error adding Google Email: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            userDocument.reference.update("hasGoogle", true)
+                                .addOnSuccessListener {
+                                    Toast.makeText(
+                                        this,
+                                        "User has Google",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        this,
+                                        "Error: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        } else {
+                            // Update your UI to show the user is signed out
+                        }
+                    }
+
+            }
         }
     }
-
 }
