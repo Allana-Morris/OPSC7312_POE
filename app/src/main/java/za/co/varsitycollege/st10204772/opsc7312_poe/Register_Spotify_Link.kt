@@ -160,7 +160,9 @@ class Register_Spotify_Link : AppCompatActivity() {
                 //also removed the try and catch to see what an error was, yall can add it back if you want
                 //fyi the error was the email
 
-                    val jsonObject = JSONObject(response.body?.string() ?: "")
+                val responseBody = response.body?.string() ?: ""
+                Log.d("Response Body", responseBody)
+                val jsonObject = JSONObject(responseBody)
                     val displayName = jsonObject.getString("display_name")
                       val profileImages = jsonObject.optJSONArray("images")
                     val profileImageUrl = if (profileImages != null && profileImages.length() > 0) {
@@ -169,16 +171,14 @@ class Register_Spotify_Link : AppCompatActivity() {
                     else {
                     ""  // Default to empty string if no profile image is available
                     }
-                    val apiHref = jsonObject.getString("external_urls").let {
-                        Uri.parse(it)
-                    }
+                    val apiHref = jsonObject.getJSONObject("external_urls").getString("spotify")
 
                         runOnUiThread {
                             textView.text = displayName
                             if (profileImageUrl.isNotEmpty()) {
                                 Picasso.get().load(profileImageUrl).into(imageView)
 
-                                SpotifyData().apihref = apiHref
+                                SpotifyData().apihref = Uri.parse(apiHref)
                                 SpotifyData().profpicurl = Uri.parse(profileImageUrl)
                                 SpotifyData().email = loggedUser.user?.Email.toString()
                                 SpotifyData().displayName = displayName
