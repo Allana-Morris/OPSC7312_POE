@@ -8,7 +8,6 @@ android {
     namespace = "za.co.varsitycollege.st10204772.opsc7312_poe"
     compileSdk = 35
 
-
     defaultConfig {
         applicationId = "za.co.varsitycollege.st10204772.opsc7312_poe"
         minSdk = 26
@@ -18,11 +17,7 @@ android {
         manifestPlaceholders["redirectHostName"] = "auth"
         manifestPlaceholders["redirectSchemeName"] = "spotify-sdk"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-
     }
-
-
 
     packaging{
         @Suppress("DEPRECATION")

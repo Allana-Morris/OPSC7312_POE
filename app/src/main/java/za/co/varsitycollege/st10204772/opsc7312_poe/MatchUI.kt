@@ -436,7 +436,7 @@ class MatchUI : AppCompatActivity() {
         }
 
         var navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Match)
-
+        navbar.selectedItemId = R.id.nav_match
         navbar.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_match -> {

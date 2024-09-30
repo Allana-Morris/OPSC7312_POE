@@ -53,7 +53,7 @@ class ProfileUI : AppCompatActivity() {
 
     private fun setupBottomNavigation() {
         val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Profile)
-
+        navbar.selectedItemId = R.id.nav_profile
         navbar.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_match -> startActivity(Intent(this, MatchUI::class.java))
