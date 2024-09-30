@@ -16,6 +16,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -116,10 +117,12 @@ class MatchUI : AppCompatActivity() {
 
               val like = findViewById<FloatingActionButton>(R.id.fab_like)
               val nope = findViewById<FloatingActionButton>(R.id.fab_nope)
+              val layout = findViewById<ConstraintLayout>(R.id.CLMatch)
 
-              pager.setOnClickListener()
+              layout.setOnClickListener()
               {
                   intent = Intent(this, MatchProfile::class.java)
+                  intent.putExtra("Email", user.Email)
                   startActivity(intent)
               }
 
