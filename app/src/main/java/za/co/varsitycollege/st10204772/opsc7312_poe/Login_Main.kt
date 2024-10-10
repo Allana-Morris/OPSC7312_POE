@@ -3,6 +3,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -11,6 +12,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.firestore.FirebaseFirestore
@@ -25,11 +28,18 @@ import okhttp3.Response
 import org.json.JSONObject
 import za.co.varsitycollege.st10204772.opsc7312_poe.ClientID.CLIENT_ID
 import java.io.IOException
+import java.util.concurrent.Executor
 
 class Login_Main : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
     private var mOkHttpClient = OkHttpClient.Builder().build()
     private lateinit var sAccessToken: String
+
+    //Fingerprint
+    private lateinit var executor: Executor
+    private lateinit var biometricPrompt: BiometricPrompt
+    private lateinit var promptInfo: BiometricPrompt.PromptInfo
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +64,15 @@ class Login_Main : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Initialize shared preferences
+        sharedPreferences = getSharedPreferences("app_prefs", MODE_PRIVATE)
+
+        // Setup biometric prompt
+        setupBiometricPrompt()
+
+        // Always show fingerprint prompt when the login screen opens
+        showBiometricPrompt()
+
         btnLogin.setOnClickListener {
             if ((inpval.isStringInput(uEmail.toString())) && (inpval.isStringInput(uPass.toString()))) {
                 var email = uEmail.toString()
@@ -67,8 +86,8 @@ class Login_Main : AppCompatActivity() {
                                 if (user != null) {
                                     authenticateWithSpotify()
 
-                                    intent = Intent(this, ProfileUI::class.java)
-                                    startActivity(intent)
+                                    // Directly navigate to the profile activity
+                                    navigateToProfile()
                                 } else {
                                     Log.e(TAG, "Failed to load user")
                                 }
@@ -112,6 +131,50 @@ class Login_Main : AppCompatActivity() {
         val request = builder.build()
 
         AuthorizationClient.openLoginInBrowser(this, request)
+    }
+
+    // Function to set up BiometricPrompt
+    private fun setupBiometricPrompt() {
+        executor = ContextCompat.getMainExecutor(this)
+        biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                // Handle successful fingerprint authentication
+                Toast.makeText(applicationContext, "Authentication succeeded!", Toast.LENGTH_SHORT).show()
+                // Directly navigate to the profile activity
+                navigateToProfile()
+            }
+
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+                // Handle error in authentication
+                Toast.makeText(applicationContext, "Authentication error: $errString", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onAuthenticationFailed() {
+                super.onAuthenticationFailed()
+                // Handle failed authentication
+                Toast.makeText(applicationContext, "Authentication failed", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Fingerprint Login")
+            .setSubtitle("Log in using your fingerprint")
+            .setNegativeButtonText("Cancel")
+            .build()
+    }
+
+    // Show fingerprint prompt
+    private fun showBiometricPrompt() {
+        biometricPrompt.authenticate(promptInfo)
+    }
+
+    // Navigate to Profile Activity on successful authentication
+    private fun navigateToProfile() {
+        val intent = Intent(this, ProfileUI::class.java)
+        startActivity(intent)
+        finish()
     }
 
     override fun onNewIntent(intent: Intent) {
