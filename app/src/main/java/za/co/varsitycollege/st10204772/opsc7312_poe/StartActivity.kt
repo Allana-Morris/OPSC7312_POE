@@ -6,6 +6,7 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -13,6 +14,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.credentials.CredentialManager
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -25,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.concurrent.Executor
 
 
 class StartActivity : AppCompatActivity() {
@@ -35,68 +39,124 @@ class StartActivity : AppCompatActivity() {
     private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
     private lateinit var oneTapClient: SignInClient
 
-    lateinit var context: Context
+    //Fingerprint
+    private lateinit var executor: Executor
+    private lateinit var biometricPrompt: BiometricPrompt
+    private lateinit var promptInfo: BiometricPrompt.PromptInfo
 
+    lateinit var context: Context
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_start)
+        val sharedPreferences = getSharedPreferences("userSession", Context.MODE_PRIVATE)
+        val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
 
-        //Sign In Button
-        var btnSignIn = findViewById<TextView>(R.id.tvSignIn)
-        btnSignIn.setOnClickListener {
-            val intent: Intent = Intent(
-                this,
-                Login_Main::class.java
-            )
-            startActivity(intent)
-        }
+        if (isLoggedIn) {
+            // Navigate to the main screen
+            showBiometricPrompt()
+            finish()
+        } else {
+            // Proceed with the normal flow (e.g., registration or login)
 
-        //Sign Up Button
-        var btnSignUp = findViewById<Button>(R.id.btnSignUp)
-        btnSignUp.setOnClickListener {
-            val intent: Intent = Intent(
-                this,
-                Register_Permissions::class.java
-            )
-            startActivity(intent)
-        }
+            //Sign In Button
+            var btnSignIn = findViewById<TextView>(R.id.tvSignIn)
+            btnSignIn.setOnClickListener {
+                val intent: Intent = Intent(
+                    this,
+                    Login_Main::class.java
+                )
+                startActivity(intent)
+            }
 
-        // Google SSO
-        var btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
-        btnGoogle.setOnClickListener {
-            auth = Firebase.auth
-            oneTapClient = Identity.getSignInClient(this)
+            //Sign Up Button
+            var btnSignUp = findViewById<Button>(R.id.btnSignUp)
+            btnSignUp.setOnClickListener {
+                val intent: Intent = Intent(
+                    this,
+                    Register_Permissions::class.java
+                )
+                startActivity(intent)
+            }
 
-            val signInRequest = BeginSignInRequest.builder()
-                .setGoogleIdTokenRequestOptions(
-                    BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                        .setSupported(true)
-                        .setServerClientId(ClientID.server_client_id)
-                        .setFilterByAuthorizedAccounts(false)
-                        .build()
-                ).build()
+            // Google SSO
+            var btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
+            btnGoogle.setOnClickListener {
+                auth = Firebase.auth
+                oneTapClient = Identity.getSignInClient(this)
 
-            oneTapClient.beginSignIn(signInRequest)
-                .addOnSuccessListener(this) { result ->
-                    try {
-                        startIntentSenderForResult(
-                            result.pendingIntent.intentSender, REQ_ONE_TAP,
-                            null, 0, 0, 0
-                        )
+                val signInRequest = BeginSignInRequest.builder()
+                    .setGoogleIdTokenRequestOptions(
+                        BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                            .setSupported(true)
+                            .setServerClientId(ClientID.server_client_id)
+                            .setFilterByAuthorizedAccounts(false)
+                            .build()
+                    ).build()
 
-                    } catch (e: IntentSender.SendIntentException) {
-                        Log.e(TAG, "Couldn't start One Tap UI: ${e.localizedMessage}")
+                oneTapClient.beginSignIn(signInRequest)
+                    .addOnSuccessListener(this) { result ->
+                        try {
+                            startIntentSenderForResult(
+                                result.pendingIntent.intentSender, REQ_ONE_TAP,
+                                null, 0, 0, 0
+                            )
+
+                        } catch (e: IntentSender.SendIntentException) {
+                            Log.e(TAG, "Couldn't start One Tap UI: ${e.localizedMessage}")
+                        }
                     }
-                }
-                .addOnFailureListener(this) { e ->
-                    e.localizedMessage?.let { it1 -> Log.d(TAG, it1) }
-                }
+                    .addOnFailureListener(this) { e ->
+                        e.localizedMessage?.let { it1 -> Log.d(TAG, it1) }
+                    }
 
-
+            }
         }
     }
+
+    // Function to set up BiometricPrompt
+    private fun showBiometricPrompt() {
+        executor = ContextCompat.getMainExecutor(this)
+        biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                // Handle successful fingerprint authentication
+                Toast.makeText(applicationContext, "Authentication succeeded!", Toast.LENGTH_SHORT).show()
+                // Directly navigate to the profile activity
+                navigateToProfile()
+            }
+
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                super.onAuthenticationError(errorCode, errString)
+                // Handle error in authentication
+                Toast.makeText(applicationContext, "Authentication error: $errString", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+
+            override fun onAuthenticationFailed() {
+                super.onAuthenticationFailed()
+                // Handle failed authentication
+                Toast.makeText(applicationContext, "Authentication failed", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Fingerprint Login")
+            .setSubtitle("Log in using your fingerprint")
+            .setNegativeButtonText("Cancel")
+            .build()
+
+        biometricPrompt.authenticate(promptInfo)
+    }
+
+    // Navigate to Profile Activity on successful authentication
+    private fun navigateToProfile() {
+        val intent = Intent(this, ProfileUI::class.java)
+        startActivity(intent)
+        finish()
+    }
+
 
     @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

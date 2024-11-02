@@ -1,6 +1,8 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -37,6 +39,10 @@ class Register_Spotify_Link : AppCompatActivity() {
     private lateinit var textView: TextView
     private lateinit var button: Button
 
+    private val sharedPrefs: SharedPreferences by lazy {
+        getSharedPreferences("UserSession", Context.MODE_PRIVATE)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register_spotify_link)
@@ -68,6 +74,7 @@ class Register_Spotify_Link : AppCompatActivity() {
                             // Update the document with the new field
                             userDocument.reference.update("spotifyId", setSpotifyID)
                                 .addOnSuccessListener {
+                                    startUserSession(email)
                                     val intent: Intent = Intent(
                                         this,
                                         ProfileUI::class.java
@@ -110,6 +117,15 @@ class Register_Spotify_Link : AppCompatActivity() {
             val request = builder.build()
             AuthorizationClient.clearCookies(this)
             AuthorizationClient.openLoginInBrowser(this, request)
+        }
+    }
+
+    // Function to start user session
+    private fun startUserSession(email: String) {
+        with(sharedPrefs.edit()) {
+            putString("userEmail", email)  // Save user email or session token
+            putBoolean("isLoggedIn", true)
+            apply()
         }
     }
 

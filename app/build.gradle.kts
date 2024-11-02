@@ -53,7 +53,6 @@ dependencies {
     implementation(libs.circleimageview)
 
     //Spotify Authentication
-   // implementation(files("libs/spotify-auth-release-2.1.0.aar"))
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
     implementation ("com.squareup.picasso:picasso:2.71828")
     implementation ("com.spotify.android:auth:1.2.5")
@@ -92,6 +91,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.messaging)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

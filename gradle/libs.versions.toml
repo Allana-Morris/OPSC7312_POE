@@ -1,5 +1,5 @@
 [versions]
-agp = "8.5.1"
+agp = "8.6.1"
 auth = "1.2.5"
 authVersion = "1.1.1"
 browser = "1.8.0"
@@ -36,6 +36,8 @@ playServicesIdentity = "18.1.0"
 firebaseAuth = "23.0.0"
 securityCryptoKtx = "1.0.0"
 firebaseStorageKtx = "21.0.0"
+firebaseMessaging = "24.0.3"
+firebaseInappmessagingDisplay = "21.0.1"
 
 [libraries]
 androidx-browser = { module = "androidx.browser:browser", version.ref = "browser" }
@@ -78,6 +80,8 @@ play-services-identity = { module = "com.google.android.gms:play-services-identi
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 androidx-security-crypto-ktx = { group = "androidx.security", name = "security-crypto-ktx", version.ref = "securityCryptoKtx" }
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+firebase-inappmessaging-display = { group = "com.google.firebase", name = "firebase-inappmessaging-display", version.ref = "firebaseInappmessagingDisplay" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

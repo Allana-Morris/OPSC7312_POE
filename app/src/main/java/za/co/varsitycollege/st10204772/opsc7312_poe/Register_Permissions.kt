@@ -3,6 +3,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -22,6 +23,7 @@ class Register_Permissions : AppCompatActivity() {
 
     private val LOCATION_PERMISSION_CODE = 101
     private val BIOMETRIC_PERMISSION_CODE = 102
+    private val NOTIFICATION_PERMISSION_CODE = 103
 
     // Required for Biometric Prompt
     private lateinit var biometricPrompt: BiometricPrompt
@@ -118,6 +120,20 @@ class Register_Permissions : AppCompatActivity() {
         }
     }
 
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show()
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    NOTIFICATION_PERMISSION_CODE
+                )
+            }
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -145,6 +161,13 @@ class Register_Permissions : AppCompatActivity() {
                 } else {
                     // Biometric permission denied
                     Toast.makeText(this, "Biometric permission denied", Toast.LENGTH_SHORT).show()
+                }
+            }
+            NOTIFICATION_PERMISSION_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                    Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
         }
