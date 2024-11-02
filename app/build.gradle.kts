@@ -2,7 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+    id("com.google.devtools.ksp")
 }
+
 
 android {
     namespace = "za.co.varsitycollege.st10204772.opsc7312_poe"
@@ -59,9 +61,17 @@ android {
 }
 
 dependencies {
+    val room_version = "2.6.1"
 
     //CircleImageView Library
     implementation(libs.circleimageview)
+
+    implementation("androidx.room:room-runtime:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+
+    ksp("androidx.room:room-compiler:$room_version")
+
+    // To use Kotlin annotation processing tool (kapt)
 
     //Spotify Authentication
     //implementation(files("libs/spotify-auth-release-2.1.0.aar"))
@@ -98,8 +108,9 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.common.ktx)
     implementation(libs.firebase.auth)
+    implementation(libs.androidx.security.crypto.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-}
 
+}
