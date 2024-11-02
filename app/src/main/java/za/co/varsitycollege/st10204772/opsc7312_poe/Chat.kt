@@ -10,12 +10,16 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.common.internal.CallbackExecutor.executorService
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
+
+
+private lateinit var mesDao: messageDao
+
 
 class Chat : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +27,11 @@ class Chat : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_chat)
 
+        mesDao = roomDB.getDatabase(this)?.messageDao()!!
+
+
         val sendBtn = findViewById<ImageButton>(R.id.imgBtnSend)
+        insertTestUser();
 
 
         val layout: LinearLayout = findViewById(R.id.vert_layout_chat)
@@ -183,6 +191,24 @@ class Chat : AppCompatActivity() {
 
         // Add the message view to the chat layout
         layout.addView(messageView)
+    }
+
+    private fun insertTestUser() {
+        executorService().execute {
+            // Check if the test user 'admin' already exists in the db
+
+                // Insert the test user
+                val testmessage = message()
+                testmessage.id = 6;
+                testmessage.content = "im killing myself"
+                testmessage.type = "text"
+                testmessage.toUid = "d"
+                testmessage.fromUid = "peenits"
+                testmessage.timestamp = "12 0 cock";
+
+                mesDao.insert(testmessage);
+
+        }
     }
 }
 /*for ( int in 1..30)

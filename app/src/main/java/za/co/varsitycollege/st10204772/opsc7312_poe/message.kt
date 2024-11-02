@@ -12,7 +12,7 @@ class message {
     var fromUid: String? = null
     var toUid: String? = null
     var content: String? = null
-    var timestamp: Long = 0
+    var timestamp: String? = null
     var type: String? = null
 }
 

@@ -1,10 +1,8 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.graphics.Bitmap
-import androidx.room.Entity
 import java.util.Date
 
-@Entity(tableName = "users")
 class User() {
     var Name: String = ""
     var DOB: Date = Date()
@@ -25,8 +23,6 @@ class User() {
         var name: String = "",
         var pictureUrl: String = "",
 
-    ) {
-
-    }
+    )
 
 }
