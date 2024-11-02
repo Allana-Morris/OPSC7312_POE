@@ -2,6 +2,7 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageButton
@@ -16,6 +17,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.firestore
+import com.google.firebase.messaging.FirebaseMessaging
 
 class Chat : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +35,19 @@ class Chat : AppCompatActivity() {
 
         setupBottomNavigation()
 
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Toast.makeText(this, "Fetching FCM registration token failed", Toast.LENGTH_SHORT).show()
+                return@addOnCompleteListener
+            }
+
+            // Get new FCM registration token
+            val token = task.result
+
+            // Log and send token to your server
+            Log.d("FCM Token", token)
+            sendTokenToServer(token)
+        }
 
         val nameHeader = findViewById<TextView>(R.id.txtChatName)
 
@@ -111,6 +126,9 @@ class Chat : AppCompatActivity() {
     }
     private val processedMessages = mutableSetOf<String>()
 
+    private fun sendTokenToServer(token: String?) {
+        // TODO: Implement your method to send the token to your server for user management
+    }
 
     private fun listenForMessages(messageDocId: String, db: FirebaseFirestore, layout: LinearLayout) {
         db.collection("message").document(messageDocId).collection("msgList")

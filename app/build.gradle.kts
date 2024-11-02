@@ -56,11 +56,13 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
     implementation ("com.squareup.picasso:picasso:2.71828")
     implementation ("com.spotify.android:auth:1.2.5")
+    implementation ("com.google.code.gson:gson:2.10.1")
     implementation (libs.androidx.browser)
 
     //Glide for image loading
     implementation (libs.glide)
     implementation(libs.firebase.storage.ktx)
+    implementation("com.google.firebase:firebase-messaging-ktx")
 
     //Google SSO with OAuth2.0
     implementation (libs.androidx.credentials.v150alpha05)

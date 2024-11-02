@@ -16,6 +16,7 @@ class User() {
     var ProfilePhotos: MutableList<Bitmap> = mutableListOf()
     var SpotifyUsername: String = ""
     var SpotifyUserId: String = ""
+    var FCMToken: String =""
     var hasGoogle: Boolean = false
 
     data class GoogleUser(

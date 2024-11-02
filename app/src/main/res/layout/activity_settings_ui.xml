@@ -9,66 +9,16 @@
     android:background="@android:color/darker_gray"
     tools:context=".SettingsUI">
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="56dp"
-        android:layout_gravity="bottom"
-        android:background="@android:color/holo_green_dark"
-        android:gravity="bottom"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-
-        <!-- Icons for Navigation Bar -->
-        <ImageView
-            android:id="@+id/navMusic"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:contentDescription="Music"
-            android:src="@drawable/ic_music" />
-
-        <ImageView
-            android:id="@+id/navLike"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:contentDescription="Like"
-            android:src="@drawable/ic_like" />
-
-        <ImageView
-            android:id="@+id/navChat"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:contentDescription="Chat"
-            android:src="@drawable/ic_chat" />
-
-        <ImageView
-            android:id="@+id/navProfile"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_weight="1"
-            android:contentDescription="Profile"
-            android:src="@drawable/ic_profile" />
-
-    </LinearLayout>
     <!-- End of Nav bar -->
 
     <View
         android:id="@+id/view"
-        android:layout_width="368dp"
-        android:layout_height="585dp"
+        android:layout_width="371dp"
+        android:layout_height="667dp"
         android:layout_marginStart="20dp"
-        android:layout_marginBottom="96dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:layout_marginTop="72dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tvSettingHeading"

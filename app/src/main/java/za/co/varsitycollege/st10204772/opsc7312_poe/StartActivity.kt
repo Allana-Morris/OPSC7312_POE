@@ -24,11 +24,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.Executor
+import com.google.firebase.FirebaseException
 
 
 class StartActivity : AppCompatActivity() {
@@ -50,8 +53,7 @@ class StartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_start)
-        val sharedPreferences = getSharedPreferences("userSession", Context.MODE_PRIVATE)
-        val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
+        val isLoggedIn = false
 
         if (isLoggedIn) {
             // Navigate to the main screen
@@ -115,7 +117,9 @@ class StartActivity : AppCompatActivity() {
         }
     }
 
-    // Function to set up BiometricPrompt
+
+
+        // Function to set up BiometricPrompt
     private fun showBiometricPrompt() {
         executor = ContextCompat.getMainExecutor(this)
         biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {

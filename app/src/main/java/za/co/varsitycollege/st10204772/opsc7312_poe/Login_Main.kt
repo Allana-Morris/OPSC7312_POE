@@ -3,7 +3,6 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -12,30 +11,21 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.biometric.BiometricPrompt
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.firestore.FirebaseFirestore
-import com.spotify.sdk.android.auth.AuthorizationClient
-import com.spotify.sdk.android.auth.AuthorizationRequest
-import com.spotify.sdk.android.auth.AuthorizationResponse
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
 import org.json.JSONObject
-import za.co.varsitycollege.st10204772.opsc7312_poe.ClientID.CLIENT_ID
 import java.io.IOException
-import java.util.concurrent.Executor
 
 class Login_Main : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
     private var mOkHttpClient = OkHttpClient.Builder().build()
     private lateinit var sAccessToken: String
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,8 +61,9 @@ class Login_Main : AppCompatActivity() {
                         if (isFound) {
                             DatabaseReadandWrite().loginUser(email, password) { user ->
                                 if (user != null) {
-                                    authenticateWithSpotify()
-
+                                    sAccessToken =
+                                        SessionManager.getSpotifyIdByUserId(email).toString()
+                                    CallSpotifyFun()
                                     // Directly navigate to the profile activity
                                     startActivity(Intent(this, ProfileUI::class.java))
                                 } else {
@@ -101,53 +92,6 @@ class Login_Main : AppCompatActivity() {
             }
         }
     }
-
-    private fun authenticateWithSpotify() {
-        val builder = AuthorizationRequest.Builder(
-            CLIENT_ID,
-            AuthorizationResponse.Type.TOKEN,
-            ClientID.REDIRECT_URI2 // Ensure this matches your registered redirect URI
-        )
-        builder.setScopes(
-            arrayOf(
-                "user-read-private",
-                "user-read-email",
-                "user-top-read"
-            )
-        ) // Add scopes as needed
-        val request = builder.build()
-
-        AuthorizationClient.openLoginInBrowser(this, request)
-    }
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        if (intent != null) {
-            handleAuthorizationResponse(intent)
-        }
-    }
-
-    private fun handleAuthorizationResponse(intent: Intent) {
-        val response = AuthorizationClient.getResponse(1001, intent)
-        when (response.type) {
-            AuthorizationResponse.Type.TOKEN -> {
-                // Handle successful response
-                sAccessToken = response.accessToken
-                loggedUser.user?.Name = sAccessToken
-                CallSpotifyFun()
-            }
-
-            AuthorizationResponse.Type.ERROR -> {
-                // Handle error response
-                Log.e(this@Login_Main.toString(), "Access Token Issue")
-            }
-
-            else -> {
-                // Handle other cases
-                Log.e(this@Login_Main.toString(), "Access Token Issue")
-            }
-        }
-    }
-
 
     private fun CallSpotifyFun() {
         fetchTopGenre()
