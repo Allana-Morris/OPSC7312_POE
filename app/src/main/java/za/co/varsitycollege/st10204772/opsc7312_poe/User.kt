@@ -2,8 +2,10 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.graphics.Bitmap
 import android.media.session.MediaSession
+import androidx.room.Entity
 import java.util.Date
 
+@Entity(tableName = "users")
 class User() {
     var Name: String = ""
     var DOB: Date = Date()
