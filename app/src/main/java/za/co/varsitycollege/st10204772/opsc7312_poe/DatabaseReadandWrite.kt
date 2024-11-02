@@ -74,7 +74,7 @@ class DatabaseReadandWrite {
     fun checkLogin(Email: String, Password: String, callback: (Boolean) -> Unit) {
         db.collection("Users")
             .whereEqualTo("email", Email)
-            .whereEqualTo("password", Password)// Assuming "cell" is the field in the database
+            .whereEqualTo("password", Password)
             .get()
             .addOnSuccessListener { result ->
                 val found = !result.isEmpty

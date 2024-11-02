@@ -78,6 +78,8 @@ class Login_Main : AppCompatActivity() {
                 var email = uEmail.toString()
                 var password = uPass.toString()
 
+                Toast.makeText(this, uEmail.toString() + " " + uPass.toString(), Toast.LENGTH_LONG).show()
+
                 if ((inpval.isEmail(email)) && (inpval.isPassword(password))) {
                     DatabaseReadandWrite().checkLogin(email, password) { isFound ->
 
