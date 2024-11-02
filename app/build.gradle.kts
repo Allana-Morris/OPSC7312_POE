@@ -84,6 +84,9 @@ dependencies {
     implementation(libs.google.play.services.auth)
     implementation(libs.androidx.core.ktx)
 
+    //Fingerprint
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
+
     implementation (libs.firebase.storage)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

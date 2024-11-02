@@ -68,77 +68,62 @@ class MatchUI : AppCompatActivity() {
   var spotifyAccessToken: String? = sStorage.getID("ACCESS_TOKEN")
   val AUTH_URL = "https://accounts.spotify.com/authorize?client_id=$CLIENT_ID&response_type=token&redirect_uri=$REDIRECT_URI&scope=user-top-read"*/
 
-    var count = 0;
-
-    // Reference to Firestore
-    val firestore = FirebaseFirestore.getInstance()
-    val usersCollection = firestore.collection("Users")
-
-    // Get the logged-in user's email
-    val loggedUserEmail = loggedUser.user?.Email
-
     //  @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_match_ui)
 
-        getUsers()
+        var count = 0;
 
+        // Reference to Firestore
+        val firestore = FirebaseFirestore.getInstance()
+        val usersCollection = firestore.collection("Users")
 
+        // Get the logged-in user's email
+        val loggedUserEmail = loggedUser.user?.Email
 
         // Query to get users with a specific spotifyId
+        fun getUsers() {
+            usersCollection.whereNotEqualTo("spotifyId", null).limit(5)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    var user = MatchUser();
+                    val matchUsers = mutableListOf<MatchUser>() // List to hold matched users
 
-    }
-
-    fun CheckUserUnseen(matchemail: String?) {
-        for (seenuser in loggedUser.shownList) {
-            if (seenuser == matchemail) {
-                UserSeen = true
-            }
-        }
-    }
-
-    private fun getUsers() {
-        usersCollection.whereNotEqualTo("spotifyId", null).limit(5)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                var user = MatchUser();
-                val matchUsers = mutableListOf<MatchUser>() // List to hold matched users
-
-                for (document in querySnapshot.documents) {
-                    // Filter out documents where email matches the logged-in user
-                    val userEmail = document.getString("email")
-                    if (userEmail != loggedUserEmail) {
-                        CheckUserUnseen(userEmail)
-                        if (!UserSeen) {
-                            val matchUser = MatchUser().apply {
-                                Name = document.getString("name") ?: ""
-                                Age = document.getLong("age")?.toInt() ?: 0
-                                Email = userEmail ?: ""
-                                Gender = document.getString("gender") ?: ""
-                                Pronoun = document.getString("pronoun") ?: ""
-                                profilePictureUrl = document.getList("profileImageUrls")
-                                topGenre = document.getList("topGenres")?.map { it.toString() }
-                                    ?: emptyList()
-                                topArtist =
-                                    document.getList("topArtists")?.map { it.toString() }
+                    for (document in querySnapshot.documents) {
+                        // Filter out documents where email matches the logged-in user
+                        val userEmail = document.getString("email")
+                        if (userEmail != loggedUserEmail) {
+                            CheckUserUnseen(userEmail)
+                            if (!UserSeen) {
+                                val matchUser = MatchUser().apply {
+                                    Name = document.getString("name") ?: ""
+                                    Age = document.getLong("age")?.toInt() ?: 0
+                                    Email = userEmail ?: ""
+                                    Gender = document.getString("gender") ?: ""
+                                    Pronoun = document.getString("pronoun") ?: ""
+                                    profilePictureUrl = document.getList("profileImageUrls")
+                                    topGenre = document.getList("topGenres")?.map { it.toString() }
                                         ?: emptyList()
-                                topSong = document.getList("topSongs")?.map { it.toString() }
-                                    ?: emptyList()
-                                album = document.getList("albumArt")?.map { it.toString() }
-                                    ?: emptyList()
+                                    topArtist =
+                                        document.getList("topArtists")?.map { it.toString() }
+                                            ?: emptyList()
+                                    topSong = document.getList("topSongs")?.map { it.toString() }
+                                        ?: emptyList()
+                                    album = document.getList("albumArt")?.map { it.toString() }
+                                        ?: emptyList()
 
+                                }
+                                matchUsers.add(matchUser) // Add to the list of matched users
                             }
-                            matchUsers.add(matchUser) // Add to the list of matched users
                         }
+
                     }
 
-                }
-
-                if (matchUsers.isNotEmpty()) {
-                    // Take the first valid user for display (or you can handle them as needed)
-                    user = matchUsers[count]
-
+                    if (matchUsers.isNotEmpty()) {
+                        // Take the first valid user for display (or you can handle them as needed)
+                        user = matchUsers[count]
+                    }
 
                     Toast.makeText(this, "he: ${matchUsers.count()}", Toast.LENGTH_LONG).show()
 
@@ -166,7 +151,7 @@ class MatchUI : AppCompatActivity() {
                         val currentUserEmail = loggedUser.user?.Email
 
                         if (currentUserEmail != null) {
-                            usersCollection.whereEqualTo("email", user.Email).get()
+                            usersCollection.whereEqualTo("email", currentUserEmail).get()
                                 .addOnSuccessListener { querySnapshot ->
                                     if (!querySnapshot.isEmpty) {
                                         val userDocument = querySnapshot.documents[0]
@@ -228,39 +213,26 @@ class MatchUI : AppCompatActivity() {
                     }
 
 
-                    name.text = user.Name
-                    pronouns.text = user.Pronoun
-                    songName.text = user.topSong[0]
-                    artistName.text = user.topArtist[0]
-                    /*  Glide.with(this)
-                    .load(user.album[0])
-                    .into(albumCover)*/
+                     name.text = user.Name
+                     pronouns.text = user.Pronoun
+                     songName.text = user.topSong[0]
+                     artistName.text = user.topArtist[0]
+                     Glide.with(this)
+                         .load(user.album[0])
+                         .into(albumCover)
 
-                    val imageAdapter = ImagePagerAdapter(user.profilePictureUrl ?: emptyList())
-                    pager.adapter = imageAdapter
+                     val imageAdapter = ImagePagerAdapter(user.profilePictureUrl ?: emptyList())
+                     pager.adapter = imageAdapter
                 }
-                else{
-                    val pager = findViewById<ViewPager2>(R.id.imagePager)
-                    val name = findViewById<TextView>(R.id.tvName)
-                    val pronouns = findViewById<TextView>(R.id.tvPronouns)
-                    val albumCover = findViewById<ImageView>(R.id.tvAlbumCover)
-                    val songName = findViewById<TextView>(R.id.tvSongName)
-                    val artistName = findViewById<TextView>(R.id.tvArtistName)
+        }
+    }
 
-                    Toast.makeText(this, "No users found", Toast.LENGTH_SHORT).show()
-                    name.text = "No users left to search thruogh"
-                    pronouns.text = ""
-                    songName.text = ""
-                    artistName.text = ""
-                    /*  Glide.with(this)
-                    .load(user.album[0])
-                    .into(albumCover)*/
-
-                    val imageAdapter = ImagePagerAdapter(user.profilePictureUrl ?: emptyList())
-                    pager.adapter = imageAdapter
-                }
+    fun CheckUserUnseen(matchemail: String?) {
+        for (seenuser in loggedUser.shownList) {
+            if (seenuser == matchemail) {
+                UserSeen = true
             }
-
+        }
     }
 
     private fun DocumentSnapshot.getList(field: String): List<String> {
