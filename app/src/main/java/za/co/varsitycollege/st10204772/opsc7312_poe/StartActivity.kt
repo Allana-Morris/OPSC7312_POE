@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
 import android.content.ContentValues.TAG
@@ -8,18 +10,21 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.CredentialManager
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class StartActivity : AppCompatActivity() {
@@ -114,32 +119,92 @@ class StartActivity : AppCompatActivity() {
                                         Log.d(TAG, "signInWithCredential:success")
                                         val user = auth.currentUser
                                         user?.let {
-                                            User.GoogleUser().apply {
-                                                name = it.displayName.toString()
-                                                email = it.email.toString()
-                                                pictureUrl = it.photoUrl.toString()
-                                                googleID = it.uid
-                                            }
-                                             User().apply {
-                                                Email = it.email.toString()
-                                                hasGoogle = true
+
+                                            if (user != null) {
+                                                // Capture user information
+                                                User().Email = user.email.toString()
+                                                User().hasGoogle = true
+
+                                                // Write user information to Firestore
+                                                val db = FirebaseFirestore.getInstance()
+                                                val userId = user.uid ?: ""
+
+                                                val usersCollection = db.collection("Users")
+
+                                                // Query to find the user document where email matches
+                                                usersCollection.whereEqualTo(
+                                                    "email",
+                                                    user.email
+                                                ).get()
+                                                    .addOnSuccessListener { querySnapshot ->
+                                                        if (querySnapshot.isEmpty) {
+                                                            val userDocument =
+                                                                querySnapshot.documents[0]
+
+                                                            // Update the document with the top songs
+                                                            userDocument.reference.update(
+                                                                "email",
+                                                                user.email
+                                                            )
+                                                                .addOnSuccessListener {
+                                                                    Toast.makeText(
+                                                                        this,
+                                                                        "Email added to db",
+                                                                        Toast.LENGTH_SHORT
+                                                                    ).show()
+                                                                }
+                                                                .addOnFailureListener { e ->
+                                                                    Toast.makeText(
+                                                                        this,
+                                                                        "Error adding Google Email: ${e.message}",
+                                                                        Toast.LENGTH_SHORT
+                                                                    ).show()
+                                                                }
+                                                            userDocument.reference.update(
+                                                                "hasGoogle",
+                                                                true
+                                                            )
+                                                                .addOnSuccessListener {
+                                                                    Toast.makeText(
+                                                                        this,
+                                                                        "User has Google",
+                                                                        Toast.LENGTH_SHORT
+                                                                    ).show()
+                                                                }
+                                                                .addOnFailureListener { e ->
+                                                                    Toast.makeText(
+                                                                        this,
+                                                                        "Error: ${e.message}",
+                                                                        Toast.LENGTH_SHORT
+                                                                    ).show()
+                                                                }
+                                                            val intent = Intent(
+                                                                this,
+                                                                Register_About_You::class.java
+                                                            )
+                                                            startActivity(intent)
+                                                        } else {
+                                                            // Shouldn't happen.
+                                                            Log.d(TAG, "No ID token!")
+                                                        }
+                                                    }
+
                                             }
                                         }
-                                        val intent = Intent(this, Register_About_You::class.java)
-                                        startActivity(intent)
-
                                     } else {
                                         // If sign in fails, display a message to the user.
-                                        Log.w(TAG, "signInWithCredential:failure", task.exception)
+                                        Log.w(
+                                            TAG,
+                                            "signInWithCredential:failure",
+                                            task.exception
+                                        )
 
                                     }
                                 }
+
                         }
 
-                        else -> {
-                            // Shouldn't happen.
-                            Log.d(TAG, "No ID token!")
-                        }
+
                     }
 
                 } catch (e: ApiException) {
@@ -173,4 +238,66 @@ class StartActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun updateUI(account: GoogleSignInAccount?) {
+        if (account != null) {
+            if (account != null) {
+                // Capture user information
+                User().Email = account.email.toString()
+                User().hasGoogle = true
+
+                // Write user information to Firestore
+                val db = FirebaseFirestore.getInstance()
+                val userId = account.id ?: ""
+
+                val usersCollection = db.collection("Users")
+
+                // Query to find the user document where email matches
+                usersCollection.whereEqualTo("email", account.email).get()
+                    .addOnSuccessListener { querySnapshot ->
+                        if (querySnapshot.isEmpty) {
+                            val userDocument = querySnapshot.documents[0]
+
+                            // Update the document with the top songs
+                            userDocument.reference.update("email", account.email)
+                                .addOnSuccessListener {
+                                    Toast.makeText(
+                                        this,
+                                        "Email added to db",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        this,
+                                        "Error adding Google Email: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            userDocument.reference.update("hasGoogle", true)
+                                .addOnSuccessListener {
+                                    Toast.makeText(
+                                        this,
+                                        "User has Google",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(
+                                        this,
+                                        "Error: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        } else {
+                            // Update your UI to show the user is signed out
+                        }
+                    }
+
+            }
+        }
+
+    }
 }
+
+

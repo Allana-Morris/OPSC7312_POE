@@ -36,7 +36,8 @@ class DatabaseReadandWrite {
                         // If no such document exists, create a new user document
                         val newUser = hashMapOf(
                             "email" to user.Email,
-                            "password" to user.Password // Note: Storing plain passwords is not secure!
+                            "password" to user.Password,
+                            "hasGoogle" to false
                         )
 
                         db.collection("Users").add(newUser)
