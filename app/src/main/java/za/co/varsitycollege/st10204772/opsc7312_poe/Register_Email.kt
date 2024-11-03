@@ -5,6 +5,7 @@ import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.content.Context
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -12,6 +13,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.messaging.FirebaseMessaging
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 
 class Register_Email : AppCompatActivity() {
     var user: User = User()
@@ -52,6 +59,7 @@ class Register_Email : AppCompatActivity() {
                             var loguser = User()
                             loguser.Email = newEmail
                             loggedUser.user = loguser
+                            retrieveFcmToken(newEmail)
                             startActivity(Intent(this, Register_About_You::class.java))
                         } else {
                             if (errorMessage?.contains("already in use") == true) {
@@ -80,4 +88,54 @@ class Register_Email : AppCompatActivity() {
             }
         }
     }
+
+    private fun retrieveFcmToken(userId: String) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val fcmToken = task.result
+                Log.d("AccountManager", "FCM Token: $fcmToken")
+
+                // Save token locally in SharedPreferences for quick access if needed
+                saveTokenToPreferences(fcmToken, this)
+
+                // Send the token to your backend
+                sendTokenToServer(userId, fcmToken)
+            } else {
+                Log.w("AccountManager", "Failed to get FCM token", task.exception)
+            }
+        }
+    }
+
+    private fun saveTokenToPreferences(token: String?, context: Context) {
+
+        val sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE)
+        sharedPreferences.edit().putString("fcm_token", token).apply()
+    }
+
+    private fun sendTokenToServer(userId: String, fcmToken: String?) {
+        val serverUrl = "https://your-server-url.com/api/save_fcm_token"
+
+        val json = JSONObject().apply {
+            put("userId", userId)
+            put("fcmToken", fcmToken)
+        }
+
+        val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+        val request = Request.Builder()
+            .url(serverUrl)
+            .post(requestBody)
+            .addHeader("Content-Type", "application/json")
+            .build()
+
+        val client = OkHttpClient()
+        client.newCall(request).execute().use { response ->
+            if (response.isSuccessful) {
+                Log.d("AccountManager", "FCM token successfully sent to server.")
+            } else {
+                Log.w("AccountManager", "Failed to send FCM token to server: ${response.message}")
+            }
+        }
+    }
 }
+

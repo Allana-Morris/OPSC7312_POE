@@ -51,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.core.ktx)
     val room_version = "2.6.1"
 
     implementation ("androidx.room:room-ktx:$room_version")
@@ -66,6 +67,7 @@ dependencies {
     implementation ("com.squareup.picasso:picasso:2.71828")
     implementation ("com.spotify.android:auth:1.2.5")
     implementation (libs.androidx.browser)
+    implementation("com.google.accompanist:accompanist-permissions:0.30.1")
 
     //Glide for image loading
     implementation (libs.glide)
