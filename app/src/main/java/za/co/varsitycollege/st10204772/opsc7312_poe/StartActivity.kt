@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.CredentialManager
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -25,6 +26,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class StartActivity : AppCompatActivity() {
@@ -34,6 +37,8 @@ class StartActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
     private lateinit var oneTapClient: SignInClient
+    private lateinit var contactDao: ContactDao
+    private lateinit var messageDao: messageDao
 
     lateinit var context: Context
 
@@ -42,6 +47,16 @@ class StartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_start)
+
+        // Initialize DAOs
+        contactDao = roomDB.getDatabase(this)!!.contactDao()!!
+        messageDao = roomDB.getDatabase(this)!!.messageDao()!!
+
+        // Clear contacts and messages on app startup
+        lifecycleScope.launch(Dispatchers.IO) {
+            contactDao.clearContacts()
+            messageDao.clearMessages()
+        }
 
         //Sign In Button
         var btnSignIn = findViewById<TextView>(R.id.tvSignIn)

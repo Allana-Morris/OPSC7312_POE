@@ -23,7 +23,6 @@ class Contact : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private lateinit var contactDao: ContactDao
     private var syncComplete = false // Flag to track syncing completion
-    private lateinit var mesDao: messageDao
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,8 +30,6 @@ class Contact : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_contact)
         val layout: LinearLayout = findViewById(R.id.vert_layout_contact)
-
-        mesDao = roomDB.getDatabase(this)!!.messageDao()!!
 
         db = Firebase.firestore
         FirebaseApp.initializeApp(this)
@@ -140,11 +137,6 @@ class Contact : AppCompatActivity() {
 
         val contactNameTextView = inflatedView.findViewById<TextView>(R.id.txtContactName)
         contactNameTextView.text = contact.name
-
-        val contactMess = inflatedView.findViewById<TextView>(R.id.txtContactMessage)
-        contactMess.text = "Message";
-
-
 
         inflatedView.setOnClickListener {
             val intent = Intent(this@Contact, Chat::class.java)
