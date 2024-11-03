@@ -38,7 +38,7 @@ class Chat : AppCompatActivity() {
         val layout: LinearLayout = findViewById(R.id.vert_layout_chat)
         val contactName = intent.getStringExtra("contactName") ?: "Unknown"
         val contactID = intent.getStringExtra("contactID") ?: "Unknown"
-        val docID = intent.getStringExtra("messageDocID") ?: "Unknown"
+        val docID = intent.getStringExtra("docId") ?: "Unknown"
 
         val nameHeader = findViewById<TextView>(R.id.txtChatName)
         nameHeader.text = contactName
@@ -50,6 +50,9 @@ class Chat : AppCompatActivity() {
 
         // Sync with Firestore
         syncMessagesWithFirestore(contactID, docID, layout)
+
+
+        Toast.makeText(this, "docID:  ${docID}  ", Toast.LENGTH_LONG).show()
 
 
         // Send message on button click
@@ -67,7 +70,7 @@ class Chat : AppCompatActivity() {
         // Load messages from Room database
         lifecycleScope.launch {
             val messages = withContext(Dispatchers.IO) {
-                mesDao.getMessages(loggedUser.user?.Email, contactID)
+                mesDao.getMessages(contactID, contactID)
             }
             messages?.forEach { Message ->
                 displayMessage(Message!!.content ?: "", if (Message.fromUid == loggedUser.user?.Email) "sender" else "receiver", layout)
@@ -83,6 +86,7 @@ class Chat : AppCompatActivity() {
             "uID" to loggedUser.user?.Email,
             "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp()
         )
+
 
         lifecycleScope.launch(Dispatchers.IO) {
             // Generate a unique message ID
@@ -114,12 +118,17 @@ class Chat : AppCompatActivity() {
                     findViewById<TextView>(R.id.txtInput).text = ""
                 }
                 .addOnFailureListener { e ->
+
+
                 }
+
         }
+
     }
 
 
     private fun syncMessagesWithFirestore(contactID: String, docID: String, layout: LinearLayout) {
+        // Query Firestore for messages in the msgList collection of the selected contact's document
         db.collection("message").document(docID).collection("msgList")
             .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.ASCENDING)
             .addSnapshotListener { snapshots, e ->
@@ -136,28 +145,33 @@ class Chat : AppCompatActivity() {
                         val messageUid = msgDoc.getString("uID") ?: ""
                         val firestoreTimestamp = msgDoc.getTimestamp("timestamp")?.toDate()?.time
 
-                        if (firestoreTimestamp != null) {
-                            val newMessage = Message().apply {
-                                id = messageId
-                                fromUid = messageUid
-                                toUid = if (messageUid == loggedUser.user?.Email) contactID else loggedUser.user?.Email
-                                content = messageContent
-                                timeStamp = firestoreTimestamp.toString()
-                                type = messageType
-                            }
+                        // Filter for messages between the logged-in user and the selected contact
+                        if ((messageUid == loggedUser.user?.Email && contactID == docID) ||
+                            (messageUid == contactID && loggedUser.user?.Email == docID)
+                        ) {
+                            if (firestoreTimestamp != null) {
+                                val newMessage = Message().apply {
+                                    id = messageId
+                                    fromUid = messageUid
+                                    toUid = if (messageUid == loggedUser.user?.Email) contactID else loggedUser.user?.Email
+                                    content = messageContent
+                                    timeStamp = firestoreTimestamp.toString()
+                                    type = messageType
+                                }
 
-                            withContext(Dispatchers.IO) {
-                                val exists = mesDao.checkMessageIdExists(messageId)
-                                if (!exists) {
-                                    mesDao.insert(newMessage)
+                                withContext(Dispatchers.IO) {
+                                    val exists = mesDao.checkMessageIdExists(messageId)
+                                    if (!exists) {
+                                        mesDao.insert(newMessage)
 
-                                    // Switch to Main thread to update the UI
-                                    withContext(Dispatchers.Main) {
-                                        displayMessage(
-                                            messageContent,
-                                            if (messageUid == loggedUser.user?.Email) "sender" else "receiver",
-                                            layout
-                                        )
+                                        // Switch to Main thread to update the UI
+                                        withContext(Dispatchers.Main) {
+                                            displayMessage(
+                                                messageContent,
+                                                if (messageUid == loggedUser.user?.Email) "sender" else "receiver",
+                                                layout
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -165,7 +179,9 @@ class Chat : AppCompatActivity() {
                     }
                 }
             }
-    }
+
+
+}
 
 
 
