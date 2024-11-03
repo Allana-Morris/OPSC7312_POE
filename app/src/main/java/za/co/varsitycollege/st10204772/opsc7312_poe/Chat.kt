@@ -15,6 +15,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -110,44 +111,47 @@ class Chat : AppCompatActivity() {
             }
     }
 
-    private fun syncMessagesWithFirestore(contactID: String, docID: String, layout: LinearLayout) {
-        db.collection("message").document(docID).collection("msgList")
-            .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.ASCENDING)
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) {
-                    Toast.makeText(this, "Listen failed: ${e.message}", Toast.LENGTH_SHORT).show()
-                    return@addSnapshotListener
-                }
+    private fun syncMessagesWithFirestore(contactID: String, docID: String, layout: LinearLayout) { db.collection("message").document(docID).collection("msgList")
+        .orderBy("timestamp", Query.Direction.ASCENDING)
+        .addSnapshotListener { snapshots, e ->
+            if (e != null) {
+                Toast.makeText(this, "Listen failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                return@addSnapshotListener
+            }
 
-                lifecycleScope.launch {
-                    snapshots?.documents?.forEach { msgDoc ->
-                        val messageContent = msgDoc.getString("content") ?: ""
-                        val messageType = msgDoc.getString("type") ?: "text"
-                        val messageUid = msgDoc.getString("uID") ?: ""
-                        val firestoreTimestamp = msgDoc.getTimestamp("timestamp")?.toDate()?.time
+            lifecycleScope.launch {
+                snapshots?.documentChanges?.forEach { change ->
+                    val messageContent = change.document.getString("content") ?: ""
+                    val messageType = change.document.getString("type") ?: "text"
+                    val messageUid = change.document.getString("uID") ?: ""
+                    val firestoreTimestamp = change.document.getTimestamp("timestamp")?.toDate()?.time
 
-                        if (firestoreTimestamp != null) {
-                            // Create the local message object
-                            val newMessage = Message().apply {
-                                fromUid = messageUid
-                                toUid = if (messageUid == loggedUser.user?.Email) contactID else loggedUser.user?.Email
-                                content = messageContent
-                                timeStamp = firestoreTimestamp.toString()
-                                type = messageType
-                            }
+                    if (firestoreTimestamp != null) {
+                        // Create the local message object
+                        val newMessage = Message().apply {
+                            fromUid = messageUid
+                            toUid = if (messageUid == loggedUser.user?.Email) contactID else loggedUser.user?.Email
+                            content = messageContent
+                            timeStamp = firestoreTimestamp.toString()
+                            type = messageType
+                        }
 
-                            // Insert into Room if not already present
-                            withContext(Dispatchers.IO) {
-                                if (mesDao.getMessages(newMessage.fromUid, newMessage.toUid)
-                                        .none { it!!.content == messageContent && it.timeStamp == newMessage.timeStamp }
-                                ) {
-                                    mesDao.insert(newMessage)
-                                    withContext(Dispatchers.Main) {
-                                        displayMessage(
-                                            messageContent,
-                                            if (messageUid == loggedUser.user?.Email) "sender" else "receiver",
-                                            layout
-                                        )
+                        // Insert into Room if not already present
+                        withContext(Dispatchers.IO) {
+                            if (mesDao.getMessages(newMessage.fromUid, newMessage.toUid)
+                                    .none { it!!.content == messageContent && it.timeStamp == newMessage.timeStamp }
+                            ) {
+                                mesDao.insert(newMessage)
+                                withContext(Dispatchers.Main) {
+                                    displayMessage(
+                                        messageContent,
+                                        if (messageUid == loggedUser.user?.Email) "sender" else "receiver",
+                                        layout
+                                    )
+
+                                    // Send notification if the message is from another user
+                                    if (messageUid != loggedUser.user?.Email) {
+                                        NotificationClass().sendNotification("New Message from $contactID", messageContent)
                                     }
                                 }
                             }
@@ -155,10 +159,8 @@ class Chat : AppCompatActivity() {
                     }
                 }
             }
+        }
     }
-
-
-
 
     private fun setupBottomNavigation() {
         val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Profile)

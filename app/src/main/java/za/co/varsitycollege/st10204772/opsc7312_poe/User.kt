@@ -13,7 +13,6 @@ class User() {
     var GenderLabel: String? = ""
     var Pronoun: String = ""
     var ProfilePhotos: MutableList<Bitmap> = mutableListOf()
-    var SpotifyUsername: String = ""
     var SpotifyUserId: String = ""
     var hasGoogle: Boolean = false
 

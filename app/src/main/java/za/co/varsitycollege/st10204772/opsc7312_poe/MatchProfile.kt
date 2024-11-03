@@ -84,6 +84,16 @@ class MatchProfile : AppCompatActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        UserStatusManager.updateUserOnlineStatus(loggedUser.user?.Email.toString(), true) // Set online
+    }
+
+    override fun onPause() {
+        super.onPause()
+        UserStatusManager.updateUserOnlineStatus(loggedUser.user?.Email.toString(), false) // Set offline
+    }
+
     private fun GetMatchSpotifyData(userEmail: String){
         db.collection("Users")
             .whereEqualTo("email", userEmail)

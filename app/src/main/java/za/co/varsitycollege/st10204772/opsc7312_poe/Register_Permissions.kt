@@ -21,6 +21,7 @@ class Register_Permissions : AppCompatActivity() {
 
     private val LOCATION_PERMISSION_CODE = 101
     private val BIOMETRIC_PERMISSION_CODE = 102
+    private val NOTIFICATION_PERMISSION_CODE = 103
 
     // Required for Biometric Prompt
     // private lateinit var biometricPrompt: BiometricPrompt
@@ -45,7 +46,9 @@ class Register_Permissions : AppCompatActivity() {
         // Continue Button
         val btnpermissions = findViewById<Button>(R.id.btnContinuePermission)
         btnpermissions.setOnClickListener {
-            showCustomPermissionDialog()
+            requestLocationPermissions()
+            requestNotificationPermissions()
+            //showCustomPermissionDialog()
         }
 
         // Disallow Button
@@ -61,7 +64,7 @@ class Register_Permissions : AppCompatActivity() {
             .setMessage("This app requires access to your location to show relevant information based on your location.")
             .setPositiveButton("Allow") { _, _ ->
                 // When the user clicks 'Allow', request the permissions
-                requestLocationPermissions()
+
             }
             .setNegativeButton("Deny") { dialog, _ ->
                 dialog.dismiss()
@@ -99,6 +102,27 @@ class Register_Permissions : AppCompatActivity() {
         }
     }
 
+    fun requestNotificationPermissions() {
+        // Check if notification permissions are already granted
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                // Permissions are already granted
+                Toast.makeText(this, "Notification permissions already granted", Toast.LENGTH_SHORT).show()
+
+                // Navigate to the next page directly as permissions are granted
+                navigateToNextActivity()
+            } else {
+                // Request notification permission
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    NOTIFICATION_PERMISSION_CODE
+                )
+            }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,
@@ -119,6 +143,16 @@ class Register_Permissions : AppCompatActivity() {
                 }
             }
 
+            NOTIFICATION_PERMISSION_CODE -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    // Permission granted
+                    Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show()
+                    navigateToNextActivity()
+                } else {
+                    // Permission denied
+                    Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
+                }
+            }
             /*
             BIOMETRIC_PERMISSION_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
