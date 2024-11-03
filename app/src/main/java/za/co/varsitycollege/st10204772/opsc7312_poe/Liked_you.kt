@@ -3,11 +3,13 @@ package za.co.varsitycollege.st10204772.opsc7312_poe
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.FirebaseApp
@@ -24,10 +26,12 @@ class Liked_you : AppCompatActivity() {
         setContentView(R.layout.activity_liked_you)
         setupBottomNavigation()
 
-        layout = findViewById(R.id.vert_layout_liked)
+        // Initialize layout and Firebase
+        layout = findViewById(R.id.vert_layout_liked) // Ensure you have this LinearLayout in your XML
         db = FirebaseFirestore.getInstance()
         FirebaseApp.initializeApp(this)
 
+        // Fetch users who liked you
         fetchLikedUsers()
     }
 
@@ -46,6 +50,8 @@ class Liked_you : AppCompatActivity() {
     }
 
     private fun fetchLikedByDocuments(userId: String) {
+        Toast.makeText(this, "Fetching liked users...", Toast.LENGTH_SHORT).show()
+
         db.collection("Users")
             .document(userId)
             .collection("liked_by")
@@ -56,10 +62,9 @@ class Liked_you : AppCompatActivity() {
                 } else {
                     likedByDocuments.forEach { likedByDocument ->
                         val uid = likedByDocument.getString("uid")
-                        val name = likedByDocument.getString("name")
-
-                        if (uid != null && name != null) {
-                            addUserToLayout(name, uid)
+                        if (uid != null) {
+                            // Now fetch the user details from the Users collection using uid
+                            fetchUserDetails(uid)
                         }
                     }
                 }
@@ -69,21 +74,65 @@ class Liked_you : AppCompatActivity() {
             }
     }
 
-    private fun addUserToLayout(name: String, uid: String) {
+    private fun fetchUserDetails(uid: String) {
+        db.collection("Users")
+            .whereEqualTo("email", uid) // Assuming `uid` is a field in the Users collection
+            .get()
+            .addOnSuccessListener { userDocuments ->
+                if (userDocuments.isEmpty) {
+                    showToast("No user found with uid: $uid")
+                } else {
+                    userDocuments.forEach { userDocument ->
+                        val name = userDocument.getString("name")
+                        val profileImgList = userDocument.get("profileImageUrls") as? List<String> ?: emptyList()
+                        val imageUrl = profileImgList.getOrNull(0) // Get the first image URL or null if not available
+
+                        if (name != null && imageUrl != null) {
+                            addUserToLayout(name, uid, imageUrl) // Pass the name and image URL to the layout function
+                        }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                showToast("Error fetching user details: ${e.message}")
+            }
+    }
+
+
+    private fun addUserToLayout(name: String, uid: String, profileImg: String) {
+        // Inflate the user layout
         val userView = LayoutInflater.from(this).inflate(R.layout.layout_liked_you, layout, false)
         userView.findViewById<TextView>(R.id.txtLikedName).text = name
 
-        val viewProfile = userView.findViewById<FloatingActionButton>(R.id.viewLikedProfileBtn)
-        viewProfile.setOnClickListener { Toast.makeText(this, "name: " + uid, Toast.LENGTH_SHORT).show() }
+        // Load the profile image into the ImageView using Glide
+        val imageView = userView.findViewById<ImageView>(R.id.imgLikedYou)
+        Glide.with(this)
+            .load(profileImg) // Load the image URL
+            .into(imageView) // Set the image view to display the image
 
-        val addContact = userView.findViewById<FloatingActionButton>(R.id.contactLikedBtn)
-        addContact.setOnClickListener { handleAddContact(uid) }
+        // Set up the profile view button
+        userView.findViewById<FloatingActionButton>(R.id.viewLikedProfileBtn).apply {
+            setOnClickListener {
+                startActivity(Intent(this@Liked_you, MatchUI::class.java).apply {
+                    putExtra("userId", uid) // Pass the uid to the MatchUI if needed
+                })
+            }
+        }
 
-        val reject = userView.findViewById<FloatingActionButton>(R.id.rejectBtn)
-        reject.setOnClickListener { deleteLikedContact(uid) }
+        // Set up the add contact button
+        userView.findViewById<FloatingActionButton>(R.id.contactLikedBtn).apply {
+            setOnClickListener { handleAddContact(uid) }
+        }
 
+        // Set up the reject button
+        userView.findViewById<FloatingActionButton>(R.id.rejectBtn).apply {
+            setOnClickListener { deleteLikedContact(uid) }
+        }
+
+        // Add the user view to the layout
         layout.addView(userView)
     }
+
 
     private fun handleAddContact(toUid: String) {
         val newMessage = hashMapOf(
@@ -125,8 +174,7 @@ class Liked_you : AppCompatActivity() {
                                     .delete()
                                     .addOnSuccessListener {
                                         showToast("Liked contact removed.")
-                                        intent = Intent(this, Liked_you::class.java)
-                                        startActivity(intent);
+                                        refreshLikedUsers()
                                     }
                                     .addOnFailureListener { e ->
                                         showToast("Error removing liked contact: ${e.message}")
@@ -141,6 +189,11 @@ class Liked_you : AppCompatActivity() {
             .addOnFailureListener { e ->
                 showToast("Error fetching user: ${e.message}")
             }
+    }
+
+    private fun refreshLikedUsers() {
+        layout.removeAllViews() // Clear current views
+        fetchLikedUsers() // Fetch and display updated liked users
     }
 
     private fun setupBottomNavigation() {
