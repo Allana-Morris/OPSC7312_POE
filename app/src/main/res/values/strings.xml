@@ -69,10 +69,6 @@
 
 
     <!--St10080623 Reilly Mare strings -->
-    <string name="suiterName">Reilly Mare, 32</string>
-    <string name="pronouns">he/him/his</string>
-    <string name="songName">Sweet child o Mine</string>
-    <string name="Artist">Guns N Roses</string>
     <string name="settingsHeader">Settings</string>
     <string name="biometricLogin">Use Biometric Login</string>
     <string name="language">Language</string>
@@ -91,6 +87,12 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+
+    <string name="SignInStart">Already have an account?     Sign in</string>
+    <string name="MMSlogan">For the Love of Music</string>
+    <string name="music_match">Music Match</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_up_with_google">Sign Up with Google</string>
 
     <!--Reilly Mare strings -->
 

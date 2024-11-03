@@ -59,6 +59,7 @@ dependencies {
     //CircleImageView Library
     implementation(libs.circleimageview)
 
+    implementation (platform("com.google.firebase:firebase-bom:32.0.0"))
     //Spotify Authentication
    // implementation(files("libs/spotify-auth-release-2.1.0.aar"))
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")

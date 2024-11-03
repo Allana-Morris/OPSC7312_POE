@@ -170,8 +170,6 @@ class Chat : AppCompatActivity() {
             }
     }
 
-
-
     suspend fun generateUniqueMessageId(mesDao: messageDao): String {
         var uniqueId: String
         do {
@@ -180,10 +178,6 @@ class Chat : AppCompatActivity() {
         } while (mesDao.checkMessageIdExists(uniqueId))  // Repeat if ID already exists in the database
         return uniqueId
     }
-
-
-
-
 
     private fun setupBottomNavigation() {
         val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Profile)

@@ -18,9 +18,14 @@ import com.google.firebase.messaging.RemoteMessage
 
 class NotificationClass : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        super.onMessageReceived(remoteMessage)
+        // Handle FCM messages here
         remoteMessage.notification?.let {
             sendNotification(it.title, it.body)
+        }
+
+        // Handle data payload if required
+        remoteMessage.data.isNotEmpty().let {
+            // Process data payload if needed
         }
     }
 
@@ -42,14 +47,13 @@ class NotificationClass : FirebaseMessagingService() {
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
 
-        val notificationManager = NotificationManagerCompat.from(this)
+        val notificationManager =  getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val channel =
             NotificationChannelCompat.Builder(channelId, NotificationManager.IMPORTANCE_DEFAULT)
                 .setName("Chat Notifications") // Updated to a more descriptive title
                 .setDescription("Notifications for new chat messages.")
                 .build()
-        notificationManager.createNotificationChannel(channel)
 
 
         if (ActivityCompat.checkSelfPermission(
@@ -65,8 +69,6 @@ class NotificationClass : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        // Save the token to shared preferences
-        saveTokenToPreferences(token)
     }
 
     private fun saveTokenToPreferences(token: String) {

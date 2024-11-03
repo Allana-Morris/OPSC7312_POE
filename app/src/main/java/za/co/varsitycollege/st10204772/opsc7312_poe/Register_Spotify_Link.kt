@@ -121,7 +121,6 @@ class Register_Spotify_Link : AppCompatActivity() {
                     saveAccessToken(mAccessToken)  // Save the access token
                     fetchSpotifyUserProfile()
                 }
-
                 AuthorizationResponse.Type.ERROR -> {
                     // Handle error response
                     textView.text = getString(R.string.spotify_user_fetch_fail)
@@ -159,6 +158,7 @@ class Register_Spotify_Link : AppCompatActivity() {
                 val responseBody = response.body?.string() ?: ""
                 Log.d("Response Body", responseBody)
                 val jsonObject = JSONObject(responseBody)
+
                 val spotifyid = jsonObject.getString("id")
                 val displayName = jsonObject.getString("display_name")
                 val profileImages = jsonObject.optJSONArray("images")
