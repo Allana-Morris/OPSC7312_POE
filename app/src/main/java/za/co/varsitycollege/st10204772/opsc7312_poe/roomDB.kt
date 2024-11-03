@@ -6,7 +6,7 @@ import androidx.room.Room.databaseBuilder
 import androidx.room.RoomDatabase
 
 
-@Database(entities = [message::class], version = 1)
+@Database(entities = [Message::class], version = 1)
 abstract class roomDB : RoomDatabase() {
     abstract fun messageDao(): messageDao?
 

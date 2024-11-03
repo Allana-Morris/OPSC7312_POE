@@ -10,12 +10,11 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.biometric.BiometricPrompt
+// import androidx.biometric.BiometricPrompt
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import java.util.concurrent.Executor
 import kotlin.system.exitProcess
 
 class Register_Permissions : AppCompatActivity() {
@@ -24,9 +23,9 @@ class Register_Permissions : AppCompatActivity() {
     private val BIOMETRIC_PERMISSION_CODE = 102
 
     // Required for Biometric Prompt
-    private lateinit var biometricPrompt: BiometricPrompt
-    private lateinit var promptInfo: BiometricPrompt.PromptInfo
-    private lateinit var executor: Executor
+    // private lateinit var biometricPrompt: BiometricPrompt
+    // private lateinit var promptInfo: BiometricPrompt.PromptInfo
+    // private lateinit var executor: Executor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,20 +37,20 @@ class Register_Permissions : AppCompatActivity() {
             insets
         }
 
-        //Code Begins
+        // Code Begins
 
         // Setup biometric prompt here
-        setupBiometricPrompt()
+        // setupBiometricPrompt()
 
-        //Continue Button
-        var btnpermissions = findViewById<Button>(R.id.btnContinuePermission)
+        // Continue Button
+        val btnpermissions = findViewById<Button>(R.id.btnContinuePermission)
         btnpermissions.setOnClickListener {
             showCustomPermissionDialog()
         }
 
-        //Disallow Button
-        var btndisallow = findViewById<Button>(R.id.btndisallow)
-        btndisallow.setOnClickListener{
+        // Disallow Button
+        val btndisallow = findViewById<Button>(R.id.btndisallow)
+        btndisallow.setOnClickListener {
             exitProcess(-1)
         }
     }
@@ -82,12 +81,11 @@ class Register_Permissions : AppCompatActivity() {
                 this, Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED)
         ) {
-
             // Permissions are already granted
             Toast.makeText(this, "Location permissions already granted", Toast.LENGTH_SHORT).show()
 
-            // Location permissions granted, now request biometric permission
-            requestBiometricPermission()
+            // Navigate to the next page directly as permissions are granted
+            navigateToNextActivity()
         } else {
             // Request both COARSE and FINE location permissions
             ActivityCompat.requestPermissions(
@@ -97,23 +95,6 @@ class Register_Permissions : AppCompatActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 ),
                 LOCATION_PERMISSION_CODE
-            )
-        }
-    }
-
-    private fun requestBiometricPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.USE_BIOMETRIC) == PackageManager.PERMISSION_GRANTED) {
-            // Biometric permission already granted
-            Toast.makeText(this, "Biometric permission granted", Toast.LENGTH_SHORT).show()
-
-            // Call method to show the biometric prompt after permission is granted
-            showBiometricPrompt()
-        } else {
-            // Request biometric permission
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.USE_BIOMETRIC),
-                BIOMETRIC_PERMISSION_CODE
             )
         }
     }
@@ -130,13 +111,15 @@ class Register_Permissions : AppCompatActivity() {
                 if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                     // Location permissions granted
                     Toast.makeText(this, "Location permissions granted", Toast.LENGTH_SHORT).show()
-                    requestBiometricPermission()
+                    // Navigate to the next page after permissions are granted
+                    navigateToNextActivity()
                 } else {
                     // Location permissions denied
                     Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show()
                 }
             }
 
+            /*
             BIOMETRIC_PERMISSION_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                     // Biometric permission granted
@@ -147,45 +130,8 @@ class Register_Permissions : AppCompatActivity() {
                     Toast.makeText(this, "Biometric permission denied", Toast.LENGTH_SHORT).show()
                 }
             }
+            */
         }
-    }
-
-    // Biometric Prompt Setup
-    private fun setupBiometricPrompt() {
-        executor = ContextCompat.getMainExecutor(this)
-
-        // Biometric prompt
-        biometricPrompt = BiometricPrompt(this, executor,
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    super.onAuthenticationSucceeded(result)
-                    Toast.makeText(applicationContext, "Authentication succeeded!", Toast.LENGTH_SHORT).show()
-                    navigateToNextActivity()  // Proceed to the next activity after success
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    super.onAuthenticationError(errorCode, errString)
-                    Toast.makeText(applicationContext, "Authentication error: $errString", Toast.LENGTH_SHORT).show()
-                }
-
-                override fun onAuthenticationFailed() {
-                    super.onAuthenticationFailed()
-                    Toast.makeText(applicationContext, "Authentication failed", Toast.LENGTH_SHORT).show()
-                }
-            })
-
-        // Configure the appearance and content of the biometric prompt
-        promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Biometric Login")
-            .setSubtitle("Log in using your fingerprint")
-            .setNegativeButtonText("Cancel")
-            .setConfirmationRequired(false)
-            .build()
-    }
-
-    // Show the biometric prompt to the user
-    private fun showBiometricPrompt() {
-        biometricPrompt.authenticate(promptInfo)
     }
 
     // Navigate to the next activity (Register_Email)

@@ -99,7 +99,7 @@ class MatchUI : AppCompatActivity() {
     }
 
     private fun getUsers() {
-        usersCollection.whereNotEqualTo("spotifyId", null).limit(5)
+        usersCollection.whereEqualTo("spotifyId", null).limit(5)
             .get()
             .addOnSuccessListener { querySnapshot ->
                 var user = MatchUser();
@@ -232,9 +232,9 @@ class MatchUI : AppCompatActivity() {
                     pronouns.text = user.Pronoun
                     songName.text = user.topSong[0]
                     artistName.text = user.topArtist[0]
-                    /*  Glide.with(this)
+                    Glide.with(this)
                     .load(user.album[0])
-                    .into(albumCover)*/
+                    .into(albumCover)
 
                     val imageAdapter = ImagePagerAdapter(user.profilePictureUrl ?: emptyList())
                     pager.adapter = imageAdapter
