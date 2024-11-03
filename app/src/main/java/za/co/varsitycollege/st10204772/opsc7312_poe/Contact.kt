@@ -22,12 +22,17 @@ import kotlinx.coroutines.withContext
 class Contact : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
     private lateinit var contactDao: ContactDao
+    private var syncComplete = false // Flag to track syncing completion
+    private lateinit var mesDao: messageDao
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_contact)
         val layout: LinearLayout = findViewById(R.id.vert_layout_contact)
+
+        mesDao = roomDB.getDatabase(this)!!.messageDao()!!
 
         db = Firebase.firestore
         FirebaseApp.initializeApp(this)
@@ -37,7 +42,7 @@ class Contact : AppCompatActivity() {
         setupBottomNavigation()
 
         // Sync contacts from Firestore to Room
-        syncContactsFromFirestore()
+        syncContactsFromFirestore(layout) // Pass layout here
 
         // Load contacts from Room to display
         loadContactsFromRoom(layout)
@@ -58,7 +63,7 @@ class Contact : AppCompatActivity() {
         }
     }
 
-    private fun syncContactsFromFirestore() {
+    private fun syncContactsFromFirestore(layout: LinearLayout) {
         // Clear existing contacts to avoid duplicates
         lifecycleScope.launch(Dispatchers.IO) {
             contactDao.clearContacts()
@@ -72,24 +77,27 @@ class Contact : AppCompatActivity() {
                         val receiverID = document.getString("toUid")
                         receiverID?.let { saveContactToLocalDB(it, document.id) } // Pass document ID
                     }
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(this@Contact, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
 
-            // Now query for messages where the logged-in user is the receiver
-            db.collection("message")
-                .whereEqualTo("toUid", loggedUser.user?.Email)
-                .get()
-                .addOnSuccessListener { toDocuments ->
-                    for (document in toDocuments) {
-                        val senderID = document.getString("fromUid")
-                        senderID?.let { saveContactToLocalDB(it, document.id) } // Pass document ID
-                    }
+                    // After processing 'fromUid' contacts, query for 'toUid'
+                    db.collection("message")
+                        .whereEqualTo("toUid", loggedUser.user?.Email)
+                        .get()
+                        .addOnSuccessListener { toDocuments ->
+                            for (document in toDocuments) {
+                                val senderID = document.getString("fromUid")
+                                senderID?.let { saveContactToLocalDB(it, document.id) } // Pass document ID
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this@Contact, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                        }
                 }
                 .addOnFailureListener { e ->
                     Toast.makeText(this@Contact, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
+        }.invokeOnCompletion { // This block executes after the coroutine completes
+            syncComplete = true
+            loadContactsFromRoom(layout) // Load contacts after sync is complete
         }
     }
 
@@ -118,7 +126,6 @@ class Contact : AppCompatActivity() {
             }
     }
 
-
     private fun loadContactsFromRoom(layout: LinearLayout) {
         lifecycleScope.launch {
             val contacts = withContext(Dispatchers.IO) { contactDao.getAllContacts() }
@@ -134,6 +141,11 @@ class Contact : AppCompatActivity() {
         val contactNameTextView = inflatedView.findViewById<TextView>(R.id.txtContactName)
         contactNameTextView.text = contact.name
 
+        val contactMess = inflatedView.findViewById<TextView>(R.id.txtContactMessage)
+        contactMess.text = "Message";
+
+
+
         inflatedView.setOnClickListener {
             val intent = Intent(this@Contact, Chat::class.java)
             intent.putExtra("contactName", contact.name)
@@ -146,3 +158,5 @@ class Contact : AppCompatActivity() {
         layout.addView(inflatedView)
     }
 }
+
+

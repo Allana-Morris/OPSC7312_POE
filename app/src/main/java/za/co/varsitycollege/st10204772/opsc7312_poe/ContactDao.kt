@@ -10,7 +10,6 @@ interface ContactDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertContact(contact: Cont)
 
-
     @Query("SELECT * FROM contacts")
     suspend fun getAllContacts(): List<Cont>
 
@@ -19,4 +18,13 @@ interface ContactDao {
 
     @Query("DELETE FROM contacts")
     suspend fun clearContacts()
+
+    // New query to get the latest message timestamp between two users
+    @Query("""
+        SELECT MAX(timestamp) 
+        FROM messages 
+        WHERE (fromUid = :fromUid AND toUid = :toUid) 
+           OR (fromUid = :toUid AND toUid = :fromUid)
+    """)
+    suspend fun getLatestMessageTimestamp(fromUid: String, toUid: String): Long?
 }
