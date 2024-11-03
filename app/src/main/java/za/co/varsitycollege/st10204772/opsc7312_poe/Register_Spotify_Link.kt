@@ -47,21 +47,17 @@ class Register_Spotify_Link : AppCompatActivity() {
         button = findViewById(R.id.btnContinueSpotify)
         button.isEnabled = false;
 
-        val btnSpotify = findViewById<Button>(R.id.btnspotifysearch)
-
-        btnSpotify.setOnClickListener {
-            val builder =
-                AuthorizationRequest.Builder(
-                    CLIENT_ID,
-                    AuthorizationResponse.Type.TOKEN,
-                    REDIRECT_URI
-                )
-            // Split the scopes string into an array and set it
-            builder.setScopes(arrayOf(*scopes.split(" ").toTypedArray()))
-            val request = builder.build()
-            AuthorizationClient.clearCookies(this)
-            AuthorizationClient.openLoginInBrowser(this, request)
-        }
+        val builder =
+            AuthorizationRequest.Builder(
+                CLIENT_ID,
+                AuthorizationResponse.Type.TOKEN,
+                REDIRECT_URI
+            )
+        // Split the scopes string into an array and set it
+        builder.setScopes(arrayOf(*scopes.split(" ").toTypedArray()))
+        val request = builder.build()
+        AuthorizationClient.clearCookies(this)
+        AuthorizationClient.openLoginInBrowser(this, request)
 
         //this is the continue button
         button.setOnClickListener {

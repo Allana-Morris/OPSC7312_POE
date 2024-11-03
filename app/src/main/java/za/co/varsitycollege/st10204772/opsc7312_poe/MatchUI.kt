@@ -268,8 +268,8 @@ class MatchUI : AppCompatActivity() {
 
 
     private fun setupBottomNavigation() {
-        val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Liked_You)
-        navbar.selectedItemId = R.id.nav_like
+        val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Match)
+        navbar.selectedItemId = R.id.nav_match
         navbar.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_match -> startActivity(Intent(this, MatchUI::class.java))
