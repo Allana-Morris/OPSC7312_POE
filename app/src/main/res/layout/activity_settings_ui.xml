@@ -66,8 +66,8 @@
 
             <Switch
                 android:id="@+id/switchPush"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="61dp"
+                android:layout_height="48dp"
                 android:background="@drawable/switch_colour"
                 android:checked="false"
                 android:minWidth="48dp"
@@ -200,6 +200,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:clickable="true"
+        android:contentDescription="@string/images_head"
         android:tintMode="multiply"
         app:backgroundTint="@color/white"
         app:fabCustomSize="75dp"

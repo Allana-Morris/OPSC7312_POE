@@ -13,6 +13,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -96,46 +97,66 @@ class Register_Email : AppCompatActivity() {
                 Log.d("AccountManager", "FCM Token: $fcmToken")
 
                 // Save token locally in SharedPreferences for quick access if needed
-                saveTokenToPreferences(fcmToken, this)
+                saveTokenToPreferences(userId ,fcmToken, this)
+                updateFcmToken(fcmToken)
 
-                // Send the token to your backend
-                sendTokenToServer(userId, fcmToken)
             } else {
                 Log.w("AccountManager", "Failed to get FCM token", task.exception)
             }
         }
     }
 
-    private fun saveTokenToPreferences(token: String?, context: Context) {
+    private fun saveTokenToPreferences(userid: String, token: String?, context: Context) {
 
         val sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE)
-        sharedPreferences.edit().putString("fcm_token", token).apply()
+        sharedPreferences.edit().putString("${userid}_fcmToken", token).apply()
     }
 
-    private fun sendTokenToServer(userId: String, fcmToken: String?) {
-        val serverUrl = "https://your-server-url.com/api/save_fcm_token"
+    fun updateFcmToken(fcmToken: String) {
+        val firestore = FirebaseFirestore.getInstance()
 
-        val json = JSONObject().apply {
-            put("userId", userId)
-            put("fcmToken", fcmToken)
-        }
+        // Get the logged user's email
+        val email = loggedUser.user?.Email
 
-        val requestBody = json.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+        if (email != null) {
+            // Reference to the Users collection
+            val usersCollection = firestore.collection("Users")
 
-        val request = Request.Builder()
-            .url(serverUrl)
-            .post(requestBody)
-            .addHeader("Content-Type", "application/json")
-            .build()
+            // Query to find the user document where email matches
+            usersCollection.whereEqualTo("email", email).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val userDocument = querySnapshot.documents[0]
 
-        val client = OkHttpClient()
-        client.newCall(request).execute().use { response ->
-            if (response.isSuccessful) {
-                Log.d("AccountManager", "FCM token successfully sent to server.")
-            } else {
-                Log.w("AccountManager", "Failed to send FCM token to server: ${response.message}")
-            }
+                        // Update the document with the FCM token
+                        userDocument.reference.update("fcmToken", fcmToken)
+                            .addOnSuccessListener {
+                                Toast.makeText(
+                                    this,
+                                    "FCM token updated successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    this,
+                                    "Error updating FCM token: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
+                }
+        } else {
+            Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
         }
     }
+
+
 }
 
