@@ -43,7 +43,7 @@ class Register_Permissions : AppCompatActivity() {
         //Code Begins
 
         // Setup biometric prompt here
-        setupBiometricPrompt()
+        //setupBiometricPrompt()
 
         //Continue Button
         var btnpermissions = findViewById<Button>(R.id.btnContinuePermission)
@@ -89,7 +89,8 @@ class Register_Permissions : AppCompatActivity() {
             Toast.makeText(this, "Location permissions already granted", Toast.LENGTH_SHORT).show()
 
             // Location permissions granted, now request biometric permission
-            requestBiometricPermission()
+          //  requestBiometricPermission()
+
         } else {
             // Request both COARSE and FINE location permissions
             ActivityCompat.requestPermissions(
@@ -109,7 +110,7 @@ class Register_Permissions : AppCompatActivity() {
             Toast.makeText(this, "Biometric permission granted", Toast.LENGTH_SHORT).show()
 
             // Call method to show the biometric prompt after permission is granted
-            showBiometricPrompt()
+           // showBiometricPrompt()
         } else {
             // Request biometric permission
             ActivityCompat.requestPermissions(
@@ -146,14 +147,15 @@ class Register_Permissions : AppCompatActivity() {
                 if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                     // Location permissions granted
                     Toast.makeText(this, "Location permissions granted", Toast.LENGTH_SHORT).show()
-                    requestBiometricPermission()
+                  //  requestBiometricPermission()
+                    navigateToNextActivity()
                 } else {
                     // Location permissions denied
                     Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show()
                 }
             }
 
-            BIOMETRIC_PERMISSION_CODE -> {
+           /* BIOMETRIC_PERMISSION_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                     // Biometric permission granted
                     Toast.makeText(this, "Biometric permission granted", Toast.LENGTH_SHORT).show()
@@ -169,7 +171,7 @@ class Register_Permissions : AppCompatActivity() {
                 } else {
                     Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
                 }
-            }
+            } */
         }
     }
 

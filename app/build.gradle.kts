@@ -62,14 +62,14 @@ dependencies {
     //Glide for image loading
     implementation (libs.glide)
     implementation(libs.firebase.storage.ktx)
-    implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation(libs.firebase.messaging.ktx)
 
     //Google SSO with OAuth2.0
     implementation (libs.androidx.credentials.v150alpha05)
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
-    implementation("com.google.android.gms:play-services-location:21.3.0")
-    implementation("com.google.firebase:firebase-auth-ktx:23.0.0")
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation(libs.google.play.services.auth)
+    implementation(libs.play.services.location)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.google.play.services.auth)
     implementation (libs.googleid)
 
     // Firebase

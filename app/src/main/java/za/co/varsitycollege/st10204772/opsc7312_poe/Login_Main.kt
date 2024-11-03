@@ -62,7 +62,7 @@ class Login_Main : AppCompatActivity() {
                             DatabaseReadandWrite().loginUser(email, password) { user ->
                                 if (user != null) {
                                     sAccessToken =
-                                        SessionManager.getSpotifyIdByUserId(email).toString()
+                                        SessionManager(this).getSpotifyIdByUserId(email).toString()
                                     CallSpotifyFun()
                                     // Directly navigate to the profile activity
                                     startActivity(Intent(this, ProfileUI::class.java))

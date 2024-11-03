@@ -14,7 +14,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
-import com.spotify.sdk.android.auth.AuthorizationResponse
 import com.squareup.picasso.Picasso
 import com.google.gson.Gson
 import okhttp3.Call
