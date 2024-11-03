@@ -12,4 +12,9 @@ interface messageDao
 
     @Query("SELECT * FROM messages WHERE fromUid = :fromUid OR toUid = :toUid ORDER BY timestamp")
     fun getMessages(fromUid: String?, toUid: String?): List<Message?>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM messages WHERE id = :messageId)")
+    suspend fun checkMessageIdExists(messageId: String): Boolean
+
+
 }

@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "messages")
 class Message {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    @PrimaryKey()
+    var id: String = ""
 
     var fromUid: String? = null
     var toUid: String? = null
