@@ -99,7 +99,7 @@ class MatchUI : AppCompatActivity() {
     }
 
     private fun getUsers() {
-        usersCollection.whereEqualTo("spotifyId", null).limit(5)
+        usersCollection.whereNotEqualTo("albumArt", null).limit(5)
             .get()
             .addOnSuccessListener { querySnapshot ->
                 var user = MatchUser();

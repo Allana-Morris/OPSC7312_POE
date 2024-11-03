@@ -19,6 +19,7 @@ import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 
 class Chat : AppCompatActivity() {
     private lateinit var mesDao: messageDao
@@ -50,6 +51,7 @@ class Chat : AppCompatActivity() {
         // Sync with Firestore
         syncMessagesWithFirestore(contactID, docID, layout)
 
+
         // Send message on button click
         sendBtn.setOnClickListener {
             val messageText = findViewById<TextView>(R.id.txtInput).text.toString()
@@ -74,6 +76,7 @@ class Chat : AppCompatActivity() {
     }
 
     private fun sendMessageToFirestore(messageText: String, docID: String, contactID: String) {
+        // Create the Firestore message data
         val newMessage = hashMapOf(
             "content" to messageText,
             "type" to "text",
@@ -81,34 +84,40 @@ class Chat : AppCompatActivity() {
             "timestamp" to com.google.firebase.firestore.FieldValue.serverTimestamp()
         )
 
-        // Display the message immediately
-        val localMessage = Message().apply {
-            fromUid = loggedUser.user?.Email
-            toUid = contactID
-            content = messageText
-            timeStamp = System.currentTimeMillis().toString()
-            type = "text"
-        }
-
-        // Display the message in the UI immediately
-        displayMessage(messageText, "sender", findViewById(R.id.vert_layout_chat))
-
         lifecycleScope.launch(Dispatchers.IO) {
-            // Insert into Room
-            mesDao.insert(localMessage)
-        }
+            // Generate a unique message ID
+            val newMessageId = generateUniqueMessageId(mesDao)  // Ensure generateUniqueMessageId is defined and returns a unique string
 
-        // Attempt to send to Firestore
-        db.collection("message").document(docID).collection("msgList")
-            .add(newMessage)
-            .addOnSuccessListener {
-                // Clear the input field after sending the message
-                findViewById<TextView>(R.id.txtInput).text = ""
+            val localMessage = Message().apply {
+                id = newMessageId  // Set the unique ID here
+                fromUid = loggedUser.user?.Email
+                toUid = contactID
+                content = messageText
+                timeStamp = System.currentTimeMillis().toString()
+                type = "text"
             }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Failed to send message: ${e.message}", Toast.LENGTH_SHORT).show()
+
+            // Insert the message into Room
+            mesDao.insert(localMessage)
+
+            // Switch back to the main thread to update the UI
+            withContext(Dispatchers.Main) {
+                displayMessage(messageText, "sender", findViewById(R.id.vert_layout_chat))
             }
+
+            // Attempt to send to Firestore
+            db.collection("message").document(docID).collection("msgList")
+                .document(newMessageId)  // Use newMessageId here for the Firestore document ID
+                .set(newMessage)
+                .addOnSuccessListener {
+                    // Clear the input field after sending the message
+                    findViewById<TextView>(R.id.txtInput).text = ""
+                }
+                .addOnFailureListener { e ->
+                }
+        }
     }
+
 
     private fun syncMessagesWithFirestore(contactID: String, docID: String, layout: LinearLayout) {
         db.collection("message").document(docID).collection("msgList")
@@ -121,14 +130,15 @@ class Chat : AppCompatActivity() {
 
                 lifecycleScope.launch {
                     snapshots?.documents?.forEach { msgDoc ->
+                        val messageId = msgDoc.id
                         val messageContent = msgDoc.getString("content") ?: ""
                         val messageType = msgDoc.getString("type") ?: "text"
                         val messageUid = msgDoc.getString("uID") ?: ""
                         val firestoreTimestamp = msgDoc.getTimestamp("timestamp")?.toDate()?.time
 
                         if (firestoreTimestamp != null) {
-                            // Create the local message object
                             val newMessage = Message().apply {
+                                id = messageId
                                 fromUid = messageUid
                                 toUid = if (messageUid == loggedUser.user?.Email) contactID else loggedUser.user?.Email
                                 content = messageContent
@@ -136,12 +146,12 @@ class Chat : AppCompatActivity() {
                                 type = messageType
                             }
 
-                            // Insert into Room if not already present
                             withContext(Dispatchers.IO) {
-                                if (mesDao.getMessages(newMessage.fromUid, newMessage.toUid)
-                                        .none { it!!.content == messageContent && it.timeStamp == newMessage.timeStamp }
-                                ) {
+                                val exists = mesDao.checkMessageIdExists(messageId)
+                                if (!exists) {
                                     mesDao.insert(newMessage)
+
+                                    // Switch to Main thread to update the UI
                                     withContext(Dispatchers.Main) {
                                         displayMessage(
                                             messageContent,
@@ -156,6 +166,18 @@ class Chat : AppCompatActivity() {
                 }
             }
     }
+
+
+
+    suspend fun generateUniqueMessageId(mesDao: messageDao): String {
+        var uniqueId: String
+        do {
+            // Generate a random UUID
+            uniqueId = UUID.randomUUID().toString()
+        } while (mesDao.checkMessageIdExists(uniqueId))  // Repeat if ID already exists in the database
+        return uniqueId
+    }
+
 
 
 
@@ -191,5 +213,7 @@ class Chat : AppCompatActivity() {
         messageTextView.text = messageText
         layout.addView(messageView)
     }
+
+
 
 }
