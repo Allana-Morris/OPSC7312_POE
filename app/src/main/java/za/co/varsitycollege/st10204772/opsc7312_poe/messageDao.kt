@@ -15,4 +15,10 @@ interface messageDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM messages WHERE id = :messageId)")
     suspend fun checkMessageIdExists(messageId: String): Boolean
+
+    // Clear all messages
+    @Query("DELETE FROM messages")
+    suspend fun clearMessages()
+
+
 }

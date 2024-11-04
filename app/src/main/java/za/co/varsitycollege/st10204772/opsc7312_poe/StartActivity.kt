@@ -15,9 +15,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.CredentialManager
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.WorkRequest
+import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -29,6 +27,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import com.google.firebase.firestore.toObject
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
@@ -51,6 +51,8 @@ class StartActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
     private lateinit var oneTapClient: SignInClient
+    private lateinit var contactDao: ContactDao
+    private lateinit var messageDao: messageDao
     private var lUser: User = User()
     private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
 
@@ -63,6 +65,25 @@ class StartActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_start)
 
+        // Initialize DAOs
+        contactDao = roomDB.getDatabase(this)!!.contactDao()!!
+        messageDao = roomDB.getDatabase(this)!!.messageDao()!!
+
+        // Clear contacts and messages on app startup
+        lifecycleScope.launch(Dispatchers.IO) {
+            contactDao.clearContacts()
+            messageDao.clearMessages()
+        }
+
+        //Sign In Button
+        var btnSignIn = findViewById<TextView>(R.id.tvSignIn)
+        btnSignIn.setOnClickListener {
+            val intent: Intent = Intent(
+                this,
+                Login_Main::class.java
+            )
+            startActivity(intent)
+        }
         val sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE)
         val currentUserId = sharedPreferences.getString("userID", null)
 
