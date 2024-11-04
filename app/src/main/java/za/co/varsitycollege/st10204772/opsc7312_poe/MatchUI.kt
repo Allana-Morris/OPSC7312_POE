@@ -13,12 +13,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GestureDetectorCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
 
 
 class MatchUI : AppCompatActivity() {
@@ -26,6 +28,8 @@ class MatchUI : AppCompatActivity() {
     private lateinit var gestureDetector: GestureDetectorCompat
     private var UserSeen: Boolean = false
     private val matchUsers = mutableListOf<MatchUser>()
+
+    var contactDao = roomDB.getDatabase(this)!!.contactDao()!!
 
     var count = 0
     private var swipedUp = false
@@ -111,50 +115,58 @@ class MatchUI : AppCompatActivity() {
         }
     }
 
+
     private fun getUsers() {
-        usersCollection.whereNotEqualTo("albumArt", null).limit(5)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                for (document in querySnapshot.documents) {
-                    val userEmail = document.getString("email")
-                    if (userEmail != loggedUserEmail) {
-                        CheckUserUnseen(userEmail)
-                        if (!UserSeen) {
-                            val matchUser = MatchUser().apply {
-                                Name = document.getString("name") ?: ""
-                                Age = document.getLong("age")?.toInt() ?: 0
-                                Email = userEmail ?: ""
-                                Gender = document.getString("gender") ?: ""
-                                Pronoun = document.getString("pronoun") ?: ""
-                                profilePictureUrl = document.getList("profileImageUrls")
-                                topGenre = document.getList("topGenres")?.map { it.toString() }
-                                    ?: emptyList()
-                                topArtist = document.getList("topArtists")?.map { it.toString() }
-                                    ?: emptyList()
-                                topSong = document.getList("topSongs")?.map { it.toString() }
-                                    ?: emptyList()
-                                album = document.getList("albumArt")?.map { it.toString() }
-                                    ?: emptyList()
+        lifecycleScope.launch {
+            // Fetch contacts asynchronously
+            val contactList = contactDao.getAllContacts().map { it.email }
+
+            usersCollection.whereNotEqualTo("albumArt", null).limit(5)
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    for (document in querySnapshot.documents) {
+                        val userEmail = document.getString("email")
+
+                        // Only proceed if the user email is not the logged-in user's email
+                        if (userEmail != loggedUserEmail) {
+                            CheckUserUnseen(userEmail)
+
+                            // Exclude users who are already in contacts and not yet shown
+                            if (!UserSeen && !contactList.contains(userEmail)) {
+                                val matchUser = MatchUser().apply {
+                                    Name = document.getString("name") ?: ""
+                                    Age = document.getLong("age")?.toInt() ?: 0
+                                    Email = userEmail ?: ""
+                                    Gender = document.getString("gender") ?: ""
+                                    Pronoun = document.getString("pronoun") ?: ""
+                                    profilePictureUrl = document.getList("profileImageUrls")
+                                    topGenre = document.getList("topGenres")?.map { it.toString() } ?: emptyList()
+                                    topArtist = document.getList("topArtists")?.map { it.toString() } ?: emptyList()
+                                    topSong = document.getList("topSongs")?.map { it.toString() } ?: emptyList()
+                                    album = document.getList("albumArt")?.map { it.toString() } ?: emptyList()
+                                }
+                                matchUsers.add(matchUser)
                             }
-                            matchUsers.add(matchUser)
                         }
                     }
-                }
 
-                if (matchUsers.isNotEmpty()) {
-                    val user = matchUsers[count]
-                    swipedUp = false
-                    swipedDown = false
-                    updateUserUI(user)
-                } else {
-                    displayNoUsersFoundUI()
+                    // Display the next match or a "No Users Found" message
+                    if (matchUsers.isNotEmpty()) {
+                        val user = matchUsers[count]
+                        swipedUp = false
+                        swipedDown = false
+                        updateUserUI(user)
+                    } else {
+                        displayNoUsersFoundUI()
+                    }
                 }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Error fetching users: ${e.message}", Toast.LENGTH_SHORT)
-                    .show()
-            }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this@MatchUI, "Error fetching users: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
     }
+
+
 
     private fun updateUserUI(user: MatchUser) {
         val pager = findViewById<ViewPager2>(R.id.imagePager)
@@ -186,21 +198,31 @@ class MatchUI : AppCompatActivity() {
                         val userName = userDocument.getString("name")
 
                         if (userName != null) {
-                            val likedByData =
-                                hashMapOf("uid" to currentUserEmail, "name" to userName)
-                            userDocument.reference.collection("liked_by").add(likedByData)
-                                .addOnSuccessListener {
-                                    loggedUser.shownList.add(user.Email)
-                                    Toast.makeText(this, "Liked successfully", Toast.LENGTH_SHORT)
-                                        .show()
-                                    getUsers()
+                            // Check if the logged-in user is already in the liked_by collection
+                            userDocument.reference.collection("liked_by")
+                                .whereEqualTo("uid", currentUserEmail)
+                                .get()
+                                .addOnSuccessListener { likedBySnapshot ->
+                                    if (likedBySnapshot.isEmpty) {
+                                        // User is not already liked, so proceed to add
+                                        val likedByData = hashMapOf("uid" to currentUserEmail, "name" to userName)
+                                        userDocument.reference.collection("liked_by").add(likedByData)
+                                            .addOnSuccessListener {
+                                                loggedUser.shownList.add(user.Email)
+                                                Toast.makeText(this, "Liked successfully", Toast.LENGTH_SHORT).show()
+                                                getUsers()
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Toast.makeText(this, "Error adding to liked_by: ${e.message}", Toast.LENGTH_SHORT).show()
+                                            }
+                                    } else {
+                                        // User already liked, skip adding
+                                        Toast.makeText(this, "User already liked", Toast.LENGTH_SHORT).show()
+                                        getUsers()
+                                    }
                                 }
                                 .addOnFailureListener { e ->
-                                    Toast.makeText(
-                                        this,
-                                        "Error adding to liked_by: ${e.message}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    Toast.makeText(this, "Error checking liked_by: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
                         } else {
                             Toast.makeText(this, "User name not found", Toast.LENGTH_SHORT).show()
@@ -210,11 +232,11 @@ class MatchUI : AppCompatActivity() {
                     }
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         } ?: Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
     }
+
 
     private fun displayNoUsersFoundUI() {
         val pager = findViewById<ViewPager2>(R.id.imagePager)
