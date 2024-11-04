@@ -14,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.credentials.CredentialManager
@@ -111,36 +112,51 @@ class StartActivity : AppCompatActivity() {
     }
 
     private fun showBiometricPrompt(userId: String) {
-        // Create a BiometricPrompt
-        val executor = ContextCompat.getMainExecutor(this)
-        val biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
-            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                super.onAuthenticationError(errorCode, errString)
-                Toast.makeText(applicationContext, "Authentication error: $errString", Toast.LENGTH_SHORT).show()
+        val biometricManager = BiometricManager.from(this)
+
+        when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)) {
+            BiometricManager.BIOMETRIC_SUCCESS -> {
+                // Biometric is available and set up, so show the biometric prompt
+                val executor = ContextCompat.getMainExecutor(this)
+                val biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        super.onAuthenticationError(errorCode, errString)
+                        Toast.makeText(applicationContext, "Authentication error: $errString", Toast.LENGTH_SHORT).show()
+                    }
+
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        super.onAuthenticationSucceeded(result)
+                        // User authenticated successfully, load the ProfileUI
+                        navigateToProfile()
+                    }
+
+                    override fun onAuthenticationFailed() {
+                        super.onAuthenticationFailed()
+                        Toast.makeText(applicationContext, "Authentication failed", Toast.LENGTH_SHORT).show()
+                    }
+                })
+
+                val promptInfo = BiometricPrompt.PromptInfo.Builder()
+                    .setTitle("Biometric Login")
+                    .setSubtitle("Authenticate using your fingerprint")
+                    .setNegativeButtonText("Cancel")
+                    .build()
+
+                biometricPrompt.authenticate(promptInfo)
             }
 
-            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                super.onAuthenticationSucceeded(result)
-                // User authenticated successfully, load the ProfileUI
-                startActivity(Intent(this@StartActivity, ProfileUI::class.java))
-                finish()
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE,
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE,
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                // Biometric hardware not available, or no fingerprint enrolled. Directly navigate to ProfileUI.
+                navigateToProfile()
             }
+        }
+    }
 
-            override fun onAuthenticationFailed() {
-                super.onAuthenticationFailed()
-                Toast.makeText(applicationContext, "Authentication failed", Toast.LENGTH_SHORT).show()
-            }
-        })
-
-        // Create prompt info
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Biometric Login")
-            .setSubtitle("Authenticate using your fingerprint")
-            .setNegativeButtonText("Cancel")
-            .build()
-
-        // Show the biometric prompt
-        biometricPrompt.authenticate(promptInfo)
+    private fun navigateToProfile() {
+        startActivity(Intent(this, ProfileUI::class.java))
+        finish()
     }
 
     private fun fetchUserData(userId: String) {
