@@ -14,6 +14,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
@@ -22,43 +25,29 @@ import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.CommonStatusCodes
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.google.firebase.firestore.toObject
-import com.spotify.sdk.android.auth.AuthorizationClient
-import com.spotify.sdk.android.auth.AuthorizationRequest
-import com.spotify.sdk.android.auth.AuthorizationResponse
-import okhttp3.Call
-import okhttp3.Callback
 import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
 import org.json.JSONObject
 import za.co.varsitycollege.st10204772.opsc7312_poe.ClientID.CLIENT_ID
-import java.io.IOException
-import java.util.concurrent.TimeUnit
-
 
 class StartActivity : AppCompatActivity() {
 
-    //Google SSO Variables
-    val credManager = CredentialManager.create(this)
+    // Google SSO Variables
     private lateinit var auth: FirebaseAuth
-    private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
+    private val REQ_ONE_TAP = 2 // Can be any integer unique to the Activity
     private lateinit var oneTapClient: SignInClient
     private lateinit var contactDao: ContactDao
     private lateinit var messageDao: messageDao
+    private lateinit var localUserDao: LocalUserDao
+
     private var lUser: User = User()
     private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
-
     private var mOkHttpClient = OkHttpClient.Builder().build()
-    lateinit var context: Context
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,51 +57,31 @@ class StartActivity : AppCompatActivity() {
         // Initialize DAOs
         contactDao = roomDB.getDatabase(this)!!.contactDao()!!
         messageDao = roomDB.getDatabase(this)!!.messageDao()!!
+        localUserDao = roomDB.getDatabase(this)!!.localUserDao()!!
 
-        // Clear contacts and messages on app startup
-        lifecycleScope.launch(Dispatchers.IO) {
-            contactDao.clearContacts()
-            messageDao.clearMessages()
+        // Sign In Button
+        findViewById<TextView>(R.id.tvSignIn).setOnClickListener {
+            startActivity(Intent(this, Login_Main::class.java))
         }
 
-        //Sign In Button
-        var btnSignIn = findViewById<TextView>(R.id.tvSignIn)
-        btnSignIn.setOnClickListener {
-            val intent: Intent = Intent(
-                this,
-                Login_Main::class.java
-            )
-            startActivity(intent)
-        }
         val sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE)
         val currentUserId = sharedPreferences.getString("userID", null)
 
         if (currentUserId != null) {
             fetchUserData(currentUserId)
             Log.e(TAG, "Got Session")
-            startActivity(Intent(this, ProfileUI::class.java))
-            finish() // Close the login activity
+            showBiometricPrompt(currentUserId) // Show biometric prompt
         } else {
             Log.e(TAG, "No session")
 
-            // Sign In Button
-            val btnSignIn = findViewById<TextView>(R.id.tvSignIn)
-            btnSignIn.setOnClickListener {
-                val intent = Intent(this, Login_Main::class.java)
-                startActivity(intent)
-            }
-
             // Sign Up Button
-            val btnSignUp = findViewById<Button>(R.id.btnSignUp)
-            btnSignUp.setOnClickListener {
-                val intent = Intent(this, Register_Permissions::class.java)
-                startActivity(intent)
+            findViewById<Button>(R.id.btnSignUp).setOnClickListener {
+                startActivity(Intent(this, Register_Permissions::class.java))
             }
 
             // Google SSO
-            val btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
-            btnGoogle.setOnClickListener {
-                auth = Firebase.auth
+            findViewById<Button>(R.id.btnSignUpWithGoogle).setOnClickListener {
+                auth = FirebaseAuth.getInstance()
                 oneTapClient = Identity.getSignInClient(this)
 
                 val signInRequest = BeginSignInRequest.builder()
@@ -142,8 +111,55 @@ class StartActivity : AppCompatActivity() {
         }
     }
 
+    private fun showBiometricPrompt(userId: String) {
+        val biometricManager = BiometricManager.from(this)
+
+        when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)) {
+            BiometricManager.BIOMETRIC_SUCCESS -> {
+                // Biometric is available and set up, so show the biometric prompt
+                val executor = ContextCompat.getMainExecutor(this)
+                val biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
+                    override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        super.onAuthenticationError(errorCode, errString)
+                        Toast.makeText(applicationContext, "Authentication error: $errString", Toast.LENGTH_SHORT).show()
+                    }
+
+                    override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                        super.onAuthenticationSucceeded(result)
+                        // User authenticated successfully, load the ProfileUI
+                        navigateToProfile()
+                    }
+
+                    override fun onAuthenticationFailed() {
+                        super.onAuthenticationFailed()
+                        Toast.makeText(applicationContext, "Authentication failed", Toast.LENGTH_SHORT).show()
+                    }
+                })
+
+                val promptInfo = BiometricPrompt.PromptInfo.Builder()
+                    .setTitle("Biometric Login")
+                    .setSubtitle("Authenticate using your fingerprint")
+                    .setNegativeButtonText("Cancel")
+                    .build()
+
+                biometricPrompt.authenticate(promptInfo)
+            }
+
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE,
+            BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE,
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                // Biometric hardware not available, or no fingerprint enrolled. Directly navigate to ProfileUI.
+                navigateToProfile()
+            }
+        }
+    }
+
+    private fun navigateToProfile() {
+        startActivity(Intent(this, ProfileUI::class.java))
+        finish()
+    }
+
     private fun fetchUserData(userId: String) {
-        val db = FirebaseFirestore.getInstance()
         val usersCollection = db.collection("Users")
 
         // Query to find the user document by userId
@@ -165,7 +181,6 @@ class StartActivity : AppCompatActivity() {
                 Log.w(TAG, "Get failed with ", exception)
             }
     }
-
 
     @Deprecated("This method has been deprecated in favor of using the Activity Result API.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -197,7 +212,6 @@ class StartActivity : AppCompatActivity() {
                                                 Toast.LENGTH_LONG
                                             ).show()
                                             // Write user information to Firestore
-                                            val db = FirebaseFirestore.getInstance()
                                             val usersCollection = db.collection("Users")
 
                                             // Check if the user document exists
@@ -258,10 +272,9 @@ class StartActivity : AppCompatActivity() {
                                 TAG,
                                 "One-tap encountered a network error."
                             )
-
                             else -> Log.d(
                                 TAG,
-                                "Couldn't get credential from result. (${e.localizedMessage})"
+                                "Unable to resolve sign-in status: ${e.statusCode}"
                             )
                         }
                     }
@@ -269,10 +282,4 @@ class StartActivity : AppCompatActivity() {
             }
         }
     }
-
-
-
-
 }
-
-
