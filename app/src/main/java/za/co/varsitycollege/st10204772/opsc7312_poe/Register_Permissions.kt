@@ -42,9 +42,9 @@ class Register_Permissions : AppCompatActivity() {
         // Continue Button
         val btnpermissions = findViewById<Button>(R.id.btnContinuePermission)
         btnpermissions.setOnClickListener {
-            requestLocationPermissions()
             requestBiometricPermissions()
             requestNotificationPermissions()
+            requestLocationPermissions()
         }
 
         // Disallow Button
@@ -87,6 +87,7 @@ class Register_Permissions : AppCompatActivity() {
         if ((ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
             (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
             Toast.makeText(this, "Location permissions already granted", Toast.LENGTH_SHORT).show()
+            navigateToNextActivity()
         } else {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), LOCATION_PERMISSION_CODE)
         }
@@ -94,7 +95,7 @@ class Register_Permissions : AppCompatActivity() {
 
     private fun requestNotificationPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-        showNotificationPrompt()
+            showNotificationPrompt()
         } else {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), NOTIFICATION_PERMISSION_CODE)
         }
@@ -102,7 +103,7 @@ class Register_Permissions : AppCompatActivity() {
 
     private fun requestBiometricPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.USE_BIOMETRIC) == PackageManager.PERMISSION_GRANTED) {
-        showBiometricPrompt()
+            showBiometricPrompt()
         } else {
             // Request biometric permission
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.USE_BIOMETRIC), BIOMETRIC_PERMISSION_CODE)
@@ -119,8 +120,7 @@ class Register_Permissions : AppCompatActivity() {
             .setPositiveButton("Yes") { _, _ ->
                 sharedPreferences.edit().putBoolean("biometric_enabled", true).apply()
                 Toast.makeText(this, "Biometric sign-in enabled", Toast.LENGTH_SHORT).show()
-                // If you want to authenticate right after enabling
-                // showBiometricPrompt()
+
             }
             .setNegativeButton("No") { dialog, _ ->
                 dialog.dismiss()
@@ -152,28 +152,13 @@ class Register_Permissions : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
         when (requestCode) {
             LOCATION_PERMISSION_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                     Toast.makeText(this, "Location permissions granted", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            BIOMETRIC_PERMISSION_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                } else {
-                    Toast.makeText(this, "Biometric permission denied", Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            NOTIFICATION_PERMISSION_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     navigateToNextActivity()
                 } else {
-                    Toast.makeText(this, "Notification permission denied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Location permissions denied", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -183,6 +168,6 @@ class Register_Permissions : AppCompatActivity() {
         Log.d("Navigation", "Navigating to Register_Email activity")
         val intent = Intent(this, Register_Email::class.java)
         startActivity(intent)
-        finish() // End current activity so the user cannot come back
+        finish()
     }
 }
