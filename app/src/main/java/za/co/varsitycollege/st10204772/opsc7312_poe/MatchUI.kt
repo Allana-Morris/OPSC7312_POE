@@ -84,7 +84,8 @@ class MatchUI : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                } else {
+                }
+                if (diffY > 0) {
                     // Swipe down - trigger "nope"
                     if (!swipedDown) {
                         swipedDown = true
@@ -98,6 +99,9 @@ class MatchUI : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
+                }
+                else {
+
                 }
                 return true
             }
