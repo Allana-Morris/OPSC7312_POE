@@ -47,7 +47,7 @@ class Register_About_You : AppCompatActivity() {
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
             // Format the date and display it in the EditText
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.US)
             edDOB.setText(dateFormat.format(calendar.time))
         }
 
