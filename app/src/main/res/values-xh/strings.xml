@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="signup_redirect_message">Entsha Apha?</string>
+    <string name="signup_caption"><u>Bhalisa</u></string>
     <string name="email_caption">Ngenisa i-imeyile yakho:</string>
     <string name="emailcaption">Ngenisa I-imeyile:</string>
     <string name="password_caption">Ngenisa Igama Lokugqithisa Lakho:</string>
     <string name="passwordcaption">Ngenisa Igama Lokugqithisa:</string>
     <string name="email">" I-imeyile "</string>
     <string name="password">Inombolo yokuvula</string>
+    <string name="emailpasswordhead">imeyile &amp; Inombolo yokuvula</string>
     <string name="sign_in_caption">Ngena</string>
     <string name="verify_caption">Qinisekisa</string>
     <string name="continue_caption">Qhubeka</string>
@@ -16,6 +18,7 @@
     <string name="location_permission">Iinkonzo zakho zendawo</string>
     <string name="spotify_permission">" Iakhawunti yakho yeSpotify"</string>
     <string name="phone_permission">Inombolo yefowuni yakho</string>
+    <string name="permission_agree">Vumelana &amp; Qhubeka</string>
     <string name="loser_behaviour">Ungavumeli</string>
     <string name="about_you">Ungasimisa</string>
     <string name="name">Igama</string>
@@ -23,6 +26,7 @@
     <string name="gender_header">Khetha Isini Sakho:</string>
     <string name="youalrightladies">Mfazi</string>
     <string name="manorbear">Umntu</string>
+    <string name="nobeanie">Non-Bhinary</string>
     <string name="moregendersplease">Khetha ileyibhile elungele wena</string>
     <string name="nor_mal">Khetha izimelabizo zakho:</string>
     <string name="images_head">Masibone</string>
@@ -55,4 +59,8 @@
     <string name="title_home">Ekhaya</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Izaziso</string>
+    <string name="SignInStart">Ngaba sele unayo i-akhawunti?     Ngena</string>
+    <string name="MMSlogan">Ngothando loMculo</string>
+    <string name="sign_up">Bhalisa</string>
+    <string name="sign_up_with_google">Bhalisa kuGoogle</string>
 </resources>

@@ -104,7 +104,7 @@
                 tools:layout_conversion_absoluteWidth="111dp" />
 
             <Spinner
-                android:id="@+id/spinner"
+                android:id="@+id/sp_Language"
                 android:layout_width="179dp"
                 android:layout_height="48dp"
                 android:layout_marginEnd="16dp"
@@ -143,6 +143,7 @@
                 android:id="@+id/switchBio"
                 android:layout_width="77dp"
                 android:layout_height="48dp"
+                android:background="@drawable/switch_colour"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.844"
