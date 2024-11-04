@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [LocalUser::class, Message::class, Cont::class], version = 2)
+@Database(entities = [LocalUser::class, Message::class, Cont::class], version = 3)
 abstract class roomDB : RoomDatabase() {
     abstract fun localUserDao(): LocalUserDao
     abstract fun messageDao(): messageDao?
