@@ -176,10 +176,6 @@ class Chat : AppCompatActivity() {
                     }
                 }
             }
-
-
-
-
 }
     suspend fun generateUniqueMessageId(mesDao: messageDao): String {
         var uniqueId: String
