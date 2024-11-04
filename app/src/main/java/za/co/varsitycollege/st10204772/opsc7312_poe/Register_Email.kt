@@ -48,30 +48,8 @@ class Register_Email : AppCompatActivity() {
             if (inpVal.isStringInput(newEmail) && inpVal.isStringInput(newPassword)) {
                 // Validate the format of email and password
                 if (inpVal.isEmail(newEmail) && inpVal.isPassword(newPassword)) {
-                    // Set user details for registration
-                    user.Email = newEmail
-                    user.Password = newPassword
-                    user.hasGoogle = false
-
-                    // Register and save the new user to Firestore
-                    DatabaseReadandWrite().registerUser(user) { success, errorMessage ->
-                        if (success) {
-                            Toast.makeText(this, "Registration Successful", Toast.LENGTH_LONG).show()
-                            var loguser = User()
-                            loguser.Email = newEmail
-                            loggedUser.user = loguser
-                            retrieveFcmToken(newEmail)
-                            startActivity(Intent(this, Register_About_You::class.java))
-                        } else {
-                            if (errorMessage?.contains("already in use") == true) {
-                                // Firebase will throw an error if the email is already registered
-                                Toast.makeText(this, "User Already Exists", Toast.LENGTH_LONG).show()
-                            } else {
-                                Log.e(TAG, "Failed to register user: $errorMessage")
-                                Toast.makeText(this, "Failed to save user: $errorMessage", Toast.LENGTH_LONG).show()
-                            }
-                        }
-                    }
+                    // Check if email exists and if it has albumArt
+                    checkEmailAndProceed(newEmail, newPassword)
                 } else {
                     // Handle invalid email or password format
                     if (!inpVal.isEmail(newEmail)) {
@@ -90,6 +68,65 @@ class Register_Email : AppCompatActivity() {
         }
     }
 
+    private fun checkEmailAndProceed(email: String, password: String) {
+        val firestore = FirebaseFirestore.getInstance()
+        firestore.collection("Users").whereEqualTo("email", email).get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val userDocument = querySnapshot.documents[0]
+                    // Check if albumArt exists or is empty
+                    if (userDocument.get("albumArt") == null || (userDocument.get("albumArt") as List<*>).isEmpty()) {
+                        // Delete the existing user document
+                        userDocument.reference.delete()
+                            .addOnSuccessListener {
+                                Log.d(TAG, "Existing user document deleted.")
+                                proceedWithRegistration(email, password)
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e(TAG, "Error deleting document: ${e.message}")
+                                Toast.makeText(this, "Error processing previous user data", Toast.LENGTH_LONG).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "User already exists with complete profile", Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    // No existing user, proceed with registration
+                    proceedWithRegistration(email, password)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error checking email: ${e.message}")
+                Toast.makeText(this, "Error checking user email", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun proceedWithRegistration(email: String, password: String) {
+        // Set user details for registration
+        user.Email = email
+        user.Password = password
+        user.hasGoogle = false
+
+        // Register and save the new user to Firestore
+        DatabaseReadandWrite().registerUser(user) { success, errorMessage ->
+            if (success) {
+                Toast.makeText(this, "Registration Successful", Toast.LENGTH_LONG).show()
+                var loguser = User()
+                loguser.Email = email
+                loggedUser.user = loguser
+                retrieveFcmToken(email)
+                startActivity(Intent(this, Register_About_You::class.java))
+            } else {
+                if (errorMessage?.contains("already in use") == true) {
+                    // Firebase will throw an error if the email is already registered
+                    Toast.makeText(this, "User Already Exists", Toast.LENGTH_LONG).show()
+                } else {
+                    Log.e(TAG, "Failed to register user: $errorMessage")
+                    Toast.makeText(this, "Failed to save user: $errorMessage", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
     private fun retrieveFcmToken(userId: String) {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -97,7 +134,7 @@ class Register_Email : AppCompatActivity() {
                 Log.d("AccountManager", "FCM Token: $fcmToken")
 
                 // Save token locally in SharedPreferences for quick access if needed
-                saveTokenToPreferences(userId ,fcmToken, this)
+                saveTokenToPreferences(userId, fcmToken, this)
                 updateFcmToken(fcmToken)
 
             } else {
@@ -107,7 +144,6 @@ class Register_Email : AppCompatActivity() {
     }
 
     private fun saveTokenToPreferences(userid: String, token: String?, context: Context) {
-
         val sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE)
         sharedPreferences.edit().putString("${userid}_fcmToken", token).apply()
     }
@@ -156,7 +192,4 @@ class Register_Email : AppCompatActivity() {
             Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
         }
     }
-
-
 }
-
