@@ -56,7 +56,6 @@ class StartActivity : AppCompatActivity() {
 
         if (currentUserId != null) {
             fetchUserData(currentUserId)
-            enqueueMessageCheckWork()
             startActivity(Intent(this, ProfileUI::class.java))
             finish() // Close the login activity
         } else {
@@ -128,13 +127,6 @@ class StartActivity : AppCompatActivity() {
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Get failed with ", exception)
             }
-    }
-
-    private fun enqueueMessageCheckWork() {
-        val messageCheckRequest: WorkRequest = PeriodicWorkRequestBuilder<MessageCheckWorker>(15, TimeUnit.MINUTES)
-            .build()
-
-        WorkManager.getInstance(this).enqueue(messageCheckRequest)
     }
 
     @Deprecated("This method has been deprecated in favor of using the Activity Result API.")
