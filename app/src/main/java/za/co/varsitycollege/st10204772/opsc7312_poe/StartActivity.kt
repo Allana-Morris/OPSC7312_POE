@@ -31,6 +31,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import org.json.JSONObject
 import za.co.varsitycollege.st10204772.opsc7312_poe.ClientID.CLIENT_ID
@@ -58,6 +59,16 @@ class StartActivity : AppCompatActivity() {
         contactDao = roomDB.getDatabase(this)!!.contactDao()!!
         messageDao = roomDB.getDatabase(this)!!.messageDao()!!
         localUserDao = roomDB.getDatabase(this)!!.localUserDao()!!
+
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+
+            contactDao.clearContacts()
+
+        }
+    }
+
+
 
         // Sign In Button
         findViewById<TextView>(R.id.tvSignIn).setOnClickListener {
