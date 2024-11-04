@@ -20,11 +20,15 @@ import com.google.firebase.firestore.toObject
 import com.spotify.sdk.android.auth.AuthorizationClient
 import com.spotify.sdk.android.auth.AuthorizationRequest
 import com.spotify.sdk.android.auth.AuthorizationResponse
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import za.co.varsitycollege.st10204772.opsc7312_poe.ClientID.REDIRECT_URI3
 
 class ProfileUI : AppCompatActivity() {
     private lateinit var db: FirebaseFirestore
+    private lateinit var roomDb: roomDB // Add RoomDB instance
     private lateinit var tvTopGenre: TextView
     private lateinit var tvTopArtist: TextView
     private lateinit var tvTopSong: TextView
@@ -36,17 +40,18 @@ class ProfileUI : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
-        tvTopGenre = findViewById<TextView>(R.id.topGenreList)
-        tvTopArtist = findViewById<TextView>(R.id.topArtistList)
-        tvTopSong = findViewById<TextView>(R.id.topSongList)
-        settings = findViewById<Button>(R.id.btnSettings)
+        tvTopGenre = findViewById(R.id.topGenreList)
+        tvTopArtist = findViewById(R.id.topArtistList)
+        tvTopSong = findViewById(R.id.topSongList)
+        settings = findViewById(R.id.btnSettings)
         db = FirebaseFirestore.getInstance()
+        roomDb = roomDB.getDatabase(this) // Initialize Room database
 
         val sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE)
         val currentUserId = sharedPreferences.getString("userID", null)
 
         if (!(currentUserId.isNullOrEmpty())) {
-            Log.d(TAG, "Theres an ID")
+            Log.d(TAG, "There's an ID")
             fetchUserData(currentUserId)
         } else {
             Log.e(TAG, "No ID")
@@ -56,10 +61,9 @@ class ProfileUI : AppCompatActivity() {
             val intent = Intent(this@ProfileUI, SettingsUI::class.java)
             startActivity(intent)
         }
-          // Optional: Handle back navigation here if needed
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // Set up bottom navigation
         setupBottomNavigation()
     }
 
@@ -79,17 +83,19 @@ class ProfileUI : AppCompatActivity() {
     }
 
     private fun fetchUserData(userId: String) {
-        val db = FirebaseFirestore.getInstance()
         val usersCollection = db.collection("Users")
 
-        // Query to find the user document by userId
         usersCollection.whereEqualTo("email", userId).get()
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
                     val userDocument = querySnapshot.documents[0]
                     if (userDocument != null) {
-                        lUser = userDocument.toObject<User>()!! // Assuming User data class exists
+                        lUser = userDocument.toObject<User>()!!
                         loggedUser.user = lUser
+                        // Save to Room
+                        saveUserToRoom(lUser)
+
+                        // Fetch user profile
                         fetchUserProfile(loggedUser.user?.Email.toString())
                     } else {
                         Log.d(TAG, "No such document")
@@ -100,12 +106,53 @@ class ProfileUI : AppCompatActivity() {
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Get failed with ", exception)
+                // Fallback to Room database
+                fetchUserFromRoom(userId)
             }
     }
 
-    private fun fetchUserProfile(userEmail: String) {
+    private fun saveUserToRoom(user: User) {
+        CoroutineScope(Dispatchers.IO).launch {
+            // Check if user already exists in Room database by email
+            val existingUser = roomDb.localUserDao().getUserByEmail(user.Email)
 
-        // Query the Users collection for the logged-in user
+            val localUser = LocalUser(
+                name = user.Name,
+                age = user.Age,
+                pronoun = user.Pronoun,
+                email = user.Email
+            )
+
+            if (existingUser != null) {
+                // Update existing user (replace is handled by insert)
+                localUser.id = existingUser.id // Assuming LocalUser has an 'id' field to preserve the existing ID
+                roomDb.localUserDao().insert(localUser) // This will update the existing user
+            } else {
+                // Insert new user
+                roomDb.localUserDao().insert(localUser)
+            }
+        }
+    }
+
+
+    private fun fetchUserFromRoom(userId: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val localUser = roomDb.localUserDao().getUserById(userId.toInt()) // Ensure userId is convertible to Int
+            if (localUser != null) {
+                updateUserProfile(localUser.name, localUser.age.toString(), localUser.pronoun, null)
+                // Show "No internet connection" for top genres, artists, songs
+                runOnUiThread {
+                    tvTopArtist.text = "No internet connection"
+                    tvTopGenre.text = "No internet connection"
+                    tvTopSong.text = "No internet connection"
+                }
+            } else {
+                Log.d(TAG, "No user found in Room")
+            }
+        }
+    }
+
+    private fun fetchUserProfile(userEmail: String) {
         db.collection("Users")
             .whereEqualTo("email", userEmail)
             .get()
@@ -115,37 +162,29 @@ class ProfileUI : AppCompatActivity() {
                     return@addOnSuccessListener
                 }
 
-                // Assuming only one user document matches the email
                 documents.documents[0].apply {
                     val name = getString("name") ?: "Unknown"
                     val age = getLong("age")?.toString() ?: "N/A"
                     val pronouns = getString("pronoun") ?: "Not specified"
-
-                    // Retrieve the list of uploaded images by casting the result as List<String>
                     val imageUrls = get("profileImageUrls") as? List<String> ?: emptyList()
                     val profilePicUrl = imageUrls.firstOrNull() ?: "No profile picture available"
-
-                    // Fetch top artists, genres, and songs
                     val topArtists = get("topArtists") as? List<String> ?: emptyList()
                     val topGenres = get("topGenres") as? List<String> ?: emptyList()
                     val topSongs = get("topSongs") as? List<String> ?: emptyList()
 
                     updateUserProfile(name, age, pronouns, profilePicUrl)
 
-                    // Do something with the top artists, genres, and songs
-                    tvTopArtist.text = topArtists.joinToString("\n") { it }
-                    tvTopGenre.text = topGenres.joinToString("\n") { it }
-                    tvTopSong.text = topSongs.joinToString("\n") { it }
+                    // Show top artists, genres, and songs
+                    runOnUiThread {
+                        tvTopArtist.text = if (topArtists.isNotEmpty()) topArtists.joinToString("\n") { it } else "No internet connection"
+                        tvTopGenre.text = if (topGenres.isNotEmpty()) topGenres.joinToString("\n") { it } else "No internet connection"
+                        tvTopSong.text = if (topSongs.isNotEmpty()) topSongs.joinToString("\n") { it } else "No internet connection"
+                    }
                 }
             }
             .addOnFailureListener { exception ->
                 Log.e("ProfileUI", "Error fetching user profile: ", exception)
             }
-    }
-
-    // Helper method to convert Firestore array to List<String>
-    private fun DocumentSnapshot.getList(field: String): List<String> {
-        return this.get(field) as? List<String> ?: emptyList()
     }
 
     private fun updateUserProfile(name: String?, age: String, pronouns: String?, profilePicUrl: String?) {
