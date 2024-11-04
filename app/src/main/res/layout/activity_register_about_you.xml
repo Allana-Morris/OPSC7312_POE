@@ -60,6 +60,7 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/rounded_corners"
         android:ems="10"
+        android:focusable="auto"
         android:fontFamily="@font/circular_medium"
         android:hint="01/01/2000"
         android:inputType="date"

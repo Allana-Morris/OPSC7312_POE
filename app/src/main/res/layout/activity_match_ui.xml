@@ -9,12 +9,6 @@
     android:background="@color/lowkey_grey"
     tools:context=".MatchUI">
 
-
-    <!-- End of Nav bar -->
-
-    <!-- View Box with outline -->
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/lL_Bar"
         android:layout_width="414dp"

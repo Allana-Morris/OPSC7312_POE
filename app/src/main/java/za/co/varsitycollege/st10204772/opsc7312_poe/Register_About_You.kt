@@ -1,9 +1,11 @@
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
+import android.app.DatePickerDialog
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.widget.*
@@ -36,6 +38,18 @@ class Register_About_You : AppCompatActivity() {
         val btnContinue = findViewById<Button>(R.id.btnContinueAbout)
         val txtMore = findViewById<TextView>(R.id.txtMoreGender)
         val spnMoreGenders = findViewById<Spinner>(R.id.spGender)
+        val calendar = Calendar.getInstance()
+
+        val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+            // Set the selected date on the calendar
+            calendar.set(Calendar.YEAR, year)
+            calendar.set(Calendar.MONTH, month)
+            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+
+            // Format the date and display it in the EditText
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            edDOB.setText(dateFormat.format(calendar.time))
+        }
 
         // Load gender and pronoun data
         val genderItems = resources.getStringArray(R.array.xtragenders)
@@ -52,6 +66,19 @@ class Register_About_You : AppCompatActivity() {
                 R.id.rdbInvalid -> showExtras(txtMore, spnMoreGenders)
                 else -> hideExtras(txtMore, spnMoreGenders)
             }
+        }
+
+        edDOB.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_UP) {
+                DatePickerDialog(
+                    this,
+                    dateSetListener,
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                ).show()
+            }
+            true
         }
 
         btnContinue.setOnClickListener {
