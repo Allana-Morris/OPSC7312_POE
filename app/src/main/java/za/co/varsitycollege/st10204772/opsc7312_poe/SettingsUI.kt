@@ -23,6 +23,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.spotify.sdk.android.auth.LoginActivity
 import java.util.concurrent.Executor
+import kotlin.system.exitProcess
 
 class SettingsUI : AppCompatActivity() {
 
@@ -64,11 +65,7 @@ class SettingsUI : AppCompatActivity() {
                 apply()
             }
 
-            // Redirect to the login screen
-            val intent = Intent(this, LoginActivity::class.java) // Replace with your login activity
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK) // Clear activity stack
-            startActivity(intent)
-            finish()
+            exitProcess(-10)
         }
 
         val isNotificationsEnabled = sharedPreferences.getBoolean("notifications_enabled", true)
