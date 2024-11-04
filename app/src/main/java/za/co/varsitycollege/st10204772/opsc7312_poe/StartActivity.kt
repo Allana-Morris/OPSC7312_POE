@@ -15,6 +15,9 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.credentials.CredentialManager
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.auth.api.identity.SignInClient
@@ -26,6 +29,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
+import java.util.concurrent.TimeUnit
 
 
 class StartActivity : AppCompatActivity() {
@@ -36,6 +41,7 @@ class StartActivity : AppCompatActivity() {
     private val REQ_ONE_TAP = 2  // Can be any integer unique to the Activity
     private lateinit var oneTapClient: SignInClient
     private var lUser: User = User()
+    private val db: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
 
     lateinit var context: Context
 
@@ -45,56 +51,90 @@ class StartActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_start)
 
-        //Sign In Button
-        var btnSignIn = findViewById<TextView>(R.id.tvSignIn)
-        btnSignIn.setOnClickListener {
-            val intent: Intent = Intent(
-                this,
-                Login_Main::class.java
-            )
-            startActivity(intent)
-        }
+        val sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE)
+        val currentUserId = sharedPreferences.getString("userID", null)
 
-        //Sign Up Button
-        var btnSignUp = findViewById<Button>(R.id.btnSignUp)
-        btnSignUp.setOnClickListener {
-            val intent: Intent = Intent(
-                this,
-                Register_Permissions::class.java
-            )
-            startActivity(intent)
-        }
+        if (currentUserId != null) {
+            fetchUserData(currentUserId)
+            enqueueMessageCheckWork()
+            startActivity(Intent(this, ProfileUI::class.java))
+            finish() // Close the login activity
+        } else {
+            //Sign In Button
+            var btnSignIn = findViewById<TextView>(R.id.tvSignIn)
+            btnSignIn.setOnClickListener {
+                val intent: Intent = Intent(
+                    this,
+                    Login_Main::class.java
+                )
+                startActivity(intent)
+            }
 
-        // Google SSO
-        val btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
-        btnGoogle.setOnClickListener {
-            auth = Firebase.auth
-            oneTapClient = Identity.getSignInClient(this)
+            //Sign Up Button
+            var btnSignUp = findViewById<Button>(R.id.btnSignUp)
+            btnSignUp.setOnClickListener {
+                val intent: Intent = Intent(
+                    this,
+                    Register_Permissions::class.java
+                )
+                startActivity(intent)
+            }
 
-            val signInRequest = BeginSignInRequest.builder()
-                .setGoogleIdTokenRequestOptions(
-                    BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                        .setSupported(true)
-                        .setServerClientId(ClientID.server_client_id) // Make sure this is defined properly
-                        .setFilterByAuthorizedAccounts(false)
-                        .build()
-                ).build()
+            // Google SSO
+            val btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
+            btnGoogle.setOnClickListener {
+                auth = Firebase.auth
+                oneTapClient = Identity.getSignInClient(this)
 
-            oneTapClient.beginSignIn(signInRequest)
-                .addOnSuccessListener(this) { result ->
-                    try {
-                        startIntentSenderForResult(
-                            result.pendingIntent.intentSender, REQ_ONE_TAP,
-                            null, 0, 0, 0
-                        )
-                    } catch (e: IntentSender.SendIntentException) {
-                        Log.e(TAG, "Couldn't start One Tap UI: ${e.localizedMessage}")
+                val signInRequest = BeginSignInRequest.builder()
+                    .setGoogleIdTokenRequestOptions(
+                        BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
+                            .setSupported(true)
+                            .setServerClientId(ClientID.server_client_id) // Make sure this is defined properly
+                            .setFilterByAuthorizedAccounts(false)
+                            .build()
+                    ).build()
+
+                oneTapClient.beginSignIn(signInRequest)
+                    .addOnSuccessListener(this) { result ->
+                        try {
+                            startIntentSenderForResult(
+                                result.pendingIntent.intentSender, REQ_ONE_TAP,
+                                null, 0, 0, 0
+                            )
+                        } catch (e: IntentSender.SendIntentException) {
+                            Log.e(TAG, "Couldn't start One Tap UI: ${e.localizedMessage}")
+                        }
                     }
-                }
-                .addOnFailureListener(this) { e ->
-                    Log.d(TAG, e.localizedMessage ?: "Sign-in failed")
-                }
+                    .addOnFailureListener(this) { e ->
+                        Log.d(TAG, e.localizedMessage ?: "Sign-in failed")
+                    }
+            }
         }
+    }
+
+    private fun fetchUserData(email: String) {
+        db.collection("users") // Adjust the collection name based on your Firestore structure
+            .document(email) // Use the email as the document ID
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    lUser = document.toObject<User>()!! // Assuming you have a User data class
+                    loggedUser.user = lUser
+                } else {
+                    Log.d(TAG, "No such document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.w(TAG, "Get failed with ", exception)
+            }
+    }
+
+    private fun enqueueMessageCheckWork() {
+        val messageCheckRequest: WorkRequest = PeriodicWorkRequestBuilder<MessageCheckWorker>(15, TimeUnit.MINUTES)
+            .build()
+
+        WorkManager.getInstance(this).enqueue(messageCheckRequest)
     }
 
     @Deprecated("This method has been deprecated in favor of using the Activity Result API.")
@@ -121,7 +161,11 @@ class StartActivity : AppCompatActivity() {
                                             lUser.Email = userEmail
                                             loggedUser.user = lUser
 
-                                            Toast.makeText(this, "Google Email: ${loggedUser.user?.Email.toString()}", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(
+                                                this,
+                                                "Google Email: ${loggedUser.user?.Email.toString()}",
+                                                Toast.LENGTH_LONG
+                                            ).show()
                                             // Write user information to Firestore
                                             val db = FirebaseFirestore.getInstance()
                                             val usersCollection = db.collection("Users")
@@ -135,20 +179,38 @@ class StartActivity : AppCompatActivity() {
                                                             "email" to userEmail,
                                                             "hasGoogle" to true
                                                         )
-                                                        usersCollection.document(userId).set(newUser)
+                                                        usersCollection.document(userId)
+                                                            .set(newUser)
                                                             .addOnSuccessListener {
-                                                                Toast.makeText(this, "User created in db", Toast.LENGTH_SHORT).show()
-                                                                startActivity(Intent(this, Register_About_You::class.java))
+                                                                Toast.makeText(
+                                                                    this,
+                                                                    "User created in db",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
+                                                                startActivity(
+                                                                    Intent(
+                                                                        this,
+                                                                        Register_About_You::class.java
+                                                                    )
+                                                                )
                                                             }
                                                             .addOnFailureListener { e ->
-                                                                Toast.makeText(this, "Error adding user: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                                Toast.makeText(
+                                                                    this,
+                                                                    "Error adding user: ${e.message}",
+                                                                    Toast.LENGTH_SHORT
+                                                                ).show()
                                                             }
                                                     } else {
                                                         Log.d(TAG, "User already exists.")
                                                     }
                                                 }
                                                 .addOnFailureListener { e ->
-                                                    Toast.makeText(this, "Error querying user: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(
+                                                        this,
+                                                        "Error querying user: ${e.message}",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
                                                 }
                                         }
                                     } else {
@@ -162,8 +224,15 @@ class StartActivity : AppCompatActivity() {
                         Log.d(TAG, "Error retrieving Google credentials: ${e.localizedMessage}")
                         when (e.statusCode) {
                             CommonStatusCodes.CANCELED -> Log.d(TAG, "One-tap dialog was closed.")
-                            CommonStatusCodes.NETWORK_ERROR -> Log.d(TAG, "One-tap encountered a network error.")
-                            else -> Log.d(TAG, "Couldn't get credential from result. (${e.localizedMessage})")
+                            CommonStatusCodes.NETWORK_ERROR -> Log.d(
+                                TAG,
+                                "One-tap encountered a network error."
+                            )
+
+                            else -> Log.d(
+                                TAG,
+                                "Couldn't get credential from result. (${e.localizedMessage})"
+                            )
                         }
                     }
                 }

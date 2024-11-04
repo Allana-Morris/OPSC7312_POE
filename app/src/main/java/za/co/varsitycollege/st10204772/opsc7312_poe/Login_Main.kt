@@ -88,10 +88,12 @@ class Login_Main : AppCompatActivity() {
                         if (isFound) {
                             DatabaseReadandWrite().loginUser(email, password) { user ->
                                 if (user != null) {
-
+                                    loggedUser.user?.apply {
+                                        Name = user.Name // Assign name to the loggedUser instance
+                                    }
                                     retrieveFcmToken(email)
+                                    saveUserSession(email)
                                     authenticateWithSpotify()
-
                                     // Directly navigate to the profile activity
                                     navigateToProfile()
                                 } else {
@@ -197,7 +199,7 @@ class Login_Main : AppCompatActivity() {
             AuthorizationResponse.Type.TOKEN -> {
                 // Handle successful response
                 sAccessToken = response.accessToken
-                loggedUser.user?.Name = sAccessToken
+                loggedUser.user?.userToken = sAccessToken
                 CallSpotifyFun()
             }
 
@@ -232,6 +234,14 @@ class Login_Main : AppCompatActivity() {
 
         val sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE)
         sharedPreferences.edit().putString("${userid}_fcmToken", token).apply()
+    }
+
+    fun saveUserSession(userId: String) {
+        val sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putString("userID", userId)
+            apply()
+        }
     }
 
     fun updateFcmToken(fcmToken: String) {

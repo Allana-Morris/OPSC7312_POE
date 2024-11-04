@@ -61,8 +61,7 @@ dependencies {
     implementation(libs.circleimageview)
 
     implementation (platform("com.google.firebase:firebase-bom:32.0.0"))
-    //Spotify Authentication
-   // implementation(files("libs/spotify-auth-release-2.1.0.aar"))
+    implementation ("androidx.work:work-runtime-ktx:2.7.1")
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
     implementation ("com.squareup.picasso:picasso:2.71828")
     implementation ("com.spotify.android:auth:1.2.5")

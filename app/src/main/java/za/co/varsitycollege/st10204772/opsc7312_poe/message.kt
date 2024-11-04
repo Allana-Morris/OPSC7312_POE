@@ -14,6 +14,7 @@ class Message {
     var content: String? = null
     var timeStamp: String? = null
     var type: String? = null
+    var fcmToken: String? = null
 }
 
 
