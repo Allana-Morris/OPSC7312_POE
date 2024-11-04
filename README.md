@@ -123,7 +123,7 @@ Release Notes
 
 Video Demonstration
 
-A full walkthrough of the app, including registration, Spotify login, and matchmaking, is availabe on YouTube (link).
+A full walkthrough of the app, including registration, Spotify login, and matchmaking, is availabe on YouTube ([link](https://youtu.be/hZUwvWzztHI)).
 
 AI Usage Statement
 
