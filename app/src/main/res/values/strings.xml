@@ -23,14 +23,14 @@
     <!-- Allan's strings
     **Please Check String Exists Before Creating new One -->
     <string name="signup_redirect_message">New Here?</string>
-    <string name="signup_caption" translatable="false"><u>Sign Up</u></string>
+    <string name="signup_caption"><u>Sign Up</u></string>
     <string name="email_caption">Enter Your Email:</string>
     <string name="emailcaption">Enter An Email:</string>
     <string name="password_caption">Enter Your Password:</string>
     <string name="passwordcaption">Enter A Password:</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="emailpasswordhead" translatable="false">Email &amp; Password</string>
+    <string name="emailpasswordhead">Email &amp; Password</string>
     <string name="sign_in_caption">Sign In</string>
     <string name="verify_caption">Verify</string>
     <string name="continue_caption">Continue</string>
@@ -40,7 +40,7 @@
     <string name="location_permission">Your Location Services</string>
     <string name="spotify_permission">Your Spotify Account</string>
     <string name="phone_permission">Your Phone Number</string>
-    <string name="permission_agree" translatable="false">Agree &amp; Continue </string>
+    <string name="permission_agree">Agree &amp; Continue </string>
     <string name="loser_behaviour">Do Not Allow</string>
     <string name="about_you">About You</string>
     <string name="name">  Name</string>
@@ -48,7 +48,7 @@
     <string name="gender_header">Select Your Gender:</string>
     <string name="youalrightladies"> Woman</string>
     <string name="manorbear"> Man</string>
-    <string name="nobeanie" translatable="false"> Non-Binary</string>
+    <string name="nobeanie"> Non-Binary</string>
     <string name="moregendersplease">Select the correct label for you</string>
     <string name="nor_mal">Select Your Pronouns:</string>
     <string name="images_head">Let Us See You</string>
@@ -69,10 +69,6 @@
 
 
     <!--St10080623 Reilly Mare strings -->
-    <string name="suiterName" translatable="false">Reilly Mare, 32</string>
-    <string name="pronouns" translatable="false">he/him/his</string>
-    <string name="songName" translatable="false">Sweet child o Mine</string>
-    <string name="Artist" translatable="false">Guns N Roses</string>
     <string name="settingsHeader">Settings</string>
     <string name="biometricLogin">Use Biometric Login</string>
     <string name="language">Language</string>
@@ -91,12 +87,11 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
-
-    <string name="SignInStart" translatable="false">Already have an account?     Sign in</string>
-    <string name="MMSlogan" translatable="false">For the Love of Music</string>
+    <string name="SignInStart">Already have an account?     Sign in</string>
+    <string name="MMSlogan">For the Love of Music</string>
     <string name="music_match" translatable="false">Music Match</string>
-    <string name="sign_up" translatable="false">Sign Up</string>
-    <string name="sign_up_with_google" translatable="false">Sign Up with Google</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_up_with_google">Sign Up with Google</string>
 
     <!--Reilly Mare strings -->
 
