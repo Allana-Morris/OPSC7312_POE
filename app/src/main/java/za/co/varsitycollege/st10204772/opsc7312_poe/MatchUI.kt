@@ -69,7 +69,8 @@ class MatchUI : AppCompatActivity() {
             velocityX: Float,
             velocityY: Float
         ): Boolean {
-            val diffY = e2?.y?.minus(e1?.y ?: 0f) ?: 0f
+            val diffY = e2.y - (e1?.y ?: 0f)
+            val diffX = e2.x - (e1?.x ?: 0f)
 
             if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                 if (diffY < 0) {
@@ -84,15 +85,16 @@ class MatchUI : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                }
-                if (diffY > 0) {
+                } else if (diffY > 0) {
                     // Swipe down - trigger "nope"
                     if (!swipedDown) {
                         swipedDown = true
                         loggedUser.shownList.add(matchUsers[count].Email)
                         Toast.makeText(this@MatchUI, "User passed", Toast.LENGTH_SHORT).show()
-                        getUsers()
-                    } else {
+                        count++ // Increment count
+                        updateNextUser() // Move to the next user
+                    }
+                    else {
                         Toast.makeText(
                             this@MatchUI,
                             "Already swiped down on this user",
@@ -100,14 +102,26 @@ class MatchUI : AppCompatActivity() {
                         ).show()
                     }
                 }
-                else {
+                return true
+            }
 
+            // Detect horizontal swipe (right)
+            if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                if (diffX > 0) {
+                    // Swipe right - navigate to MatchProfile activity
+                    if (count < matchUsers.size) {
+                        navigateToMatchProfile(matchUsers[count])
+                        Toast.makeText(this@MatchUI, "Navigating to Match Profile", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@MatchUI, "No more users to navigate", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 return true
             }
             return false
         }
     }
+
 
     fun CheckUserUnseen(matchemail: String?) {
         UserSeen = false
@@ -117,6 +131,12 @@ class MatchUI : AppCompatActivity() {
                 break
             }
         }
+    }
+    private fun navigateToMatchProfile(user: MatchUser) {
+        val intent = Intent(this, MatchProfile::class.java).apply {
+            putExtra("Email", user.Email)  // Pass the user's email
+        }
+        startActivity(intent)
     }
 
 
@@ -214,7 +234,8 @@ class MatchUI : AppCompatActivity() {
                                             .addOnSuccessListener {
                                                 loggedUser.shownList.add(user.Email)
                                                 Toast.makeText(this, "Liked successfully", Toast.LENGTH_SHORT).show()
-                                                getUsers()
+                                                count++ // Increment count
+                                                updateNextUser()
                                             }
                                             .addOnFailureListener { e ->
                                                 Toast.makeText(this, "Error adding to liked_by: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -222,7 +243,8 @@ class MatchUI : AppCompatActivity() {
                                     } else {
                                         // User already liked, skip adding
                                         Toast.makeText(this, "User already liked", Toast.LENGTH_SHORT).show()
-                                        getUsers()
+                                        count++ // Increment count even if already liked
+                                        updateNextUser()
                                     }
                                 }
                                 .addOnFailureListener { e ->
@@ -240,6 +262,7 @@ class MatchUI : AppCompatActivity() {
                 }
         } ?: Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
     }
+
 
 
     private fun displayNoUsersFoundUI() {
@@ -263,6 +286,18 @@ class MatchUI : AppCompatActivity() {
     private fun DocumentSnapshot.getList(field: String): List<String> {
         return this.get(field) as? List<String> ?: emptyList()
     }
+
+    private fun updateNextUser() {
+        if (count < matchUsers.size) {
+            val nextUser = matchUsers[count]
+            swipedUp = false
+            swipedDown = false
+            updateUserUI(nextUser)
+        } else {
+            displayNoUsersFoundUI()
+        }
+    }
+
 
     private fun setupBottomNavigation() {
         val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Match)
