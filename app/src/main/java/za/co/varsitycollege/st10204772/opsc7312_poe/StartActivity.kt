@@ -2,6 +2,7 @@
 
 package za.co.varsitycollege.st10204772.opsc7312_poe
 
+import android.app.Activity
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
@@ -39,6 +40,7 @@ class StartActivity : AppCompatActivity() {
     private lateinit var oneTapClient: SignInClient
     private lateinit var contactDao: ContactDao
     private lateinit var messageDao: messageDao
+    private var lUser: User = User()
 
     lateinit var context: Context
 
@@ -79,7 +81,7 @@ class StartActivity : AppCompatActivity() {
         }
 
         // Google SSO
-        var btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
+        val btnGoogle = findViewById<Button>(R.id.btnSignUpWithGoogle)
         btnGoogle.setOnClickListener {
             auth = Firebase.auth
             oneTapClient = Identity.getSignInClient(this)
@@ -88,7 +90,7 @@ class StartActivity : AppCompatActivity() {
                 .setGoogleIdTokenRequestOptions(
                     BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                         .setSupported(true)
-                        .setServerClientId(ClientID.server_client_id)
+                        .setServerClientId(ClientID.server_client_id) // Make sure this is defined properly
                         .setFilterByAuthorizedAccounts(false)
                         .build()
                 ).build()
@@ -100,156 +102,86 @@ class StartActivity : AppCompatActivity() {
                             result.pendingIntent.intentSender, REQ_ONE_TAP,
                             null, 0, 0, 0
                         )
-
                     } catch (e: IntentSender.SendIntentException) {
                         Log.e(TAG, "Couldn't start One Tap UI: ${e.localizedMessage}")
                     }
                 }
                 .addOnFailureListener(this) { e ->
-                    e.localizedMessage?.let { it1 -> Log.d(TAG, it1) }
+                    Log.d(TAG, e.localizedMessage ?: "Sign-in failed")
                 }
-
-
         }
     }
 
-    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
             REQ_ONE_TAP -> {
-                try {
-                    val googleCredential = oneTapClient.getSignInCredentialFromIntent(data)
-                    val idToken = googleCredential.googleIdToken
-                    when {
-                        idToken != null -> {
-                            // Got an ID token from Google. Use it to authenticate
-                            // with Firebase.
+                if (resultCode == Activity.RESULT_OK) {
+                    try {
+                        val googleCredential = oneTapClient.getSignInCredentialFromIntent(data)
+                        val idToken = googleCredential.googleIdToken
+                        if (idToken != null) {
+                            // Authenticate with Firebase
                             val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
                             auth.signInWithCredential(firebaseCredential)
                                 .addOnCompleteListener(this) { task ->
                                     if (task.isSuccessful) {
-                                        // Sign in success, update UI with the signed-in user's information
-                                        Log.d(TAG, "signInWithCredential:success")
+                                        // Sign in success, retrieve user information
                                         val user = auth.currentUser
                                         user?.let {
+                                            val userEmail = user.email ?: "No Email"
+                                            val userId = user.uid
+                                            lUser.Email = userEmail
+                                            loggedUser.user = lUser
 
-                                            if (user != null) {
-                                                // Capture user information
-                                                User().Email = user.email.toString()
-                                                User().hasGoogle = true
+                                            Toast.makeText(this, "Google Email: ${loggedUser.user?.Email.toString()}", Toast.LENGTH_LONG).show()
+                                            // Write user information to Firestore
+                                            val db = FirebaseFirestore.getInstance()
+                                            val usersCollection = db.collection("Users")
 
-                                                // Write user information to Firestore
-                                                val db = FirebaseFirestore.getInstance()
-                                                val userId = user.uid ?: ""
-
-                                                val usersCollection = db.collection("Users")
-
-                                                // Query to find the user document where email matches
-                                                usersCollection.whereEqualTo(
-                                                    "email",
-                                                    user.email
-                                                ).get()
-                                                    .addOnSuccessListener { querySnapshot ->
-                                                        if (querySnapshot.isEmpty) {
-                                                            val userDocument =
-                                                                querySnapshot.documents[0]
-
-                                                            // Update the document with the top songs
-                                                            userDocument.reference.update(
-                                                                "email",
-                                                                user.email
-                                                            )
-                                                                .addOnSuccessListener {
-                                                                    Toast.makeText(
-                                                                        this,
-                                                                        "Email added to db",
-                                                                        Toast.LENGTH_SHORT
-                                                                    ).show()
-                                                                }
-                                                                .addOnFailureListener { e ->
-                                                                    Toast.makeText(
-                                                                        this,
-                                                                        "Error adding Google Email: ${e.message}",
-                                                                        Toast.LENGTH_SHORT
-                                                                    ).show()
-                                                                }
-                                                            userDocument.reference.update(
-                                                                "hasGoogle",
-                                                                true
-                                                            )
-                                                                .addOnSuccessListener {
-                                                                    Toast.makeText(
-                                                                        this,
-                                                                        "User has Google",
-                                                                        Toast.LENGTH_SHORT
-                                                                    ).show()
-                                                                }
-                                                                .addOnFailureListener { e ->
-                                                                    Toast.makeText(
-                                                                        this,
-                                                                        "Error: ${e.message}",
-                                                                        Toast.LENGTH_SHORT
-                                                                    ).show()
-                                                                }
-                                                            val intent = Intent(
-                                                                this,
-                                                                Register_About_You::class.java
-                                                            )
-                                                            startActivity(intent)
-                                                        } else {
-                                                            // Shouldn't happen.
-                                                            Log.d(TAG, "No ID token!")
-                                                        }
+                                            // Check if the user document exists
+                                            usersCollection.whereEqualTo("email", userEmail).get()
+                                                .addOnSuccessListener { querySnapshot ->
+                                                    if (querySnapshot.isEmpty) {
+                                                        // Create a new user document if it doesn't exist
+                                                        val newUser = hashMapOf(
+                                                            "email" to userEmail,
+                                                            "hasGoogle" to true
+                                                        )
+                                                        usersCollection.document(userId).set(newUser)
+                                                            .addOnSuccessListener {
+                                                                Toast.makeText(this, "User created in db", Toast.LENGTH_SHORT).show()
+                                                                startActivity(Intent(this, Register_About_You::class.java))
+                                                            }
+                                                            .addOnFailureListener { e ->
+                                                                Toast.makeText(this, "Error adding user: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                            }
+                                                    } else {
+                                                        Log.d(TAG, "User already exists.")
                                                     }
-
-                                            }
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    Toast.makeText(this, "Error querying user: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                }
                                         }
                                     } else {
-                                        // If sign in fails, display a message to the user.
-                                        Log.w(
-                                            TAG,
-                                            "signInWithCredential:failure",
-                                            task.exception
-                                        )
-
+                                        Log.w(TAG, "signInWithCredential:failure", task.exception)
                                     }
                                 }
-
+                        } else {
+                            Log.d(TAG, "No ID token received.")
                         }
-
-
-                    }
-
-                } catch (e: ApiException) {
-                    Log.d(
-                        TAG,
-                        "Gad, what have you done? You're a Pink Pony girl and you dance at the club"
-                    )
-                    when (e.statusCode) {
-                        CommonStatusCodes.CANCELED -> {
-                            Log.d(TAG, "One-tap dialog was closed.")
-                            // Don't re-prompt the user.
-                            var showOneTapUI = false
-                        }
-
-                        CommonStatusCodes.NETWORK_ERROR -> {
-                            Log.d(TAG, "One-tap encountered a network error.")
-                            // Try again or just ignore.
-                        }
-
-                        else -> {
-                            Log.d(
-                                TAG, "Couldn't get credential from result." +
-                                        " (${e.localizedMessage})"
-                            )
-
+                    } catch (e: ApiException) {
+                        Log.d(TAG, "Error retrieving Google credentials: ${e.localizedMessage}")
+                        when (e.statusCode) {
+                            CommonStatusCodes.CANCELED -> Log.d(TAG, "One-tap dialog was closed.")
+                            CommonStatusCodes.NETWORK_ERROR -> Log.d(TAG, "One-tap encountered a network error.")
+                            else -> Log.d(TAG, "Couldn't get credential from result. (${e.localizedMessage})")
                         }
                     }
                 }
-
-
             }
         }
     }

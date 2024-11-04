@@ -5,6 +5,7 @@ import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.content.Context
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -12,6 +13,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 
 class Register_Email : AppCompatActivity() {
     var user: User = User()
@@ -52,6 +60,7 @@ class Register_Email : AppCompatActivity() {
                             var loguser = User()
                             loguser.Email = newEmail
                             loggedUser.user = loguser
+                            retrieveFcmToken(newEmail)
                             startActivity(Intent(this, Register_About_You::class.java))
                         } else {
                             if (errorMessage?.contains("already in use") == true) {
@@ -80,4 +89,74 @@ class Register_Email : AppCompatActivity() {
             }
         }
     }
+
+    private fun retrieveFcmToken(userId: String) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val fcmToken = task.result
+                Log.d("AccountManager", "FCM Token: $fcmToken")
+
+                // Save token locally in SharedPreferences for quick access if needed
+                saveTokenToPreferences(userId ,fcmToken, this)
+                updateFcmToken(fcmToken)
+
+            } else {
+                Log.w("AccountManager", "Failed to get FCM token", task.exception)
+            }
+        }
+    }
+
+    private fun saveTokenToPreferences(userid: String, token: String?, context: Context) {
+
+        val sharedPreferences = context.getSharedPreferences("UserSession", Context.MODE_PRIVATE)
+        sharedPreferences.edit().putString("${userid}_fcmToken", token).apply()
+    }
+
+    fun updateFcmToken(fcmToken: String) {
+        val firestore = FirebaseFirestore.getInstance()
+
+        // Get the logged user's email
+        val email = loggedUser.user?.Email
+
+        if (email != null) {
+            // Reference to the Users collection
+            val usersCollection = firestore.collection("Users")
+
+            // Query to find the user document where email matches
+            usersCollection.whereEqualTo("email", email).get()
+                .addOnSuccessListener { querySnapshot ->
+                    if (!querySnapshot.isEmpty) {
+                        val userDocument = querySnapshot.documents[0]
+
+                        // Update the document with the FCM token
+                        userDocument.reference.update("fcmToken", fcmToken)
+                            .addOnSuccessListener {
+                                Toast.makeText(
+                                    this,
+                                    "FCM token updated successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    this,
+                                    "Error updating FCM token: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Error fetching user: ${e.message}", Toast.LENGTH_SHORT)
+                        .show()
+                }
+        } else {
+            Toast.makeText(this, "User email is not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
 }
+

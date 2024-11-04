@@ -51,6 +51,7 @@ class ProfileUI : AppCompatActivity() {
         setupBottomNavigation()
     }
 
+
     private fun setupBottomNavigation() {
         val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Profile)
         navbar.selectedItemId = R.id.nav_profile

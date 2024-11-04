@@ -27,7 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
-        android:text="Music Match"
+        android:text="@string/music_match"
         android:textColor="@android:color/white"
         android:textSize="32sp"
         android:textStyle="bold"
@@ -41,7 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="For the Love of Music"
+        android:text="@string/MMSlogan"
         android:textColor="@android:color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -50,46 +50,49 @@
 
     <!-- Sign Up Button -->
 
+    <!-- Sign Up With Google Button -->
     <Button
         android:id="@+id/btnSignUp"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="200dp"
+        android:layout_height="55dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="332dp"
+        android:layout_marginTop="336dp"
         android:layout_marginEnd="32dp"
-        android:backgroundTint="@android:color/holo_green_dark"
-        android:text="Sign Up"
+        android:backgroundTint="@color/dark_green"
+        android:text="@string/sign_up"
         android:textColor="@android:color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
+        app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
+        tools:ignore="VisualLintButtonSize" />
 
-    <!-- Sign Up With Google Button -->
     <Button
         android:id="@+id/btnSignUpWithGoogle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="273dp"
+        android:layout_height="55dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="400dp"
+        android:layout_marginTop="396dp"
         android:layout_marginEnd="32dp"
         android:backgroundTint="@color/white"
-        android:text="Sign Up with Google"
+        android:text="@string/sign_up_with_google"
         android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSubtitle" />
+        app:layout_constraintTop_toBottomOf="@id/tvSubtitle"
+        tools:ignore="VisualLintButtonSize" />
 
     <ImageView
         android:id="@+id/googleLogo"
         android:layout_width="50dp"
         android:layout_height="60dp"
         android:layout_marginStart="76dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="4dp"
         android:contentDescription="Google Logo"
+        app:layout_constraintEnd_toEndOf="@+id/btnSignUpWithGoogle"
+        app:layout_constraintHorizontal_bias="0.013"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnSignUp"
         app:srcCompat="@drawable/google_logo" />
@@ -101,7 +104,7 @@
         android:layout_marginStart="96dp"
         android:layout_marginTop="16dp"
         android:gravity="center"
-        android:text="Already have an account? Sign in"
+        android:text="@string/SignInStart"
         android:textColor="@android:color/white"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"

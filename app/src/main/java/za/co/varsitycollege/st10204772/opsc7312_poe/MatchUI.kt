@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -37,8 +38,12 @@ class MatchUI : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_match_ui)
-
+        setupBottomNavigation()
         getUsers()
+
+
+        // Query to get users with a specific spotifyId
+
     }
 
     fun CheckUserUnseen(matchemail: String?) {
@@ -187,13 +192,12 @@ class MatchUI : AppCompatActivity() {
                     songName.text = user.topSong[0]
                     artistName.text = user.topArtist[0]
                     Glide.with(this)
-                    .load(user.album[0])
-                    .into(albumCover)
+                        .load(user.album[0])
+                        .into(albumCover)
 
                     val imageAdapter = ImagePagerAdapter(user.profilePictureUrl ?: emptyList())
                     pager.adapter = imageAdapter
-                }
-                else{
+                } else {
                     val pager = findViewById<ViewPager2>(R.id.imagePager)
                     val name = findViewById<TextView>(R.id.tvName)
                     val pronouns = findViewById<TextView>(R.id.tvPronouns)
@@ -220,7 +224,24 @@ class MatchUI : AppCompatActivity() {
     private fun DocumentSnapshot.getList(field: String): List<String> {
         return this.get(field) as? List<String> ?: emptyList()
     }
+
+
+    private fun setupBottomNavigation() {
+        val navbar = findViewById<BottomNavigationView>(R.id.BNV_Navbar_Match)
+        navbar.selectedItemId = R.id.nav_match
+        navbar.setOnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_match -> startActivity(Intent(this, MatchUI::class.java))
+                R.id.nav_like -> startActivity(Intent(this, Liked_you::class.java))
+                R.id.nav_chat -> startActivity(Intent(this, Contact::class.java))
+                R.id.nav_profile -> startActivity(Intent(this, ProfileUI::class.java))
+                else -> false
+            }
+            true
+        }
+    }
 }
+
 
 class ImagePagerAdapter(private val images: List<String>) :
     RecyclerView.Adapter<ImagePagerAdapter.ImageViewHolder>() {

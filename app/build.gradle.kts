@@ -51,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.core.ktx)
     val room_version = "2.6.1"
 
     implementation ("androidx.room:room-ktx:$room_version")
@@ -59,16 +60,19 @@ dependencies {
     //CircleImageView Library
     implementation(libs.circleimageview)
 
+    implementation (platform("com.google.firebase:firebase-bom:32.0.0"))
     //Spotify Authentication
    // implementation(files("libs/spotify-auth-release-2.1.0.aar"))
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
     implementation ("com.squareup.picasso:picasso:2.71828")
     implementation ("com.spotify.android:auth:1.2.5")
     implementation (libs.androidx.browser)
+    implementation("com.google.accompanist:accompanist-permissions:0.30.1")
 
     //Glide for image loading
     implementation (libs.glide)
     implementation(libs.firebase.storage.ktx)
+    implementation("com.google.firebase:firebase-messaging:20.0.0")
 
     //Google SSO with OAuth2.0
     implementation (libs.androidx.credentials.v150alpha05)

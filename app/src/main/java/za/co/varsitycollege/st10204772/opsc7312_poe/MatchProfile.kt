@@ -80,6 +80,7 @@ class MatchProfile : AppCompatActivity() {
                     startActivity(Intent(this, ProfileUI::class.java))
                     true
                 }
+
                 else -> false
             }
         }
