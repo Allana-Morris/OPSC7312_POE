@@ -175,38 +175,30 @@ class Login_Main : AppCompatActivity() {
         executor = ContextCompat.getMainExecutor(this)
         biometricPrompt = BiometricPrompt(this, executor, object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                super.onAuthenticationSucceeded(result)
-                // Handle successful fingerprint authentication
-                Toast.makeText(applicationContext, "Authentication succeeded!", Toast.LENGTH_SHORT).show()
-                // Directly navigate to the profile activity
-                authenticateWithSpotify()
-                navigateToProfile()
-            }
-
-            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                super.onAuthenticationError(errorCode, errString)
-                // Handle error in authentication
-                Toast.makeText(applicationContext, "Authentication error: $errString", Toast.LENGTH_SHORT).show()
+                Log.d(TAG, "Biometric authentication succeeded")
+                // Instead of navigating to the profile directly, call performLogin
+                val email = findViewById<EditText>(R.id.etxtEmailLogin).text.toString()
+                val password = findViewById<EditText>(R.id.etxtPassword).text.toString()
             }
 
             override fun onAuthenticationFailed() {
                 super.onAuthenticationFailed()
-                // Handle failed authentication
-                Toast.makeText(applicationContext, "Authentication failed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@Login_Main, "Authentication failed", Toast.LENGTH_SHORT).show()
             }
         })
 
         promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Fingerprint Login")
-            .setSubtitle("Log in using your fingerprint")
-            .setNegativeButtonText("Cancel")
+            .setTitle("Biometric login")
+            .setSubtitle("Log in using your biometric credential")
+            .setNegativeButtonText("Use account password")
             .build()
     }
 
-    // Show fingerprint prompt
     private fun showBiometricPrompt() {
         biometricPrompt.authenticate(promptInfo)
+        // Don't call performLogin here since it will be called in onAuthenticationSucceeded
     }
+
 
     // Navigate to Profile Activity on successful authentication
     private fun navigateToProfile() {
