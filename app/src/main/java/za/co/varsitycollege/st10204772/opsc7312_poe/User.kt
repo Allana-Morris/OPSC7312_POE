@@ -16,6 +16,7 @@ class User() {
     var SpotifyUserId: String = ""
     var hasGoogle: Boolean = false
     var userToken: String = ""
+    var fcmToken: String = ""
 
     data class GoogleUser(
         var googleID: String = "",
