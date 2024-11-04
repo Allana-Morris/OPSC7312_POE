@@ -32,6 +32,7 @@ class SettingsUI : AppCompatActivity() {
 
     private lateinit var notificationSwitch: Switch
     private lateinit var biometricSwitch: Switch
+    private lateinit var fabLogout: FloatingActionButton
     private lateinit var languageSpinner: Spinner
     private lateinit var btnSaveChange: Button
     private lateinit var sharedPreferences: SharedPreferences
@@ -73,6 +74,30 @@ class SettingsUI : AppCompatActivity() {
         btnSaveChange = findViewById(R.id.btnSaveChange)
 
         setupBottomNavigation()
+
+        fabLogout = findViewById(R.id.fabLogout)
+        fabLogout.setOnClickListener {
+            // Get the instance of FirebaseAuth
+            val auth = FirebaseAuth.getInstance()
+
+            // Sign out the user
+            auth.signOut()
+
+            // Clear user session data from SharedPreferences if necessary
+            val sharedPreferences = getSharedPreferences("UserSession", Context.MODE_PRIVATE)
+            with(sharedPreferences.edit()) {
+                clear() // or remove specific keys as needed
+                apply()
+            }
+
+            // Navigate back to the login activity
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Clear the back stack
+            startActivity(intent)
+
+            // Optionally, you can show a message indicating successful logout
+            Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
+        }
 
         btnSaveChange.setOnClickListener {
             val selectedPosition = languageSpinner.selectedItemPosition

@@ -8,7 +8,7 @@
     android:background="@color/light_grey"
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
-    tools:context=".ChatActivity">
+    tools:context=".Chat">
 
     <!-- Header Section -->
     <androidx.constraintlayout.widget.ConstraintLayout

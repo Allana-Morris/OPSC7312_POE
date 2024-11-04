@@ -9,12 +9,6 @@
     android:background="@color/lowkey_grey"
     tools:context=".MatchUI">
 
-
-    <!-- End of Nav bar -->
-
-    <!-- View Box with outline -->
-
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/lL_Bar"
         android:layout_width="414dp"
@@ -166,9 +160,11 @@
         android:layout_height="0dp"
         android:clickable="true"
         android:visibility="gone"
-        app:srcCompat="@drawable/ic_profile"
-        tools:layout_editor_absoluteX="411dp"
-        tools:layout_editor_absoluteY="750dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/CLMatch"
+        app:srcCompat="@drawable/ic_profile" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_nope"
