@@ -158,6 +158,7 @@ class Login_Main : AppCompatActivity() {
             AuthorizationResponse.Type.TOKEN,
             ClientID.REDIRECT_URI2 // Ensure this matches your registered redirect URI
         )
+        //pernits
         builder.setScopes(
             arrayOf(
                 "user-read-private",
