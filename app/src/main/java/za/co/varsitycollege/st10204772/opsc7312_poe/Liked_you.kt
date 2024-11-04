@@ -135,6 +135,53 @@ class Liked_you : AppCompatActivity() {
 
 
     private fun handleAddContact(toUid: String) {
+        val currentUserEmail = loggedUser.user?.Email
+
+        if (currentUserEmail == null) {
+            showToast("Current user email is not available")
+            return
+        }
+
+        // Check if the liked user has the current user in their liked_by collection
+        db.collection("Users")
+            .whereEqualTo("email", toUid)
+            .get()
+            .addOnSuccessListener { userDocuments ->
+                if (userDocuments.isEmpty) {
+                    showToast("Liked user not found")
+                    return@addOnSuccessListener
+                }
+
+                val likedUserDoc = userDocuments.documents[0]
+                val likedByRef = likedUserDoc.reference.collection("liked_by")
+
+                likedByRef.whereEqualTo("uid", currentUserEmail)
+                    .get()
+                    .addOnSuccessListener { likedByDocuments ->
+                        // Remove current user from liked user's liked_by if present
+                        likedByDocuments.forEach { likedByDoc ->
+                            likedByRef.document(likedByDoc.id).delete()
+                                .addOnSuccessListener {
+                                    showToast("Removed from liked user's liked_by list.")
+                                }
+                                .addOnFailureListener { e ->
+                                    showToast("Error removing from liked_by: ${e.message}")
+                                }
+                        }
+
+                        // After checking, add the contact in the current user's message collection
+                        addContactToMessageCollection(toUid)
+                    }
+                    .addOnFailureListener { e ->
+                        showToast("Error checking liked_by: ${e.message}")
+                    }
+            }
+            .addOnFailureListener { e ->
+                showToast("Error fetching liked user: ${e.message}")
+            }
+    }
+
+    private fun addContactToMessageCollection(toUid: String) {
         val newMessage = hashMapOf(
             "fromUid" to loggedUser.user?.Email,
             "toUid" to toUid
@@ -144,7 +191,7 @@ class Liked_you : AppCompatActivity() {
             .add(newMessage)
             .addOnSuccessListener { documentReference ->
                 showToast("Contact added! Redirecting...")
-                deleteLikedContact(toUid)
+                deleteLikedContact(toUid) // Remove from current user's liked list after adding contact
                 startActivity(Intent(this, Contact::class.java).apply {
                     putExtra("messageDocId", documentReference.id)
                 })
@@ -153,6 +200,7 @@ class Liked_you : AppCompatActivity() {
                 showToast("Error adding contact: ${e.message}")
             }
     }
+
 
     private fun deleteLikedContact(toUid: String) {
         db.collection("Users")

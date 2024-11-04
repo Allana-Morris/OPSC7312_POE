@@ -134,26 +134,50 @@ class MatchUI : AppCompatActivity() {
                                             val userName = userDocument.getString("name")
 
                                             if (userName != null) {
-                                                val likedByData = hashMapOf(
-                                                    "uid" to currentUserEmail,
-                                                    "name" to userName
-                                                )
-
+                                                // Check if the logged-in user is already in the liked_by list
                                                 userDocument.reference.collection("liked_by")
-                                                    .add(likedByData)
-                                                    .addOnSuccessListener {
-                                                        loggedUser.shownList.add(user.Email)
-                                                        Toast.makeText(
-                                                            this@MatchUI,
-                                                            "Liked successfully",
-                                                            Toast.LENGTH_SHORT
-                                                        ).show()
-                                                        getUsers()
+                                                    .whereEqualTo("uid", currentUserEmail)
+                                                    .get()
+                                                    .addOnSuccessListener { likedBySnapshot ->
+                                                        if (likedBySnapshot.isEmpty) {
+                                                            // User is not already liked, so proceed to add
+                                                            val likedByData = hashMapOf(
+                                                                "uid" to currentUserEmail,
+                                                                "name" to userName
+                                                            )
+
+                                                            userDocument.reference.collection("liked_by")
+                                                                .add(likedByData)
+                                                                .addOnSuccessListener {
+                                                                    loggedUser.shownList.add(user.Email)
+                                                                    Toast.makeText(
+                                                                        this@MatchUI,
+                                                                        "Liked successfully",
+                                                                        Toast.LENGTH_SHORT
+                                                                    ).show()
+                                                                    getUsers()
+                                                                }
+                                                                .addOnFailureListener { e ->
+                                                                    Toast.makeText(
+                                                                        this@MatchUI,
+                                                                        "Error adding to liked_by: ${e.message}",
+                                                                        Toast.LENGTH_SHORT
+                                                                    ).show()
+                                                                }
+                                                        } else {
+                                                            // User already liked, skip adding
+                                                            Toast.makeText(
+                                                                this@MatchUI,
+                                                                "User already liked",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+                                                            getUsers()
+                                                        }
                                                     }
                                                     .addOnFailureListener { e ->
                                                         Toast.makeText(
                                                             this@MatchUI,
-                                                            "Error adding to liked_by: ${e.message}",
+                                                            "Error checking liked_by: ${e.message}",
                                                             Toast.LENGTH_SHORT
                                                         ).show()
                                                     }
@@ -187,6 +211,7 @@ class MatchUI : AppCompatActivity() {
                                 ).show()
                             }
                         }
+
 
                         nope.setOnClickListener {
                             loggedUser.shownList.add(user.Email)
