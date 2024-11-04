@@ -7,7 +7,7 @@ import androidx.room.Query
 @Dao
 interface messageDao {
     @Insert
-    fun insert(message: Message)
+    suspend fun insert(message: Message)
 
     // Keep two parameters for flexibility
     @Query("SELECT * FROM messages WHERE fromUid = :fromUid OR toUid = :toUid ORDER BY timestamp")

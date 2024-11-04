@@ -117,7 +117,7 @@ class Register_Spotify_Link : AppCompatActivity() {
                 AuthorizationResponse.Type.TOKEN -> {
                     // Handle successful response
                     mAccessToken = response.accessToken
-                    loggedUser.user?.Name = mAccessToken.toString();
+                    loggedUser.user?.userToken = mAccessToken.toString();
                     saveAccessToken(mAccessToken)  // Save the access token
                     fetchSpotifyUserProfile()
                 }
@@ -202,7 +202,7 @@ class Register_Spotify_Link : AppCompatActivity() {
 
     private fun saveAccessToken(token: String?) {
         if (token != null) {
-            loggedUser.user?.Name = token
+            loggedUser.user?.userToken = token
         }
     }
 

@@ -37,7 +37,7 @@ class ProfileUI : AppCompatActivity() {
         tvTopArtist = findViewById<TextView>(R.id.topArtistList)
         tvTopSong = findViewById<TextView>(R.id.topSongList)
 
-        mAccessToken = loggedUser.user?.Name.toString()
+        mAccessToken = loggedUser.user?.userToken.toString()
 
         db = FirebaseFirestore.getInstance()
 

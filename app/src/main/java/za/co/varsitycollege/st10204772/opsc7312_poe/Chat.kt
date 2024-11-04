@@ -18,6 +18,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
@@ -89,6 +90,9 @@ class Chat : AppCompatActivity() {
 
 
         lifecycleScope.launch(Dispatchers.IO) {
+
+            val contactToken = getContactFCMToken(contactID)
+
             // Generate a unique message ID
             val newMessageId = generateUniqueMessageId(mesDao)  // Ensure generateUniqueMessageId is defined and returns a unique string
 
@@ -99,21 +103,23 @@ class Chat : AppCompatActivity() {
                 content = messageText
                 timeStamp = System.currentTimeMillis().toString()
                 type = "text"
+                fcmToken = contactToken
             }
 
             // Insert the message into Room
             mesDao.insert(localMessage)
 
             // Switch back to the main thread to update the UI
-            withContext(Dispatchers.Main) {
-                displayMessage(messageText, "sender", findViewById(R.id.vert_layout_chat))
-            }
+
 
             // Attempt to send to Firestore
             db.collection("message").document(docID).collection("msgList")
                 .document(newMessageId)  // Use newMessageId here for the Firestore document ID
                 .set(newMessage)
                 .addOnSuccessListener {
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        displayMessage(messageText, "sender", findViewById(R.id.vert_layout_chat))
+                    }
                     // Clear the input field after sending the message
                     findViewById<TextView>(R.id.txtInput).text = ""
                 }
@@ -177,6 +183,7 @@ class Chat : AppCompatActivity() {
                 }
             }
 }
+
     suspend fun generateUniqueMessageId(mesDao: messageDao): String {
         var uniqueId: String
         do {
@@ -218,6 +225,15 @@ class Chat : AppCompatActivity() {
         layout.addView(messageView)
     }
 
-
+    private suspend fun getContactFCMToken(contactID: String): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val contactDoc = db.collection("contacts").document(contactID).get().await()
+                contactDoc.getString("fcmToken")
+            } catch (e: Exception) {
+                null // Handle any exception (e.g., contact not found) gracefully
+            }
+        }
+    }
 
 }

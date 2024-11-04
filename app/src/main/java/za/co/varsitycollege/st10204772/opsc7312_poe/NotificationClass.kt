@@ -8,21 +8,38 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.test.core.app.ApplicationProvider
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
 class NotificationClass : FirebaseMessagingService() {
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        if (remoteMessage.getNotification() != null) {
-            // Since the notification is received directly from
-            // FCM, the title and the body can be fetched
-            // directly as below.
-            sendNotification(
-                remoteMessage.getNotification()!!.getTitle(),
-                remoteMessage.getNotification()!!.getBody()
-            )
+  /*  override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        // TODO(developer): Handle FCM messages here.
+        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
+      //  Log.d(TAG, "From: ${remoteMessage.from}")
+
+        // Check if message contains a data payload.
+        if (remoteMessage.data.isNotEmpty()) {
+           // Log.d(TAG, "Message data payload: ${remoteMessage.data}")
+
+            // Check if data needs to be processed by long running job
+           // if (needsToBeScheduled()) {
+                // For long-running tasks (10 seconds or more) use WorkManager.
+             //   scheduleJob()
+            } else {
+                // Handle message within 10 seconds
+              //  handleNow()
+            }
         }
+
+        // Check if message contains a notification payload.
+      //  remoteMessage.notification?.let {
+          //  Log.d(TAG, "Message Notification Body: ${it.body}")
+        //}
+
+        // Also if you intend on generating your own notifications as a result of a received FCM
+        // message, here is where that should be initiated. See sendNotification method below.
     }
 
     private fun sendNotification(message: String?, body: String?) {
@@ -101,5 +118,5 @@ class NotificationClass : FirebaseMessagingService() {
 
     companion object {
         private const val TAG = "FirebaseNotification"
-    }
+    } */
 }
