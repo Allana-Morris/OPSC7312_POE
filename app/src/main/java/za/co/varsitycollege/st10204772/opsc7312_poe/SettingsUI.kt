@@ -54,6 +54,7 @@ class SettingsUI : AppCompatActivity() {
         fabLogout.setOnClickListener {
             // Get the instance of FirebaseAuth
             val auth = FirebaseAuth.getInstance()
+            loggedUser.user = User()
 
             // Sign out the user
             auth.signOut()
@@ -65,7 +66,9 @@ class SettingsUI : AppCompatActivity() {
                 apply()
             }
 
-            exitProcess(-10)
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Clear the back stack
+            startActivity(intent)
         }
 
         val isNotificationsEnabled = sharedPreferences.getBoolean("notifications_enabled", true)
