@@ -92,6 +92,12 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
 
+    <string name="SignInStart" translatable="false">Already have an account?     Sign in</string>
+    <string name="MMSlogan" translatable="false">For the Love of Music</string>
+    <string name="music_match" translatable="false">Music Match</string>
+    <string name="sign_up" translatable="false">Sign Up</string>
+    <string name="sign_up_with_google" translatable="false">Sign Up with Google</string>
+
     <!--Reilly Mare strings -->
 
 </resources>

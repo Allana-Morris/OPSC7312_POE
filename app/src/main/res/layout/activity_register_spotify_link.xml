@@ -23,21 +23,7 @@
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/vSpotify"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <Button
-        android:id="@+id/btnspotifysearch"
-        android:layout_width="193dp"
-        android:layout_height="55dp"
-        android:layout_marginTop="172dp"
-        android:backgroundTint="@color/light_green"
-        android:fontFamily="@font/circular_black"
-        android:text="@string/search"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtAccountSearch" />
+        app:layout_constraintVertical_bias="0.788" />
 
     <ImageView
         android:id="@+id/imgSpotifyIcon"
@@ -64,18 +50,18 @@
 
     <View
         android:id="@+id/vSpotify"
-        android:layout_width="311dp"
-        android:layout_height="282dp"
-        android:layout_marginTop="28dp"
+        android:layout_width="324dp"
+        android:layout_height="321dp"
+        android:layout_marginTop="196dp"
         android:background="@color/dark_green"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnspotifysearch" />
+        app:layout_constraintTop_toBottomOf="@+id/txtAccountSearch" />
 
     <ImageView
         android:id="@+id/imgAccountPP"
-        android:layout_width="172dp"
-        android:layout_height="180dp"
+        android:layout_width="179dp"
+        android:layout_height="193dp"
         app:layout_constraintBottom_toBottomOf="@+id/vSpotify"
         app:layout_constraintEnd_toEndOf="@+id/vSpotify"
         app:layout_constraintHorizontal_bias="0.142"
@@ -102,11 +88,12 @@
         android:id="@+id/txtSpotifyAccount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="20dp"
         android:fontFamily="@font/circular_black"
         android:textColor="@color/black"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="@+id/imgAccountPP"
+        app:layout_constraintHorizontal_bias="0.488"
         app:layout_constraintStart_toStartOf="@+id/imgAccountPP"
         app:layout_constraintTop_toBottomOf="@+id/imgAccountPP" />
 </androidx.constraintlayout.widget.ConstraintLayout>

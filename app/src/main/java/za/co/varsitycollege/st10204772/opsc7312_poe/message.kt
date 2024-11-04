@@ -6,14 +6,15 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "messages")
 class Message {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    @PrimaryKey()
+    var id: String = ""
 
     var fromUid: String? = null
     var toUid: String? = null
     var content: String? = null
     var timeStamp: String? = null
     var type: String? = null
+    var fcmToken: String? = null
 }
 
 
