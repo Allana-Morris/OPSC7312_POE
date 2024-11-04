@@ -16,7 +16,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: '11'  # Specify your JDK version
+          java-version: '17'  # Specify your JDK version
           distribution: 'adopt'
 
       - name: Grant execute permissions
